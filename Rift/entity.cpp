@@ -169,8 +169,8 @@ rift::Entity::ID rift::EntityManager::accommodate_entity() noexcept
 	auto index_number = bitmasks.size();
 	bitmasks.push_back(BitMask(Entity::ID(index_number, 1)));
 	for (auto pool : component_pools) {
-		pool->allocate(1);
-		assert(pool->size() == bitmasks.size());
+		pool.second->allocate(1);
+		assert(pool.second->size() == bitmasks.size());
 	}
 	return bitmasks.back().id;
 }

@@ -2,11 +2,11 @@
 
 #include <queue>
 #include <memory>
-#include <vector>
 #include <assert.h>
 #include <functional>
 #include "util/pool.h"
 #include "component.h"
+#include <unordered_map>
 #include "details/config.h"
 
 namespace rift {
@@ -187,7 +187,7 @@ namespace rift {
 		std::queue<Entity::ID> reusable_ids;
 
 		// The pools of components
-		std::vector<std::shared_ptr<BasePool>> component_pools;
+		std::unordered_map<ComponentFamily, std::shared_ptr<BasePool>> component_pools;
 	};
 
 	template<class C, class ...Args>
@@ -291,13 +291,13 @@ namespace rift {
 	template<class C>
 	inline bool EntityManager::has_pool_for() const noexcept
 	{
-		return C::family() < component_pools.size();
+		return component_pools.find(C::family()) != component_pools.end();
 	}
 
 	template<class C>
 	inline void EntityManager::create_pool_for(std::size_t size) noexcept
 	{
-		component_pools.resize(C::family() + 1);
-		component_pools.at(C::family()) = std::make_shared<Pool<C>>(size);
+		component_pools.insert(std::make_pair(C::family(), std::make_shared<C>(size)));
 	}
+
 }
