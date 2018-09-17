@@ -25,7 +25,8 @@ namespace rift {
 		static SystemFamily m_family;
 	};
 
-	// Subclasses should inherit from this class
+	// The System class
+	// Any class intended to be a system should inherit from this class
 	// example:
 	// class MovementSystem : public System<MovementSystem> {}
 	//
@@ -43,7 +44,8 @@ namespace rift {
 		}
 	};
 
-	// Manages a bunch of systems
+	// Responsible for the management of a single instance of any system type
+	// All Systems managed by a rift::SystemManager must subclass rift::System
 	class SystemManager final {
 	public:
 
