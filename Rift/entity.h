@@ -291,12 +291,13 @@ namespace rift {
 	template<class C>
 	inline bool EntityManager::has_pool_for() const noexcept
 	{
-		return C::family() >= component_pools.size();
+		return C::family() < component_pools.size();
 	}
 
 	template<class C>
 	inline void EntityManager::accommodate_for(std::size_t size) noexcept
 	{
-		component_pools.push_back(std::make_shared<Pool<C>>(size));
+		component_pools.resize(C::family() + 1);
+		component_pools.at(C::family()) = std::make_shared<Pool<C>>(size);
 	}
 }
