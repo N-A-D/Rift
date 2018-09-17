@@ -176,7 +176,7 @@ namespace rift {
 
 		// Creates a component pool for type C where size indicates how many components to allocate
 		template <class C>
-		void accommodate_for(std::size_t size) noexcept;
+		void create_pool_for(std::size_t size) noexcept;
 
 	private:
 
@@ -264,7 +264,7 @@ namespace rift {
 	template<class C, class ...Args>
 	inline void EntityManager::add(Entity::ID id, Args && ...args) noexcept
 	{
-		if (!has_pool_for<C>()) { accommodate_entity<C>(bitmasks.size()); }
+		if (!has_pool_for<C>()) { create_pool_for<C>(bitmasks.size()); }
 		bitmasks[id.index()].component_list.set(C::family());
 		auto pool_ptr = std::static_pointer_cast<Pool<C>>(component_pools.at(C::family()));
 		pool_ptr->at(id.index()) = C(std::forward<Args>(args)...);
@@ -295,7 +295,7 @@ namespace rift {
 	}
 
 	template<class C>
-	inline void EntityManager::accommodate_for(std::size_t size) noexcept
+	inline void EntityManager::create_pool_for(std::size_t size) noexcept
 	{
 		component_pools.resize(C::family() + 1);
 		component_pools.at(C::family()) = std::make_shared<Pool<C>>(size);
