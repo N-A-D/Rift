@@ -18,7 +18,7 @@ namespace rift {
 	public:
 
 		// The core of an Entity is the Entity::ID
-		// The Entity::ID maps to an EntityManager::BitMask that indicates which components are owned by the Entity
+		// The Entity::ID maps to an EntityManager::EntityRecord that indicates which components are owned by the Entity
 		// The Entity::ID determines the lifespan of an Entity and its components through its version
 		// The different component types are arranged in contiguous pools in parallel fashion. The Entity::ID is used
 		// to index into these pools to find the components that belong to the Entity.
@@ -45,14 +45,8 @@ namespace rift {
 		bool valid() const noexcept;
 		operator bool() const noexcept;
 		
-		// Primes the entity's Entity::ID for invalidation along with any other Entity that happens 
-		// to have the same Entity::ID as this Entity
-		// Note: This entity, and any other identical entity, is still valid to use in the current frame 
-		// but will not be in the next
-		void invalidate() const noexcept;
-
-		// Checks if this entity's Entity::ID is pending invalidation
-		bool is_pending_invalidation() const noexcept;
+		// Invalidate this entity and all other entities that share the same Entity::ID
+		void destroy() const noexcept;
 
 		// Fetch the entity's ComponentMask
 		rift::ComponentMask component_mask() const noexcept;
@@ -83,7 +77,7 @@ namespace rift {
 		// Only EntityManagers are permitted to create valid entity handles
 		Entity(EntityManager *em, Entity::ID id);
 	
-		// A copy of the master Entity::ID managed by an EntityManager::BitMask
+		// A copy of the master Entity::ID owned by the associated EntityManager::EntityRecord
 		Entity::ID m_id;
 		
 		// The manager responsible for creating this Entity
@@ -101,28 +95,29 @@ namespace rift {
 	class EntityManager {
 	public:
 
-		// Maps assigned components to a master Entity::ID
-		class BitMask {
+		EntityManager();
+		EntityManager(const EntityManager&) = delete;
+		EntityManager& operator=(const EntityManager&) = delete;
+
+		// Handles the book keeping for an Entity::ID (Component management and Entity handle life span)
+		// Whenever an Entity handle is destroyed, the associated EntityRecord ensures
+		// that all copies of that Entity are also now invalid
+		class EntityRecord {
 		public:
-			BitMask();
-			BitMask(rift::Entity::ID id);
+			EntityRecord();
+			EntityRecord(rift::Entity::ID id);
 			// Returns a new version of the master id
-			Entity::ID refresh() noexcept;
+			Entity::ID refresh_id() noexcept;
 		private:
 			friend class EntityManager;
-			// An indicator as to whether or not the id is to be refreshed
-			bool pending_refresh;
 			// The master id that owns components given in component_list
-			rift::Entity::ID id;
+			rift::Entity::ID entity_id;
 			// The bitmask of components currently assigned to the master entity_id
 			rift::ComponentMask component_list;
 		};
 
 		// Generate a new entity
 		Entity create_entity() noexcept;
-
-		// Invalidates all Entity::IDs whose master id has been refreshed
-		void update() noexcept;
 
 		// Returns the number of Entity::IDs that associate with an instance of each component type
 		// Note: When Component type parameters are not supplied, the returned value indicates
@@ -159,14 +154,11 @@ namespace rift {
 		// Checks if the id is of the same version as its master Entity::ID
 		bool valid_id(Entity::ID id) const noexcept;
 
-		// Mark the id's master as pending for refresh
-		void mark_for_refresh(Entity::ID id) noexcept;
+		// Invalidate id and all copies of it by refreshing the EntityRecord id maps to
+		void invalidate_id(Entity::ID id) noexcept;
 
-		// Checks if id's master is pending refresh
-		bool is_pending_refresh(Entity::ID id) noexcept;
-
-		// Allocates a new BitMask and return a copy of the master Entity::ID contained in it
-		Entity::ID accommodate_entity() noexcept;
+		// Returns the Entity::ID for a newly created EntityManager::EntityRecord object
+		Entity::ID allocate_entity_record() noexcept;
 		
 		// Returns the ComponentMask associated with the master Entity::ID of id
 		ComponentMask component_mask(Entity::ID id) const noexcept;
@@ -181,8 +173,8 @@ namespace rift {
 
 	private:
 
-		// The collection of BitMasks
-		std::vector<BitMask> bitmasks;
+		// The collection of EntityRecords
+		std::vector<EntityRecord> entity_records;
 		
 		// The queue of reusable Entity::IDs
 		std::queue<Entity::ID> reusable_ids;
@@ -227,15 +219,15 @@ namespace rift {
 		auto mask = util::mask_for<Components...>();
 		std::size_t count = 0;
 		if (mask == 0) {
-			for (auto bitmask : bitmasks) {
-				if (bitmask.component_list == 0) {
+			for (auto entity_record : entity_records) {
+				if (entity_record.component_list == 0) {
 					++count;
 				}
 			}
 		}
 		else {
-			for (auto bitmask : bitmasks) {
-				if (bitmask.component_list != 0 && (bitmask.component_list & mask) == mask) {
+			for (auto entity_record : entity_records) {
+				if (entity_record.component_list != 0 && (entity_record.component_list & mask) == mask) {
 					++count;
 				}
 			}
@@ -247,16 +239,16 @@ namespace rift {
 	{
 		auto mask = util::mask_for<Components...>();
 		if (mask == 0) {
-			for (auto bitmask : bitmasks) {
-				if (bitmask.component_list == 0) {
-					fun(Entity(this, bitmask.id));
+			for (auto entity_record : entity_records) {
+				if (entity_record.component_list == 0) {
+					fun(Entity(this, entity_record.entity_id));
 				}
 			}
 		}
 		else {
-			for (auto bitmask : bitmasks) {
-				if (bitmask.component_list != 0 && (bitmask.component_list & mask) == mask) {
-					fun(Entity(this, bitmask.id));
+			for (auto entity_record : entity_records) {
+				if (entity_record.component_list != 0 && (entity_record.component_list & mask) == mask) {
+					fun(Entity(this, entity_record.entity_id));
 				}
 			}
 		}
@@ -265,22 +257,21 @@ namespace rift {
 	template<class C, class ...Args>
 	inline void EntityManager::add(Entity::ID id, Args && ...args) noexcept
 	{
-		if (!has_pool_for<C>()) { create_pool_for<C>(bitmasks.size()); }
-		bitmasks[id.index()].component_list.set(C::family());
-		auto pool_ptr = std::static_pointer_cast<Pool<C>>(component_pools.at(C::family()));
-		pool_ptr->at(id.index()) = C(std::forward<Args>(args)...);
+		if (!has_pool_for<C>()) { create_pool_for<C>(entity_records.size()); }
+		entity_records.at(id.index()).component_list.set(C::family());
+		std::static_pointer_cast<Pool<C>>(component_pools.at(C::family()))->at(id.index()) = C(std::forward<Args>(args)...);
 	}
 
 	template<class C>
 	inline void EntityManager::remove(Entity::ID id) noexcept
 	{
-		bitmasks[id.index()].component_list.reset(C::family());
+		entity_records.at(id.index()).component_list.reset(C::family());
 	}
 
 	template<class C>
 	inline bool EntityManager::has(Entity::ID id) noexcept
 	{
-		return bitmasks[id.index()].component_list.test(C::family());
+		return entity_records.at(id.index()).component_list.test(C::family());
 	}
 
 	template<class C>

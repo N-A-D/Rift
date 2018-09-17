@@ -53,32 +53,16 @@ rift::Entity::operator bool() const noexcept
 	return valid();
 }
 
-void rift::Entity::invalidate() const noexcept
+void rift::Entity::destroy() const noexcept
 {
-	assert(valid() && "Cannot invalidate an already invalid entity");
-	mgr->mark_for_refresh(m_id);
-}
-
-bool rift::Entity::is_pending_invalidation() const noexcept
-{
-	assert(valid() && "Cannot check if an invalid entity is pending refresh");
-	return mgr->is_pending_refresh(m_id);
+	assert(valid() && "Cannot destroy an invalid entity");
+	mgr->invalidate_id(m_id);
 }
 
 rift::ComponentMask rift::Entity::component_mask() const noexcept
 {
 	assert(valid() && "Cannot fetch the component mask of an invalid entity");
 	return mgr->component_mask(m_id);
-}
-
-bool rift::operator==(const rift::Entity & a, const rift::Entity & b) noexcept
-{
-	return a.mgr == b.mgr && a.id() == b.id();
-}
-
-bool rift::operator!=(const rift::Entity & a, const rift::Entity & b) noexcept
-{
-	return !(a == b);
 }
 
 bool rift::operator<(const rift::Entity::ID & a, const rift::Entity::ID & b) noexcept
@@ -111,19 +95,35 @@ bool rift::operator>(const rift::Entity & a, const rift::Entity & b) noexcept
 	return b.id() < a.id();
 }
 
-rift::EntityManager::BitMask::BitMask()
-	: pending_refresh(false), id(), component_list(0)
+bool rift::operator==(const rift::Entity & a, const rift::Entity & b) noexcept
+{
+	return a.mgr == b.mgr && a.id() == b.id();
+}
+
+bool rift::operator!=(const rift::Entity & a, const rift::Entity & b) noexcept
+{
+	return !(a == b);
+}
+
+rift::EntityManager::EntityRecord::EntityRecord()
+	: entity_id()
+	, component_list(0)
 {
 }
 
-rift::EntityManager::BitMask::BitMask(rift::Entity::ID id)
-	: pending_refresh(false), id(id), component_list(0)
+rift::EntityManager::EntityRecord::EntityRecord(rift::Entity::ID id)
+	: entity_id(id)
+	, component_list(0)
 {
 }
 
-rift::Entity::ID rift::EntityManager::BitMask::refresh() noexcept
+rift::Entity::ID rift::EntityManager::EntityRecord::refresh_id() noexcept
 {
-	component_list = 0; return id.renew();
+	component_list = 0; return entity_id.renew();
+}
+
+rift::EntityManager::EntityManager()
+{
 }
 
 rift::Entity rift::EntityManager::create_entity() noexcept
@@ -134,48 +134,32 @@ rift::Entity rift::EntityManager::create_entity() noexcept
 		return Entity(this, id);
 	}
 	else {
-		return Entity(this, accommodate_entity());
-	}
-}
-
-void rift::EntityManager::update() noexcept
-{
-	for (auto bitmask : bitmasks) {
-		if (bitmask.pending_refresh) {
-			reusable_ids.push(bitmask.refresh());
-			bitmask.pending_refresh = false;
-		}
+		return Entity(this, allocate_entity_record());
 	}
 }
 
 bool rift::EntityManager::valid_id(Entity::ID id) const noexcept
 {
-	return bitmasks[id.index()].id == id;
+	return entity_records.at(id.index()).entity_id == id;
 }
 
-void rift::EntityManager::mark_for_refresh(Entity::ID id) noexcept
+void rift::EntityManager::invalidate_id(Entity::ID id) noexcept
 {
-	if (!bitmasks[id.index()].pending_refresh)
-		bitmasks[id.index()].pending_refresh = true;
+	reusable_ids.push(entity_records.at(id.index()).refresh_id());
 }
 
-bool rift::EntityManager::is_pending_refresh(Entity::ID id) noexcept
+rift::Entity::ID rift::EntityManager::allocate_entity_record() noexcept
 {
-	return bitmasks[id.index()].pending_refresh;
-}
-
-rift::Entity::ID rift::EntityManager::accommodate_entity() noexcept
-{
-	auto index_number = bitmasks.size();
-	bitmasks.push_back(BitMask(Entity::ID(index_number, 1)));
+	auto index_number = entity_records.size();
+	entity_records.push_back(EntityRecord(Entity::ID(index_number, 1)));
 	for (auto pool : component_pools) {
 		pool.second->allocate(1);
-		assert(pool.second->size() == bitmasks.size());
+		assert(pool.second->size() == entity_records.size());
 	}
-	return bitmasks.back().id;
+	return entity_records.back().entity_id;
 }
 
 rift::ComponentMask rift::EntityManager::component_mask(Entity::ID id) const noexcept
 {
-	return bitmasks[id.index()].component_list;
+	return entity_records.at(id.index()).component_list;
 }
