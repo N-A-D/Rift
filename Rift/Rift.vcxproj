@@ -118,6 +118,7 @@
     <ClInclude Include="component.h" />
     <ClInclude Include="details\config.h" />
     <ClInclude Include="entity.h" />
+    <ClInclude Include="rift.h" />
     <ClInclude Include="system.h" />
     <ClInclude Include="util\pool.h" />
   </ItemGroup>

@@ -30,6 +30,9 @@
     <ClInclude Include="component.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="rift.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="entity.cpp">
