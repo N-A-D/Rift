@@ -297,7 +297,7 @@ namespace rift {
 	template<class C>
 	inline void EntityManager::create_pool_for(std::size_t size) noexcept
 	{
-		component_pools.insert(std::make_pair(C::family(), std::make_shared<C>(size)));
+		component_pools.emplace(C::family(), std::make_shared<Pool<C>>(size));
 	}
 
 }
