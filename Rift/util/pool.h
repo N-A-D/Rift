@@ -21,6 +21,7 @@ namespace rift {
 
 		Pool() {}
 
+		// Create a new Object pool is size objects preallocated
 		Pool(std::size_t size)
 			: objects(size, T()) {}
 
@@ -42,6 +43,7 @@ namespace rift {
 			return objects.at(index);
 		}
 		
+		// Return the number of allocated objects
 		std::size_t size() override { 
 			return objects.size(); 
 		}
