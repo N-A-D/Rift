@@ -45,8 +45,10 @@ namespace rift {
 		bool valid() const noexcept;
 		operator bool() const noexcept;
 		
-		// Primes the entity's Entity::ID for invalidation along with any other Entity that happens to have the same Entity::ID as this Entity
-		// Note: This entity, and any other identical entity, is still valid to use in the current frame but will not be in the next
+		// Primes the entity's Entity::ID for invalidation along with any other Entity that happens 
+		// to have the same Entity::ID as this Entity
+		// Note: This entity, and any other identical entity, is still valid to use in the current frame 
+		// but will not be in the next
 		void invalidate() const noexcept;
 
 		// Checks if this entity's Entity::ID is pending invalidation
@@ -110,7 +112,7 @@ namespace rift {
 			friend class EntityManager;
 			// An indicator as to whether or not the id is to be refreshed
 			bool pending_refresh;
-			// The master id that owns components defined in component_list
+			// The master id that owns components given in component_list
 			rift::Entity::ID id;
 			// The bitmask of components currently assigned to the master entity_id
 			rift::ComponentMask component_list;
@@ -128,12 +130,11 @@ namespace rift {
 		template <class ...Components>
 		std::size_t count_entities_with() const noexcept;
 
-		// The function is applies 'fun' onto Entity(s) whose Entity::ID associates with an instance of each component type
+		// The function applies 'fun' onto Entity(s) whose Entity::ID associates with an instance of each component type
 		// Note: When the Component type parameters are not supplied, the function 'fun' is applied onto Entity(s) whose
 		// Entity::ID does not associate with an instance of any of the component types
 		template <class ...Components>
 		void entities_with(std::function<void(const Entity&)>&& fun) noexcept;
-
 
 	private:
 
