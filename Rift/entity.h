@@ -232,6 +232,7 @@ namespace rift {
 				}
 			}
 		}
+		return count;
 	}
 
 	template<class ...Components>
