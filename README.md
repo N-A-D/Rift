@@ -1,2 +1,2 @@
 # Rift
-A small entity component system
+A small C++11 entity component system
