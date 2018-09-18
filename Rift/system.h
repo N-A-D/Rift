@@ -98,27 +98,27 @@ namespace rift {
 	inline void SystemManager::add(Args && ...args)
 	{
 		assert(!has<S>() && "The system manager already manages a system of type S.");
-		systems.insert(std::make_pair(S::system_id(), std::make_shared<S>(std::forward<Args>(args)...)));
+		systems.insert(std::make_pair(S::family(), std::make_shared<S>(std::forward<Args>(args)...)));
 	}
 
 	template<class S>
 	inline void SystemManager::remove()
 	{
 		assert(has<S>() && "The system manager does not manage a system of type S.");
-		systems.erase(S::system_id());
+		systems.erase(S::family());
 	}
 
 	template<class S>
 	inline bool SystemManager::has()
 	{
-		return systems.find(S::system_id()) != systems.end();
+		return systems.find(S::family()) != systems.end();
 	}
 
 	template<class S>
 	inline std::shared_ptr<S> SystemManager::get()
 	{
 		return systems.find(S::system_id()) != systems.end() 
-			   ? std::static_pointer_cast<S>(systems.at(S::system_id())) 
+			   ? std::static_pointer_cast<S>(systems.at(S::family()))
 			   : std::shared_ptr<S>(nullptr);
 	}
 }
