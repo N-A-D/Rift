@@ -9,8 +9,8 @@ namespace rift {
 	class BasePool {
 	public:
 		virtual ~BasePool() {}
-		virtual std::size_t size() = 0;
-		virtual void allocate(std::size_t slots) = 0;
+		virtual std::size_t size() noexcept = 0;
+		virtual void allocate(std::size_t slots) noexcept = 0;
 	};
 
 	// The Pool class
@@ -26,7 +26,7 @@ namespace rift {
 			: objects(size, T()) {}
 
 		// Allocates slots many objects
-		void allocate(std::size_t slots) override {
+		void allocate(std::size_t slots) noexcept override {
 			for (std::size_t i = 0; i < slots; i++)
 				objects.push_back(T());
 		}
@@ -44,7 +44,7 @@ namespace rift {
 		}
 		
 		// Return the number of allocated objects
-		std::size_t size() override { 
+		std::size_t size() noexcept override {
 			return objects.size(); 
 		}
 
