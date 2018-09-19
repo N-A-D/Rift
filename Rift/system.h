@@ -38,7 +38,7 @@ namespace rift {
 		virtual ~System() {}
 
 		// Returns the System type id
-		static SystemFamily family() {
+		static SystemFamily family() noexcept {
 			static SystemFamily system_family = m_family++;
 			return system_family;
 		}
@@ -58,7 +58,7 @@ namespace rift {
 		// sys_mgr.add<MovementSystem>();
 		// 
 		template <class S, class... Args>
-		void add(Args&& ...args);
+		void add(Args&& ...args) noexcept;
 
 		// Removes a managed system if any
 		// example:
@@ -66,7 +66,7 @@ namespace rift {
 		// sys_mgr.remove<MovementSystem>();
 		//
 		template <class S>
-		void remove();
+		void remove() noexcept;
 
 		// Checks if the manager has a system S
 		// example:
@@ -75,7 +75,7 @@ namespace rift {
 		// bool has = sm.has<MovementSystem>();
 		// 
 		template <class S>
-		bool has();
+		bool has() noexcept;
 
 		// Retrieves the system of type S if any
 		// example:
@@ -85,7 +85,7 @@ namespace rift {
 		// if (ms) {}
 		//
 		template <class S>
-		std::shared_ptr<S> get();
+		std::shared_ptr<S> get() noexcept;
 
 		// Updates all systems
 		void update(EntityManager& em, double dt);
@@ -95,27 +95,27 @@ namespace rift {
 	};
 
 	template<class S, class ...Args>
-	inline void SystemManager::add(Args && ...args)
+	inline void SystemManager::add(Args && ...args) noexcept
 	{
 		assert(!has<S>() && "The system manager already manages a system of type S.");
 		systems.insert(std::make_pair(S::family(), std::make_shared<S>(std::forward<Args>(args)...)));
 	}
 
 	template<class S>
-	inline void SystemManager::remove()
+	inline void SystemManager::remove() noexcept
 	{
 		assert(has<S>() && "The system manager does not manage a system of type S.");
 		systems.erase(S::family());
 	}
 
 	template<class S>
-	inline bool SystemManager::has()
+	inline bool SystemManager::has() noexcept
 	{
 		return systems.find(S::family()) != systems.end();
 	}
 
 	template<class S>
-	inline std::shared_ptr<S> SystemManager::get()
+	inline std::shared_ptr<S> SystemManager::get() noexcept
 	{
 		return systems.find(S::system_id()) != systems.end() 
 			   ? std::static_pointer_cast<S>(systems.at(S::family()))
