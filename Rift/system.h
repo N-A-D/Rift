@@ -53,6 +53,10 @@ namespace rift {
 		SystemManager();
 
 		// Adds a new managed system
+		// Note: Only one system per system type can be managed by any one system 
+		// manager. If a given system manager already manages a system of type S, 
+		// then if another or the same caller were to add another system of the 
+		// same type as S, then that system will replace the currently managed system
 		// example:
 		// SystemManager sys_mgr(entity_manager);
 		// sys_mgr.add<MovementSystem>();
@@ -97,7 +101,6 @@ namespace rift {
 	template<class S, class ...Args>
 	inline void SystemManager::add(Args && ...args) noexcept
 	{
-		assert(!has<S>() && "The system manager already manages a system of type S.");
 		systems.insert(std::make_pair(S::family(), std::make_shared<S>(std::forward<Args>(args)...)));
 	}
 
