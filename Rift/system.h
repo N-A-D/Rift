@@ -26,7 +26,7 @@ namespace rift {
 	};
 
 	// The System class
-	// Any class intended to be a system should inherit from this class
+	// Classes that are meant to be systems should inherit from this class.
 	// example:
 	// class MovementSystem : public System<MovementSystem> {}
 	//
