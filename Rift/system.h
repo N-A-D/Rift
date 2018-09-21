@@ -14,8 +14,6 @@ namespace rift {
 	// Note: Should not  really be used directly
 	class BaseSystem {
 	public:
-
-		// To allow destruction
 		virtual ~BaseSystem();
 
 		// Where derived systems implement their logic
@@ -33,8 +31,6 @@ namespace rift {
 	template <class Derived>
 	class System : public BaseSystem {
 	public:
-
-		// To allow destruction
 		virtual ~System() {}
 
 		// Returns the System type id
