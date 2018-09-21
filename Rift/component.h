@@ -22,8 +22,9 @@ namespace rift {
 	// example:
 	// struct PositionComponent : public Component<PositionComponent> {
 	//     PositionComponent() : x(x), y(y) {} // Default ctor
-	//     PositionComponent(int x, int y) : x(x), y(y) {}
-	// }
+	//     PositionComponent(double x, double y) : x(x), y(y) {}
+	//     double x, y;
+	// };
 	template <class Derived>
 	class Component : public BaseComponent {
 	public:
