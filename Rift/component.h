@@ -6,9 +6,9 @@
 namespace rift {
 	
 	using ComponentFamily = std::size_t;
-	
-	// Base component class from which every component inherits form
-	// Note: this class should not but subclassed
+
+	// The BaseComponent class
+	// Note: this class should not but subclassed directly as components need to be registered
 	class BaseComponent {
 	public:
 		virtual ~BaseComponent();
@@ -17,8 +17,9 @@ namespace rift {
 	};
 	
 	// The Component class
-	// Classes that are meant to be components inherit from this class
-	// Note: Derived classes must implement a default constructor
+	// Classes that are meant to be components must inherit from this class for registration as a 'component'
+	// Note: 
+	// Derived classes must implement a default constructor
 	// as well as  a constructor that initializing its member variables
 	// example:
 	// struct PositionComponent : public Component<PositionComponent> {
@@ -39,6 +40,7 @@ namespace rift {
 	};
 
 	namespace util {
+
 		// Given a template parameter pack of Component types, this function returns the combined ComponentMask
 		// example: ComponentMask mask = mask_for<Position, Velocity, Direction>();
 		template <class ...Components>
