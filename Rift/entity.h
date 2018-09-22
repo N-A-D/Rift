@@ -116,7 +116,7 @@ namespace rift {
 			rift::ComponentMask component_list;
 		};
 
-		// Generate a new entity
+		// Generate a new EntityManager::EntityRecord and return a handle to its Entity::ID
 		Entity create_entity() noexcept;
 
 		// Returns the number of Entity::IDs that associate with an instance of each component type
