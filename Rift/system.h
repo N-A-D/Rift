@@ -11,7 +11,7 @@ namespace rift {
 
 	// BaseSystem class
 	// Defines the means for which all systems implement their logic
-	// Note: Should not  really be used directly
+	// Note: Should not really be used directly
 	class BaseSystem {
 	public:
 		virtual ~BaseSystem();
@@ -24,7 +24,7 @@ namespace rift {
 	};
 
 	// The System class
-	// Classes that are meant to be systems should inherit from this class.
+	// Classes that are meant to be systems must inherit from this class for registration as a 'system'
 	// example:
 	// class MovementSystem : public System<MovementSystem> {}
 	//
