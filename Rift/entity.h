@@ -127,7 +127,7 @@ namespace rift {
 
 		// The function applies 'fun' onto Entity(s) whose Entity::ID associates with an instance of each component type
 		// given as a template parameter.
-		// Note: When the Component type parameters are not supplied, the function 'fun' is applied onto Entity(s) whose
+		// Note: When Component type parameters are not supplied, the function 'fun' is applied onto Entity(s) whose
 		// Entity::ID does not associate with an instance of any existing component types
 		template <class ...Components>
 		void entities_with(std::function<void(const Entity&)>&& fun) noexcept;
