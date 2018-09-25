@@ -52,7 +52,7 @@ namespace rift {
 		// Note: Only one system per system type can be managed by any one system 
 		// manager. If a given system manager already manages a system of type S, 
 		// then if another or the same caller were to add another system of the 
-		// same type as S, then that system will replace the currently managed system
+		// same type S, then that system will replace the currently managed system
 		// example:
 		// SystemManager sys_mgr(entity_manager);
 		// sys_mgr.add<MovementSystem>();
