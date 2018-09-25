@@ -52,6 +52,8 @@ namespace rift {
 		rift::ComponentMask component_mask() const noexcept;
 
 		// Adds a component of type C to the entity's list of components
+		// Note: if the entity already owns a component of type C, 
+		// then that component is overwritten by the new component created in this function call.
 		template <class C, class ...Args>
 		void add(Args&& ...args) const noexcept;
 
