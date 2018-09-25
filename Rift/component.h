@@ -20,7 +20,7 @@ namespace rift {
 	// Classes that are meant to be components must inherit from this class for registration as a 'component'
 	// Note: 
 	// Derived classes must implement a default constructor
-	// as well as  a constructor that initializing its member variables
+	// as well as a constructor that initializes ALL of its member variables
 	// example:
 	// struct PositionComponent : public Component<PositionComponent> {
 	//     PositionComponent() : x(x), y(y) {} // Default ctor
