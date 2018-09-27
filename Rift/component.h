@@ -41,7 +41,7 @@ namespace rift {
 
 	namespace util {
 
-		// Given a template parameter pack of Component types, this function returns the combined ComponentMask
+		// Given a template parameter pack of Component types, this function returns the ComponentMask for those types
 		// example: ComponentMask mask = mask_for<Position, Velocity, Direction>();
 		template <class ...Components>
 		ComponentMask mask_for() noexcept {
