@@ -54,7 +54,7 @@ namespace rift {
 		// then if another or the same caller were to add another system of the 
 		// same type S, then that system will replace the currently managed system
 		// example:
-		// SystemManager sys_mgr(entity_manager);
+		// SystemManager sys_mgr();
 		// sys_mgr.add<MovementSystem>();
 		// 
 		template <class S, class... Args>
@@ -62,7 +62,7 @@ namespace rift {
 
 		// Removes a managed system if any
 		// example:
-		// SystemManager sys_mgr(entity_manager);
+		// SystemManager sys_mgr();
 		// sys_mgr.remove<MovementSystem>();
 		//
 		template <class S>
@@ -79,7 +79,7 @@ namespace rift {
 
 		// Retrieves the system of type S if any
 		// example:
-		// SystemManager sm(em);
+		// SystemManager sm();
 		// sm.add<MovementSystem>();
 		// std::shared_ptr<MovementSystem> ms = sm.get<MovementSystem>();
 		// if (ms) {}
