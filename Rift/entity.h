@@ -18,11 +18,11 @@ namespace rift {
 	class Entity {
 	public:
 
-		// The core of an Entity is the Entity::ID
-		// The Entity::ID maps to an EntityManager::EntityRecord that indicates which components are owned by the Entity
-		// The Entity::ID determines the lifespan of an Entity and its components through its version
-		// The different component types are arranged in contiguous pools in parallel fashion. The Entity::ID is used
-		// as an index into these pools to find the components that belong to the Entity.
+		// The concept of an 'entity' is the Entity::ID
+		// Notes:
+		// - An Entity::ID associates with an EntityManager::EntityRecord which contains the list components owned by the Entity::ID
+		// - An Entity::ID determines the lifespan of an Entity handle and its components through its version
+		// - Components are arranged as parallel arrays and the Entity::ID serves as an index into those arrays
 		class ID {
 		public:
 			ID();
@@ -104,9 +104,9 @@ namespace rift {
 		EntityManager(const EntityManager&) = delete;
 		EntityManager& operator=(const EntityManager&) = delete;
 
-		// Handles the book keeping for an Entity::ID (Component management and Entity handle life span)
-		// Whenever an Entity handle is destroyed, the associated EntityRecord ensures
-		// that all copies of that Entity are also now invalid
+		// Handles the book keeping for an Entity::ID (Component management and Entity handle lifespans)
+		// Whenever an Entity handle is destroyed, the associated EntityRecord ensures that all copies of 
+		// that Entity are also now invalid by refreshing its master Entity::ID value
 		class EntityRecord {
 		public:
 			EntityRecord();
@@ -121,7 +121,7 @@ namespace rift {
 			rift::ComponentMask component_list;
 		};
 
-		// Generate a new EntityManager::EntityRecord and return a handle to its Entity::ID
+		// Generate a new EntityManager::EntityRecord and return an Entity as a handle to its Entity::ID
 		Entity create_entity() noexcept;
 
 		// Returns the number of Entity::IDs that associate with an instance of each component type
