@@ -11,7 +11,7 @@ namespace rift {
 
 	// BaseSystem class
 	// Defines the means for which all systems implement their logic
-	// Note: Should not really be used directly
+	// Note: this class should not be subclassed directly as systems need to be registered... See the System class. 
 	class BaseSystem {
 	public:
 		virtual ~BaseSystem();
