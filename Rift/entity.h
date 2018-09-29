@@ -12,8 +12,9 @@
 namespace rift {
 
 	class EntityManager;
-
-	// An Entity is a handle to an Entity::ID
+	
+        // The Entity class
+	// a wrapper for an Entity::ID
 	class Entity {
 	public:
 
@@ -21,7 +22,7 @@ namespace rift {
 		// The Entity::ID maps to an EntityManager::EntityRecord that indicates which components are owned by the Entity
 		// The Entity::ID determines the lifespan of an Entity and its components through its version
 		// The different component types are arranged in contiguous pools in parallel fashion. The Entity::ID is used
-		// to index into these pools to find the components that belong to the Entity.
+		// as an index into these pools to find the components that belong to the Entity.
 		class ID {
 		public:
 			ID();
@@ -93,7 +94,9 @@ namespace rift {
 
 	bool operator<(const rift::Entity& a, const rift::Entity& b) noexcept;
 	bool operator>(const rift::Entity& a, const rift::Entity& b) noexcept;
-
+	
+	// The EntityManager class
+	// Responsible for the management of Entity::IDs
 	class EntityManager {
 	public:
 

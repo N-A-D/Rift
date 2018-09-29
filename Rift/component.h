@@ -8,7 +8,7 @@ namespace rift {
 	using ComponentFamily = std::size_t;
 
 	// The BaseComponent class
-	// Note: this class should not but subclassed directly as components need to be registered
+	// Note: this class should not but subclassed directly as components need to be registered... See the Component class.
 	class BaseComponent {
 	public:
 		virtual ~BaseComponent();
@@ -41,7 +41,7 @@ namespace rift {
 
 	namespace util {
 
-		// Given a template parameter pack of Component types, this function returns the combined ComponentMask
+		// Given a template parameter pack of Component types, this function returns the ComponentMask for those types
 		// example: ComponentMask mask = mask_for<Position, Velocity, Direction>();
 		template <class ...Components>
 		ComponentMask mask_for() noexcept {
