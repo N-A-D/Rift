@@ -13,7 +13,7 @@ namespace rift {
 
 	class EntityManager;
 
-	// An Entity is a handle to an Entity::ID
+	// An Entity is a handle for an Entity::ID
 	class Entity {
 	public:
 
