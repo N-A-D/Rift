@@ -12,8 +12,9 @@
 namespace rift {
 
 	class EntityManager;
-
-	// An Entity is a handle for an Entity::ID
+	
+        // The Entity class
+	// a wrapper for an Entity::ID
 	class Entity {
 	public:
 
@@ -93,7 +94,9 @@ namespace rift {
 
 	bool operator<(const rift::Entity& a, const rift::Entity& b) noexcept;
 	bool operator>(const rift::Entity& a, const rift::Entity& b) noexcept;
-
+	
+	// The EntityManager class
+	// Responsible for the management of Entity::IDs
 	class EntityManager {
 	public:
 
