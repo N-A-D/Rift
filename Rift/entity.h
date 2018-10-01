@@ -14,7 +14,7 @@ namespace rift {
 	class EntityManager;
 	
         // The Entity class
-	// a wrapper for an Entity::ID
+	// a handle to an Entity::ID
 	class Entity {
 	public:
 
