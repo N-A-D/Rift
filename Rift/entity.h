@@ -72,8 +72,9 @@ namespace rift {
 		template <class C>
 		C &get() const noexcept;
 
-		friend bool operator==(const rift::Entity& a, const rift::Entity& b) noexcept;
-		friend bool operator!=(const rift::Entity& a, const rift::Entity& b) noexcept;
+		// Returns a pointer to this entity's EntityManager
+		// Note: The pointer returned must not be destroyed
+		EntityManager* manager() const noexcept;
 
 	private:
 		friend class EntityManager;
@@ -94,6 +95,8 @@ namespace rift {
 
 	bool operator<(const rift::Entity& a, const rift::Entity& b) noexcept;
 	bool operator>(const rift::Entity& a, const rift::Entity& b) noexcept;
+	bool operator==(const rift::Entity& a, const rift::Entity& b) noexcept;
+	bool operator!=(const rift::Entity& a, const rift::Entity& b) noexcept;
 	
 	// The EntityManager class
 	// Responsible for the management of Entity::IDs

@@ -32,6 +32,11 @@ rift::Entity::Entity()
 {
 }
 
+rift::EntityManager * rift::Entity::manager() const noexcept
+{
+	return mgr;
+}
+
 rift::Entity::Entity(rift::EntityManager* mgr, rift::Entity::ID id)
 	: mgr(mgr)
 	, m_id(id)
@@ -97,7 +102,7 @@ bool rift::operator>(const rift::Entity & a, const rift::Entity & b) noexcept
 
 bool rift::operator==(const rift::Entity & a, const rift::Entity & b) noexcept
 {
-	return a.mgr == b.mgr && a.id() == b.id();
+	return a.manager() == b.manager() && a.id() == b.id();
 }
 
 bool rift::operator!=(const rift::Entity & a, const rift::Entity & b) noexcept
