@@ -287,7 +287,8 @@ namespace rift {
 	template<class C>
 	inline C & EntityManager::get(Entity::ID id) noexcept
 	{
-		return std::static_pointer_cast<Pool<C>>(component_pools.at(C::family()))->at(id.index());
+		//return std::static_pointer_cast<Pool<C>>(component_pools.at(C::family()))->at(id.index());
+		return (*(std::static_pointer_cast<Pool<C>>(component_pools.at(C::family()))))[id.index()];
 	}
 
 	template<class C>

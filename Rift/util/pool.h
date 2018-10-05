@@ -31,6 +31,14 @@ namespace rift {
 				objects.push_back(T());
 		}
 
+		T& operator[](std::size_t index) {
+			return objects[index];
+		}
+
+		const T& operator[](std::size_t index) const {
+			return objects[index];
+		}
+
 		// Returns a reference to the object at index
 		// Throws std::out_of_range if !(index < size())
 		T& at(std::size_t index) {
