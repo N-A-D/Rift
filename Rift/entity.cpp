@@ -139,7 +139,9 @@ rift::Entity rift::EntityManager::create_entity() noexcept
 		return Entity(this, id);
 	}
 	else {
-		return Entity(this, allocate_entity_record());
+		std::size_t index = entity_records.size();
+		entity_records.emplace_back(EntityRecord(Entity::ID(index, 1)));
+		return Entity(this, entity_records.back().entity_id);
 	}
 }
 
@@ -151,17 +153,6 @@ bool rift::EntityManager::valid_id(Entity::ID id) const noexcept
 void rift::EntityManager::invalidate_id(Entity::ID id) noexcept
 {
 	reusable_ids.push(entity_records.at(id.index()).refresh_id());
-}
-
-rift::Entity::ID rift::EntityManager::allocate_entity_record() noexcept
-{
-	auto index_number = entity_records.size();
-	entity_records.push_back(EntityRecord(Entity::ID(index_number, 1)));
-	for (auto pool : component_pools) {
-		pool.second->allocate(1);
-		assert(pool.second->size() == entity_records.size());
-	}
-	return entity_records.back().entity_id;
 }
 
 rift::ComponentMask rift::EntityManager::component_mask(Entity::ID id) const noexcept

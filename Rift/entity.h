@@ -165,9 +165,6 @@ namespace rift {
 
 		// Invalidate id and all copies of it by refreshing the EntityRecord id maps to
 		void invalidate_id(Entity::ID id) noexcept;
-
-		// Returns the Entity::ID for a newly created EntityManager::EntityRecord object
-		Entity::ID allocate_entity_record() noexcept;
 		
 		// Returns the ComponentMask associated with the master Entity::ID of id
 		ComponentMask component_mask(Entity::ID id) const noexcept;
@@ -267,9 +264,15 @@ namespace rift {
 	template<class C, class ...Args>
 	inline void EntityManager::add(Entity::ID id, Args && ...args) noexcept
 	{
-		if (!has_pool_for<C>()) { create_pool_for<C>(entity_records.size()); }
+		if (!has_pool_for<C>()) 
+			create_pool_for<C>(entity_records.size());
+		auto pool = std::static_pointer_cast<Pool<C>>(component_pools.at(C::family()));
+		auto size = pool->size() - 1;
+		if (size < id.index()) {
+			pool->allocate(id.index() - size + 1);
+		}
+		pool->at(id.index()) = C(std::forward<Args>(args)...);
 		entity_records.at(id.index()).component_list.set(C::family());
-		std::static_pointer_cast<Pool<C>>(component_pools.at(C::family()))->at(id.index()) = C(std::forward<Args>(args)...);
 	}
 
 	template<class C>
@@ -287,7 +290,6 @@ namespace rift {
 	template<class C>
 	inline C & EntityManager::get(Entity::ID id) noexcept
 	{
-		//return std::static_pointer_cast<Pool<C>>(component_pools.at(C::family()))->at(id.index());
 		return (*(std::static_pointer_cast<Pool<C>>(component_pools.at(C::family()))))[id.index()];
 	}
 
