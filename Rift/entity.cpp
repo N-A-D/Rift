@@ -124,7 +124,7 @@ rift::EntityManager::EntityRecord::EntityRecord(rift::Entity::ID id)
 
 rift::Entity::ID rift::EntityManager::EntityRecord::refresh_id() noexcept
 {
-	component_list = 0; return entity_id.renew();
+	component_list.reset(); return entity_id.renew();
 }
 
 rift::EntityManager::EntityManager()
