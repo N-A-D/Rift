@@ -33,7 +33,7 @@ namespace rift {
 		virtual ~Component() {}
 		// Returns the Component type id
 		static ComponentFamily family() noexcept {
-			assert(m_family <= config::MAX_COMPONENT_TYPES && "The maximum number of components has been reached!");
+			assert(m_family < config::MAX_COMPONENT_TYPES && "The maximum number of components has been reached!");
 			static ComponentFamily component_family = m_family++;
 			return component_family;
 		}
