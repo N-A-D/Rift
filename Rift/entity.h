@@ -236,7 +236,7 @@ namespace rift {
 		}
 		else {
 			for (auto entity_record : entity_records) {
-				if (entity_record.component_list != 0 && (entity_record.component_list & mask) == mask) {
+				if ((entity_record.component_list & mask) == mask) {
 					++count;
 				}
 			}
@@ -257,7 +257,7 @@ namespace rift {
 		}
 		else {
 			for (auto entity_record : entity_records) {
-				if (entity_record.component_list != 0 && (entity_record.component_list & mask) == mask) {
+				if ((entity_record.component_list & mask) == mask) {
 					fun(Entity(this, entity_record.entity_id));
 				}
 			}
