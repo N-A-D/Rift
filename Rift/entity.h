@@ -73,7 +73,7 @@ namespace rift {
 		C &get() const noexcept;
 
 		// Returns a pointer to this entity's EntityManager
-		// Note: The pointer returned must not be destroyed
+		// Note: You must not delete the pointer!
 		EntityManager* manager() const noexcept;
 
 	private:
