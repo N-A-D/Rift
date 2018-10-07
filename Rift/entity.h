@@ -106,7 +106,7 @@ namespace rift {
 	// The EntityRecord class
 	// An EntityRecord handles the book keeping for an EntityID (Component management and Entity handle lifespans)
 	// Whenever an Entity handle is destroyed, the associated EntityRecord ensures that all copies of 
-	// that Entity are also invalid by refreshing its master EntityID value
+	// that Entity are also invalid by renewing its EntityID value
 	class EntityRecord final {
 		using ComponentFamily = std::size_t;
 	public:
