@@ -240,16 +240,16 @@ namespace rift {
 	{
 		auto mask = util::mask_for<Components...>();
 		std::size_t count = 0;
-		if (mask == 0) {
+		if (mask != 0) {
 			for (auto entity_record : entity_records) {
-				if (entity_record.components() == 0) {
+				if ((entity_record.components() & mask) == mask) {
 					++count;
 				}
 			}
 		}
 		else {
 			for (auto entity_record : entity_records) {
-				if ((entity_record.components() & mask) == mask) {
+				if (entity_record.components() == 0) {
 					++count;
 				}
 			}
@@ -261,16 +261,16 @@ namespace rift {
 	inline void EntityManager::entities_with(std::function<void(const Entity&)>&& fun) noexcept
 	{
 		auto mask = util::mask_for<Components...>();
-		if (mask == 0) {
+		if (mask != 0) {
 			for (auto entity_record : entity_records) {
-				if (entity_record.components() == 0) {
+				if ((entity_record.components() & mask) == mask) {
 					fun(Entity(this, entity_record.master_id_copy()));
 				}
 			}
 		}
 		else {
 			for (auto entity_record : entity_records) {
-				if ((entity_record.components() & mask) == mask) {
+				if (entity_record.components() == 0) {
 					fun(Entity(this, entity_record.master_id_copy()));
 				}
 			}
