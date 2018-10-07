@@ -149,7 +149,7 @@ namespace rift {
 		template <class ...Components>
 		std::size_t count_entities_with() const noexcept;
 
-		// The function applies 'fun' onto Entity(s) whose EntityID associates with an instance of each component type
+		// The function applies 'fun' onto Entities whose EntityID associates with an instance of each component type
 		// given as a template parameter.
 		// Note: When Component type parameters are not supplied, the function 'fun' is applied onto Entity(s) whose
 		// EntityID does not associate with an instance of any existing component types
