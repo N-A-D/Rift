@@ -140,7 +140,7 @@ namespace rift {
 		EntityManager(const EntityManager&) = delete;
 		EntityManager& operator=(const EntityManager&) = delete;
 
-		// Generate a new EntityManager::EntityRecord and return an Entity as a handle to its EntityID
+		// Generate a new EntityRecord and return an Entity as a handle to its EntityID
 		Entity create_entity() noexcept;
 
 		// Returns the number of EntityIDs that associate with an instance of each component type
