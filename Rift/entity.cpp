@@ -1,27 +1,27 @@
 #include "entity.h"
 
-rift::EntityID::EntityID()
+rift::Entity::ID::ID()
 	: m_index(0), m_version(0)
 {
 }
 
-rift::EntityID::EntityID(std::size_t index, std::size_t version)
+rift::Entity::ID::ID(std::size_t index, std::size_t version)
 	: m_index(index)
 	, m_version(version)
 {
 }
 
-rift::EntityID & rift::EntityID::renew() noexcept
+rift::Entity::ID & rift::Entity::ID::renew() noexcept
 {
 	++m_version; return *this;
 }
 
-std::size_t rift::EntityID::index() const noexcept
+std::size_t rift::Entity::ID::index() const noexcept
 {
 	return m_index;
 }
 
-std::size_t rift::EntityID::version() const noexcept
+std::size_t rift::Entity::ID::version() const noexcept
 {
 	return m_version;
 }
@@ -37,13 +37,13 @@ rift::EntityManager * rift::Entity::manager() const noexcept
 	return mgr;
 }
 
-rift::Entity::Entity(rift::EntityManager* mgr, rift::EntityID id)
+rift::Entity::Entity(rift::EntityManager* mgr, rift::Entity::ID id)
 	: mgr(mgr)
 	, m_id(id)
 {
 }
 
-rift::EntityID rift::Entity::id() const noexcept
+rift::Entity::ID rift::Entity::id() const noexcept
 {
 	return m_id;
 }
@@ -70,22 +70,22 @@ rift::ComponentMask rift::Entity::component_mask() const noexcept
 	return mgr->component_mask(m_id);
 }
 
-bool rift::operator<(const rift::EntityID & a, const rift::EntityID & b) noexcept
+bool rift::operator<(const rift::Entity::ID & a, const rift::Entity::ID & b) noexcept
 {
 	return a.index() < b.index();
 }
 
-bool rift::operator>(const rift::EntityID & a, const rift::EntityID & b) noexcept
+bool rift::operator>(const rift::Entity::ID & a, const rift::Entity::ID & b) noexcept
 {
 	return b < a;
 }
 
-bool rift::operator==(const rift::EntityID & a, const rift::EntityID & b) noexcept
+bool rift::operator==(const rift::Entity::ID & a, const rift::Entity::ID & b) noexcept
 {
 	return a.index() == b.index() && a.version() == b.version();
 }
 
-bool rift::operator!=(const rift::EntityID & a, const rift::EntityID & b) noexcept
+bool rift::operator!=(const rift::Entity::ID & a, const rift::Entity::ID & b) noexcept
 {
 	return !(a == b);
 }
@@ -110,29 +110,29 @@ bool rift::operator!=(const rift::Entity & a, const rift::Entity & b) noexcept
 	return !(a == b);
 }
 
-rift::EntityRecord::EntityRecord()
+rift::Entity::Record::Record()
 	: entity_id()
 	, component_list(0)
 {
 }
 
-rift::EntityRecord::EntityRecord(rift::EntityID id)
+rift::Entity::Record::Record(rift::Entity::ID id)
 	: entity_id(id)
 	, component_list(0)
 {
 }
 
-rift::EntityID rift::EntityRecord::renew_master_id() noexcept
+rift::Entity::ID rift::Entity::Record::renew_master_id() noexcept
 {
 	component_list.reset(); return entity_id.renew();
 }
 
-rift::EntityID rift::EntityRecord::master_id_copy() const noexcept
+rift::Entity::ID rift::Entity::Record::master_id_copy() const noexcept
 {
 	return entity_id;
 }
 
-rift::ComponentMask rift::EntityRecord::components() const noexcept
+rift::ComponentMask rift::Entity::Record::components() const noexcept
 {
 	return component_list;
 }
@@ -150,22 +150,22 @@ rift::Entity rift::EntityManager::create_entity() noexcept
 	}
 	else {
 		std::size_t index = entity_records.size();
-		entity_records.emplace_back(EntityRecord(EntityID(index, 1)));
+		entity_records.emplace_back(Entity::Record(Entity::ID(index, 1)));
 		return Entity(this, entity_records.back().master_id_copy());
 	}
 }
 
-bool rift::EntityManager::valid_id(EntityID id) const noexcept
+bool rift::EntityManager::valid_id(Entity::ID id) const noexcept
 {
 	return entity_records.at(id.index()).master_id_copy() == id;
 }
 
-void rift::EntityManager::invalidate_id(EntityID id) noexcept
+void rift::EntityManager::invalidate_id(Entity::ID id) noexcept
 {
 	reusable_ids.push(entity_records.at(id.index()).renew_master_id());
 }
 
-rift::ComponentMask rift::EntityManager::component_mask(EntityID id) const noexcept
+rift::ComponentMask rift::EntityManager::component_mask(Entity::ID id) const noexcept
 {
 	return entity_records.at(id.index()).components();
 }

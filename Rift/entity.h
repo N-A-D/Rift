@@ -10,53 +10,75 @@
 #include "details/config.h"
 
 namespace rift {
-
-	// The EntityID class
-	// The concept of an 'entity' is the EntityID
-	// Notes:
-	// - An EntityID associates with an EntityRecord which contains the list components owned by the EntityID
-	// - An EntityID determines the lifespan of an Entity handle and its components through its version
-	// - Components are arranged as parallel arrays and the EntityID serves as an index into those arrays
-	class EntityID final {
-	public:
-		EntityID();
-		EntityID(std::size_t index, std::size_t version);
-		// Return this EntityID with an incremented version number
-		EntityID& renew() noexcept;
-		// Return the index portion of the EntityID 
-		// Note: Used for indexing into arrays
-		std::size_t index() const noexcept;
-		// Return the version portion of the EntityID
-		// Note: Used for EntityID equality comparisons
-		std::size_t version() const noexcept;
-	private:
-		std::size_t m_index;
-		std::size_t m_version;
-	};
-
-	bool operator<(const rift::EntityID& a, const rift::EntityID& b) noexcept;
-	bool operator>(const rift::EntityID& a, const rift::EntityID& b) noexcept;
-	bool operator==(const rift::EntityID& a, const rift::EntityID& b) noexcept;
-	bool operator!=(const rift::EntityID& a, const rift::EntityID& b) noexcept;
-
 	class EntityManager;
 
     // The Entity class
-	// a handle to an EntityID
+	// a handle to an Entity::ID
 	class Entity final {
 	public:
+
+		// The Entity::ID class
+		// The concept of an 'entity' is the Entity::ID
+		// Notes:
+		// - An Entity::ID associates with an EntityRecord which contains the list components owned by the Entity::ID
+		// - An Entity::ID determines the lifespan of an Entity handle and its components through its version
+		// - Components are arranged as parallel arrays and the Entity::ID serves as an index into those arrays
+		class ID final {
+		public:
+			ID();
+			ID(std::size_t index, std::size_t version);
+			// Return this Entity::ID with an incremented version number
+			ID& renew() noexcept;
+			// Return the index portion of the Entity::ID 
+			// Note: Used for indexing into arrays
+			std::size_t index() const noexcept;
+			// Return the version portion of the Entity::ID
+			// Note: Used for Entity::ID equality comparisons
+			std::size_t version() const noexcept;
+		private:
+			std::size_t m_index;
+			std::size_t m_version;
+		};
+
+		// The Entity::Record class
+		// An Entity::Record handles the book keeping for an Entity::ID, that is, component management and the validity of Entity handles
+		// Whenever an Entity handle is destroyed, the associated Entity::Record ensures that all copies of 
+		// that Entity are also invalid by renewing its Entity::ID value
+		class Record final {
+			using ComponentFamily = std::size_t;
+		public:
+			Record();
+			Record(rift::Entity::ID id);
+			// Renews the record's Entity::ID and returns a copy of it
+			Entity::ID renew_master_id() noexcept;
+			// Returns a copy of the record's Entity::ID
+			Entity::ID master_id_copy() const noexcept;
+			// Returns the ComponentMask for the Entity::ID
+			ComponentMask components() const noexcept;
+			// Sets the bit associated with the component
+			void set_component(ComponentFamily family) noexcept { component_list.set(family); }
+			// Resets the bit associated with the component
+			void reset_component(ComponentFamily family) noexcept { component_list.reset(family); }
+			// Tests the bit associated witht the component
+			bool test_component(ComponentFamily family) noexcept { return component_list.test(family); }
+		private:
+			// The master id that owns components given in component_list
+			rift::Entity::ID entity_id;
+			// The bitmask of components currently assigned to the master entity_id
+			rift::ComponentMask component_list;
+		};
 
 		// Create an invalid entity
 		Entity();
 
-		// Fetch the entity's EntityID
-		EntityID id() const noexcept;
+		// Fetch the entity's Entity::ID
+		Entity::ID id() const noexcept;
 
-		// Checks if the entity's EntityID is valid
+		// Checks if the entity's Entity::ID is valid
 		bool valid() const noexcept;
 		operator bool() const noexcept;
 		
-		// Invalidate this entity and all other entities that share the same EntityID
+		// Invalidate this entity and all other entities that share the same Entity::ID
 		void destroy() const noexcept;
 
 		// Fetch the entity's ComponentMask
@@ -89,47 +111,24 @@ namespace rift {
 	private:
 		friend class EntityManager;
 		// Only EntityManagers are permitted to create valid entity handles
-		Entity(EntityManager *em, EntityID id);
+		Entity(EntityManager *em, Entity::ID id);
 	
-		// A copy of the master EntityID owned by the associated EntityManager::EntityRecord
-		EntityID m_id;
+		// A copy of the master Entity::ID owned by the associated EntityManager::EntityRecord
+		Entity::ID m_id;
 		
 		// The manager responsible for creating this Entity
 		EntityManager* mgr;
 	};
 
+	bool operator<(const rift::Entity::ID& a, const rift::Entity::ID& b) noexcept;
+	bool operator>(const rift::Entity::ID& a, const rift::Entity::ID& b) noexcept;
+	bool operator==(const rift::Entity::ID& a, const rift::Entity::ID& b) noexcept;
+	bool operator!=(const rift::Entity::ID& a, const rift::Entity::ID& b) noexcept;
+
 	bool operator<(const rift::Entity& a, const rift::Entity& b) noexcept;
 	bool operator>(const rift::Entity& a, const rift::Entity& b) noexcept;
 	bool operator==(const rift::Entity& a, const rift::Entity& b) noexcept;
 	bool operator!=(const rift::Entity& a, const rift::Entity& b) noexcept;
-
-	// The EntityRecord class
-	// An EntityRecord handles the book keeping for an EntityID (Component management and Entity handle lifespans)
-	// Whenever an Entity handle is destroyed, the associated EntityRecord ensures that all copies of 
-	// that Entity are also invalid by renewing its EntityID value
-	class EntityRecord final {
-		using ComponentFamily = std::size_t;
-	public:
-		EntityRecord();
-		EntityRecord(rift::EntityID id);
-		// Renews the record's EntityID and returns a copy of it
-		EntityID renew_master_id() noexcept;
-		// Returns a copy of the record's EntityID
-		EntityID master_id_copy() const noexcept;
-		// Returns the ComponentMask for the EntityID
-		ComponentMask components() const noexcept;
-		// Sets the bit associated with the component
-		void set_component(ComponentFamily family) noexcept { component_list.set(family); }
-		// Resets the bit associated with the component
-		void reset_component(ComponentFamily family) noexcept { component_list.reset(family); }
-		// Tests the bit associated witht the component
-		bool test_component(ComponentFamily family) noexcept { return component_list.test(family); }
-	private:
-		// The master id that owns components given in component_list
-		rift::EntityID entity_id;
-		// The bitmask of components currently assigned to the master entity_id
-		rift::ComponentMask component_list;
-	};
 
 	// The EntityManager class
 	// Responsible for the management of Entities and their EntityRecords
@@ -140,19 +139,19 @@ namespace rift {
 		EntityManager(const EntityManager&) = delete;
 		EntityManager& operator=(const EntityManager&) = delete;
 
-		// Generate a new EntityRecord and return an Entity as a handle to its EntityID
+		// Generate a new Entity::Record and return an Entity handle to its Entity::ID
 		Entity create_entity() noexcept;
 
-		// Returns the number of EntityIDs that associate with an instance of each component type
+		// Returns the number of Entity::IDs that associate with an instance of each component type
 		// Note: When Component type parameters are not supplied, the returned value indicates
-		// the number of EntityIDs that do not map to any component types
+		// the number of Entity::IDs that do not map to any component types
 		template <class ...Components>
 		std::size_t count_entities_with() const noexcept;
 
-		// The function applies 'fun' onto Entities whose EntityID associates with an instance of each component type
+		// The function applies 'fun' onto Entities whose Entity::ID associates with an instance of each component type
 		// given as a template parameter.
 		// Note: When Component type parameters are not supplied, the function 'fun' is applied onto Entity(s) whose
-		// EntityID does not associate with an instance of any existing component types
+		// Entity::ID does not associate with an instance of any existing component types
 		template <class ...Components>
 		void entities_with(std::function<void(const Entity&)>&& fun) noexcept;
 
@@ -160,30 +159,30 @@ namespace rift {
 
 		friend class Entity;
 		
-		// Associates a component of type C with the master EntityID of id
+		// Associates a component of type C with the master Entity::ID of id
 		template <class C, class... Args>
-		void add(EntityID id, Args&& ...args) noexcept;
+		void add(Entity::ID id, Args&& ...args) noexcept;
 		
-		// Disassociates a component of type C with the master EntityID of id
+		// Disassociates a component of type C with the master Entity::ID of id
 		template <class C>
-		void remove(EntityID id) noexcept;
+		void remove(Entity::ID id) noexcept;
 
-		// Checks if there is an association between the master EntityID and a component of type C
+		// Checks if there is an association between the master Entity::ID and a component of type C
 		template <class C>
-		bool has(EntityID id) noexcept;
+		bool has(Entity::ID id) noexcept;
 
-		// Returns the component of type C associate with the master EntityID
+		// Returns the component of type C associate with the master Entity::ID
 		template <class C>
-		C &get(EntityID id) noexcept;
+		C &get(Entity::ID id) noexcept;
 
-		// Checks if the id is of the same version as its master EntityID
-		bool valid_id(EntityID id) const noexcept;
+		// Checks if the id is of the same version as its master Entity::ID
+		bool valid_id(Entity::ID id) const noexcept;
 
 		// Invalidate id and all copies of it by refreshing the EntityRecord id maps to
-		void invalidate_id(EntityID id) noexcept;
+		void invalidate_id(Entity::ID id) noexcept;
 		
-		// Returns the ComponentMask associated with the master EntityID of id
-		ComponentMask component_mask(EntityID id) const noexcept;
+		// Returns the ComponentMask associated with the master Entity::ID of id
+		ComponentMask component_mask(Entity::ID id) const noexcept;
 	
 		// Checks if this EntityManager has a component pool for C
 		template <class C>
@@ -196,10 +195,10 @@ namespace rift {
 	private:
 
 		// The collection of EntityRecords
-		std::vector<EntityRecord> entity_records;
+		std::vector<Entity::Record> entity_records;
 		
-		// The queue of reusable EntityIDs
-		std::queue<EntityID> reusable_ids;
+		// The queue of reusable Entity::IDs
+		std::queue<Entity::ID> reusable_ids;
 
 		// The pools of components
 		std::unordered_map<ComponentFamily, std::shared_ptr<BasePool>> component_pools;
@@ -278,7 +277,7 @@ namespace rift {
 	}
 
 	template<class C, class ...Args>
-	inline void EntityManager::add(EntityID id, Args && ...args) noexcept
+	inline void EntityManager::add(Entity::ID id, Args && ...args) noexcept
 	{
 		if (!has_pool_for<C>()) 
 			create_pool_for<C>(entity_records.size());
@@ -292,19 +291,19 @@ namespace rift {
 	}
 
 	template<class C>
-	inline void EntityManager::remove(EntityID id) noexcept
+	inline void EntityManager::remove(Entity::ID id) noexcept
 	{
 		entity_records.at(id.index()).reset_component(C::family());
 	}
 
 	template<class C>
-	inline bool EntityManager::has(EntityID id) noexcept
+	inline bool EntityManager::has(Entity::ID id) noexcept
 	{
 		return entity_records.at(id.index()).test_component(C::family());
 	}
 
 	template<class C>
-	inline C & EntityManager::get(EntityID id) noexcept
+	inline C & EntityManager::get(Entity::ID id) noexcept
 	{
 		return (*(std::static_pointer_cast<Pool<C>>(component_pools.at(C::family()))))[id.index()];
 	}
