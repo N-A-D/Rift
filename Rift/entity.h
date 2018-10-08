@@ -4,10 +4,9 @@
 #include <memory>
 #include <assert.h>
 #include <functional>
-#include "util/pool.h"
-#include "component.h"
 #include <unordered_map>
-#include "details/config.h"
+#include "details/pool.h"
+#include "details/functions.h"
 
 namespace rift {
 	class EntityManager;
@@ -199,6 +198,8 @@ namespace rift {
 		// The queue of reusable Entity::IDs
 		std::queue<Entity::ID> reusable_ids;
 
+		using ComponentFamily = std::size_t;
+
 		// The pools of components
 		std::unordered_map<ComponentFamily, std::shared_ptr<BasePool>> component_pools;
 	};
@@ -236,7 +237,7 @@ namespace rift {
 	template <class First, class... Rest>
 	inline std::size_t EntityManager::count_entities_with() const noexcept
 	{
-		auto mask = util::mask_for<Rest...>();
+		auto mask = signature_for<Rest...>();
 		mask.set(First::family());
 		std::size_t count = 0;
 		for (auto entity_record : entity_records) {
@@ -250,7 +251,7 @@ namespace rift {
 	template <class First, class... Rest>
 	inline void EntityManager::entities_with(std::function<void(const Entity&)>&& fun) noexcept
 	{
-		auto mask = util::mask_for<Rest...>();
+		auto mask = signature_for<Rest...>();
 		mask.set(First::family());
 		for (auto entity_record : entity_records) {
 			if ((entity_record.components() & mask) == mask) {
