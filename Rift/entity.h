@@ -146,16 +146,12 @@ namespace rift {
 		Entity create_entity() noexcept;
 
 		// Returns the number of Entity::IDs that associate with an instance of each component type
-		// Note: When Component type parameters are not supplied, the returned value indicates
-		// the number of Entity::IDs that do not map to any component types
-		template <class ...Components>
+		template <class First, class... Rest>
 		std::size_t count_entities_with() const noexcept;
 
-		// The function applies 'fun' onto Entities whose Entity::ID associates with an instance of each component type
-		// given as a template parameter.
-		// Note: When Component type parameters are not supplied, the function 'fun' is applied onto Entity(s) whose
-		// Entity::ID does not associate with an instance of any existing component types
-		template <class ...Components>
+		// The function applies 'fun' onto Entities whose Entity::ID associates with an instance of 
+		// each component type given as a template parameter.
+		template <class First, class... Rest>
 		void entities_with(std::function<void(const Entity&)>&& fun) noexcept;
 
 #ifndef RIFT_ENTITY_MANAGER_DEBUG
@@ -237,44 +233,28 @@ namespace rift {
 		return mgr->get<C>(m_id);
 	}
 
-	template<class ...Components>
+	template <class First, class... Rest>
 	inline std::size_t EntityManager::count_entities_with() const noexcept
 	{
-		auto mask = util::mask_for<Components...>();
+		auto mask = util::mask_for<Rest...>();
+		mask.set(First::family());
 		std::size_t count = 0;
-		if (mask != 0) {
-			for (auto entity_record : entity_records) {
-				if ((entity_record.components() & mask) == mask) {
-					++count;
-				}
-			}
-		}
-		else {
-			for (auto entity_record : entity_records) {
-				if (entity_record.components() == 0) {
-					++count;
-				}
+		for (auto entity_record : entity_records) {
+			if ((entity_record.components() & mask) == mask) {
+				++count;
 			}
 		}
 		return count;
 	}
 
-	template<class ...Components>
+	template <class First, class... Rest>
 	inline void EntityManager::entities_with(std::function<void(const Entity&)>&& fun) noexcept
 	{
-		auto mask = util::mask_for<Components...>();
-		if (mask != 0) {
-			for (auto entity_record : entity_records) {
-				if ((entity_record.components() & mask) == mask) {
-					fun(Entity(this, entity_record.master_id_copy()));
-				}
-			}
-		}
-		else {
-			for (auto entity_record : entity_records) {
-				if (entity_record.components() == 0) {
-					fun(Entity(this, entity_record.master_id_copy()));
-				}
+		auto mask = util::mask_for<Rest...>();
+		mask.set(First::family());
+		for (auto entity_record : entity_records) {
+			if ((entity_record.components() & mask) == mask) {
+				fun(Entity(this, entity_record.master_id_copy()));
 			}
 		}
 	}
