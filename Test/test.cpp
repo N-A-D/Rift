@@ -14,11 +14,11 @@ namespace Test
 		
 		TEST_METHOD(mask_for)
 		{
-			Assert::IsTrue(rift::util::mask_for<>() == 0);
-			Assert::IsTrue(rift::util::mask_for<Position>() == 1);
-			Assert::IsTrue(rift::util::mask_for<Velocity>() == 2);
-			Assert::IsTrue(rift::util::mask_for<Velocity, Position>() == 3);
-			Assert::IsTrue(rift::util::mask_for<Position, Velocity>() == 3);
+			Assert::IsTrue(rift::signature_for<>() == 0);
+			Assert::IsTrue(rift::signature_for<Position>() == 1);
+			Assert::IsTrue(rift::signature_for<Velocity>() == 2);
+			Assert::IsTrue(rift::signature_for<Velocity, Position>() == 3);
+			Assert::IsTrue(rift::signature_for<Position, Velocity>() == 3);
 		}
 
 	};
@@ -103,7 +103,7 @@ namespace Test
 			a.add<Velocity>(0, 0);
 			a.add<Direction>(1, 0);
 			Assert::IsTrue(a.has<Position>() && a.has<Velocity>() && a.has<Direction>());
-			Assert::IsTrue(a.component_mask() == rift::util::mask_for<Position, Direction, Velocity>());
+			Assert::IsTrue(a.component_mask() == rift::signature_for<Position, Direction, Velocity>());
 		}
 
 		TEST_METHOD(removal) {
@@ -113,11 +113,11 @@ namespace Test
 			a.add<Velocity>(0, 0);
 			a.add<Direction>(1, 0);
 			Assert::IsTrue(a.has<Position>() && a.has<Velocity>() && a.has<Direction>() && 
-				           a.component_mask() == rift::util::mask_for<Position, Direction, Velocity>());
+				           a.component_mask() == rift::signature_for<Position, Direction, Velocity>());
 			a.remove<Velocity>();
 			Assert::IsFalse(a.has<Velocity>());
 			Assert::IsTrue(a.has<Position>() && a.has<Direction>() &&
-						   a.component_mask() == rift::util::mask_for<Position, Direction>());
+						   a.component_mask() == rift::signature_for<Position, Direction>());
 		}
 
 		TEST_METHOD(get_component) {
@@ -127,7 +127,7 @@ namespace Test
 			a.add<Velocity>(0, 0);
 			a.add<Direction>(1, 0);
 			Assert::IsTrue(a.has<Position>() && a.has<Velocity>() && a.has<Direction>() &&
-				a.component_mask() == rift::util::mask_for<Position, Direction, Velocity>());
+				a.component_mask() == rift::signature_for<Position, Direction, Velocity>());
 
 			Position p = a.get<Position>();
 			Assert::IsTrue(p.x == 10 && p.y == 10);
@@ -172,7 +172,6 @@ namespace Test
 			auto c = em.create_entity();
 			auto d = em.create_entity();
 			auto e = em.create_entity();
-			auto f = em.create_entity();
 
 			a.add<Position>();
 			b.add<Position>();
@@ -186,7 +185,6 @@ namespace Test
 			d.add<Direction>();
 			e.add<Direction>();
 
-			Assert::IsTrue(em.count_entities_with<>() == 1);
 			Assert::IsTrue(em.count_entities_with<Position>() == 4);
 			Assert::IsTrue(em.count_entities_with<Velocity>() == 3);
 			Assert::IsTrue(em.count_entities_with<Direction>() == 2);
@@ -203,7 +201,6 @@ namespace Test
 			auto c = em.create_entity();
 			auto d = em.create_entity();
 			auto e = em.create_entity();
-			auto f = em.create_entity();
 
 			a.add<Position>(10, 10);
 			b.add<Position>(10, 10);
@@ -218,10 +215,6 @@ namespace Test
 			e.add<Direction>(12, 12);
 
 			std::size_t count = 0;
-			em.entities_with<>([&count](const rift::Entity& e) { Assert::IsTrue(e.component_mask() == 0); ++count; });
-			
-			Assert::IsTrue(count == 1);
-			count = 0;
 
 			em.entities_with<Position>([&count](const rift::Entity& e) { 
 				Position p = e.get<Position>();
@@ -295,6 +288,44 @@ namespace Test
 
 			Assert::IsTrue(count == 1);
 		}
+
+		TEST_METHOD(add_through_entity_manager_with_id) {
+			rift::EntityManager em;
+			auto e = em.create_entity();
+			e.add<Position>();
+			Assert::IsTrue(e.has<Position>());
+			em.add<Velocity>(e.id(), 100.0f, 100.0f);
+			Assert::IsTrue(e.has<Velocity>());
+		}
+
+		TEST_METHOD(remove_through_entity_manager_with_id) {
+			rift::EntityManager em;
+			auto e = em.create_entity();
+			e.add<Position>();
+			Assert::IsTrue(e.has<Position>());
+			em.add<Velocity>(e.id(), 100.0f, 100.0f);
+			Assert::IsTrue(e.has<Velocity>());
+			em.remove<Position>(e.id());
+			Assert::IsFalse(e.has<Position>());
+		}
+
+		TEST_METHOD(has_through_entity_manager_with_id) {
+			rift::EntityManager em;
+			auto e = em.create_entity();
+			e.add<Position>();
+			Assert::IsTrue(em.has<Position>(e.id()));
+		}
+
+		TEST_METHOD(get_through_entity_manager_with_id) {
+			rift::EntityManager em;
+			auto e = em.create_entity();
+			e.add<Position>(100.0f, 100.0f);
+			Assert::IsTrue(e.has<Position>());
+			Assert::IsTrue(em.has<Position>(e.id()));
+			auto& p = em.get<Position>(e.id());
+			Assert::IsTrue(p.x == 100.0f && p.y == 100.0f);
+		}
+		
 	};
 
 	TEST_CLASS(System) {
