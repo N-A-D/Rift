@@ -41,7 +41,7 @@ namespace rift {
 		};
 
 		// The Entity::Record class
-		// An Entity::Record handles the book keeping for an Entity::ID, that is, component management.
+		// An Entity::Record records which components belong and do not belong to an Entity::ID
 		// Notes:
 		// - Whenever an Entity handle is created, an associated Entity::Record is created. The newly created
 		//   Entity handle is then given a copy of the Entity::ID created in the Entity::Record.
