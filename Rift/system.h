@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <assert.h>
 #include <unordered_map>
 
 namespace rift {
