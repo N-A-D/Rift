@@ -119,10 +119,11 @@
   <ItemGroup>
     <ClInclude Include="component.h" />
     <ClInclude Include="details\config.h" />
+    <ClInclude Include="details\functions.h" />
+    <ClInclude Include="details\pool.h" />
     <ClInclude Include="entity.h" />
     <ClInclude Include="rift.h" />
     <ClInclude Include="system.h" />
-    <ClInclude Include="util\pool.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="component.cpp" />

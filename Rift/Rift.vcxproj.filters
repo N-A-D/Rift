@@ -30,7 +30,10 @@
     <ClInclude Include="rift.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="util\pool.h">
+    <ClInclude Include="details\functions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="details\pool.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
