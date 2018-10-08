@@ -263,8 +263,8 @@ namespace rift {
 	inline void EntityManager::add(const Entity::ID& id, Args && ...args) noexcept
 	{
 		auto pool = pool_for<C>();
-		auto size = pool->size() - 1;
-		if (size < id.index()) {
+		auto size = pool->size();
+		if (size <= id.index()) {
 			pool->allocate(id.index() - size + 1);
 		}
 		pool->at(id.index()) = C(std::forward<Args>(args)...);
