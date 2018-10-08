@@ -41,9 +41,12 @@ namespace rift {
 		};
 
 		// The Entity::Record class
-		// An Entity::Record handles the book keeping for an Entity::ID, that is, component management and the validity of Entity handles
-		// Whenever an Entity handle is destroyed, the associated Entity::Record ensures that all copies of 
-		// that Entity are also invalid by renewing its Entity::ID value
+		// An Entity::Record handles the book keeping for an Entity::ID, that is, component management.
+		// Notes:
+		// - Whenever an Entity handle is created, an associated Entity::Record is created. The newly created
+		//   Entity handle is then given a copy of the Entity::ID created in the Entity::Record.
+		// - Whenever an Entity handle is destroyed, the associated Entity::Record ensures that the destroyed 
+		//   Entity and all copies of it are invalid by renewing its Enity::ID
 		class Record final {
 			using ComponentFamily = std::size_t;
 		public:
@@ -193,6 +196,9 @@ namespace rift {
 		void create_pool_for(std::size_t size) noexcept;
 
 	private:
+
+		// Entities with cache
+		// std::unordered_map<ComponentMask, SparseSet> entities_with_cache;
 
 		// The collection of EntityRecords
 		std::vector<Entity::Record> entity_records;
