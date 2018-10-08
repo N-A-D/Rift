@@ -20,8 +20,8 @@ namespace rift {
 		// The Entity::ID class
 		// The concept of an 'entity' is the Entity::ID
 		// Notes:
-		// - An Entity::ID associates with an EntityRecord which contains the list components owned by the Entity::ID
-		// - An Entity::ID determines the lifespan of an Entity handle and its components through its version
+		// - An Entity::ID associates with an Entity::Record which contains the list components owned by the Entity::ID
+		// - An Entity::ID determines the lifespan of Entity handles and the current component list through its version
 		// - Components are arranged as parallel arrays and the Entity::ID serves as an index into those arrays
 		class ID final {
 		public:
