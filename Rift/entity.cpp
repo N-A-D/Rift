@@ -111,30 +111,45 @@ bool rift::operator!=(const rift::Entity & a, const rift::Entity & b) noexcept
 }
 
 rift::Entity::Record::Record()
-	: entity_id()
+	: id()
 	, component_list(0)
 {
 }
 
 rift::Entity::Record::Record(rift::Entity::ID id)
-	: entity_id(id)
+	: id(id)
 	, component_list(0)
 {
 }
 
 rift::Entity::ID rift::Entity::Record::renew_master_id() noexcept
 {
-	component_list.reset(); return entity_id.renew();
+	component_list.reset(); return id.renew();
 }
 
 rift::Entity::ID rift::Entity::Record::master_id_copy() const noexcept
 {
-	return entity_id;
+	return id;
 }
 
 rift::ComponentMask rift::Entity::Record::components() const noexcept
 {
 	return component_list;
+}
+
+void rift::Entity::Record::insert_component(ComponentFamily family) noexcept
+{
+	component_list.set(family);
+}
+
+void rift::Entity::Record::remove_component(ComponentFamily family) noexcept
+{
+	component_list.reset(family);
+}
+
+bool rift::Entity::Record::check_component(ComponentFamily family) noexcept
+{
+	return component_list.test(family);
 }
 
 rift::EntityManager::EntityManager()
