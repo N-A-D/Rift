@@ -158,42 +158,39 @@ namespace rift {
 		template <class ...Components>
 		void entities_with(std::function<void(const Entity&)>&& fun) noexcept;
 
+#ifndef RIFT_ENTITY_MANAGER_DEBUG
 	private:
+#endif // !RIFT_ENTITY_MANAGER_DEBUG
 
 		friend class Entity;
 		
 		// Associates a component of type C with the master Entity::ID of id
 		template <class C, class... Args>
-		void add(Entity::ID id, Args&& ...args) noexcept;
+		void add(const Entity::ID& id, Args&& ...args) noexcept;
 		
 		// Disassociates a component of type C with the master Entity::ID of id
 		template <class C>
-		void remove(Entity::ID id) noexcept;
+		void remove(const Entity::ID& id) noexcept;
 
 		// Checks if there is an association between the master Entity::ID and a component of type C
 		template <class C>
-		bool has(Entity::ID id) noexcept;
+		bool has(const Entity::ID& id) noexcept;
 
 		// Returns the component of type C associate with the master Entity::ID
 		template <class C>
-		C &get(Entity::ID id) noexcept;
+		C &get(const Entity::ID& id) noexcept;
 
 		// Checks if the id is of the same version as its master Entity::ID
-		bool valid_id(Entity::ID id) const noexcept;
+		bool valid_id(const Entity::ID& id) const noexcept;
 
 		// Invalidate id and all copies of it by refreshing the EntityRecord id maps to
-		void invalidate_id(Entity::ID id) noexcept;
+		void invalidate_id(const Entity::ID& id) noexcept;
 		
 		// Returns the ComponentMask associated with the master Entity::ID of id
-		ComponentMask component_mask(Entity::ID id) const noexcept;
-	
-		// Checks if this EntityManager has a component pool for C
-		template <class C>
-		bool has_pool_for() const noexcept;
+		ComponentMask component_mask(const Entity::ID& id) const noexcept;
 
-		// Creates a component pool for type C where size indicates how many components to allocate
 		template <class C>
-		void create_pool_for(std::size_t size) noexcept;
+		std::shared_ptr<Pool<C>> pool_for() noexcept;
 
 	private:
 
@@ -283,11 +280,9 @@ namespace rift {
 	}
 
 	template<class C, class ...Args>
-	inline void EntityManager::add(Entity::ID id, Args && ...args) noexcept
+	inline void EntityManager::add(const Entity::ID& id, Args && ...args) noexcept
 	{
-		if (!has_pool_for<C>()) 
-			create_pool_for<C>(entity_records.size());
-		auto pool = std::static_pointer_cast<Pool<C>>(component_pools.at(C::family()));
+		auto pool = pool_for<C>();
 		auto size = pool->size() - 1;
 		if (size < id.index()) {
 			pool->allocate(id.index() - size + 1);
@@ -297,33 +292,29 @@ namespace rift {
 	}
 
 	template<class C>
-	inline void EntityManager::remove(Entity::ID id) noexcept
+	inline void EntityManager::remove(const Entity::ID& id) noexcept
 	{
 		entity_records.at(id.index()).reset_component(C::family());
 	}
 
 	template<class C>
-	inline bool EntityManager::has(Entity::ID id) noexcept
+	inline bool EntityManager::has(const Entity::ID& id) noexcept
 	{
 		return entity_records.at(id.index()).test_component(C::family());
 	}
 
 	template<class C>
-	inline C & EntityManager::get(Entity::ID id) noexcept
+	inline C & EntityManager::get(const Entity::ID& id) noexcept
 	{
 		return (*(std::static_pointer_cast<Pool<C>>(component_pools.at(C::family()))))[id.index()];
 	}
 
 	template<class C>
-	inline bool EntityManager::has_pool_for() const noexcept
+	inline std::shared_ptr<Pool<C>> EntityManager::pool_for() noexcept
 	{
-		return component_pools.find(C::family()) != component_pools.end();
-	}
-
-	template<class C>
-	inline void EntityManager::create_pool_for(std::size_t size) noexcept
-	{
-		component_pools.emplace(C::family(), std::make_shared<Pool<C>>(size));
+		if (component_pools.find(C::family()) == component_pools.end())
+			component_pools.emplace(C::family(), std::make_shared<Pool<C>>(entity_records.size()));
+		return std::static_pointer_cast<Pool<C>>(component_pools.at(C::family()));
 	}
 
 }

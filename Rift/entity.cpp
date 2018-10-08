@@ -155,17 +155,17 @@ rift::Entity rift::EntityManager::create_entity() noexcept
 	}
 }
 
-bool rift::EntityManager::valid_id(Entity::ID id) const noexcept
+bool rift::EntityManager::valid_id(const Entity::ID& id) const noexcept
 {
 	return entity_records.at(id.index()).master_id_copy() == id;
 }
 
-void rift::EntityManager::invalidate_id(Entity::ID id) noexcept
+void rift::EntityManager::invalidate_id(const Entity::ID& id) noexcept
 {
 	reusable_ids.push(entity_records.at(id.index()).renew_master_id());
 }
 
-rift::ComponentMask rift::EntityManager::component_mask(Entity::ID id) const noexcept
+rift::ComponentMask rift::EntityManager::component_mask(const Entity::ID& id) const noexcept
 {
 	return entity_records.at(id.index()).components();
 }
