@@ -5,8 +5,8 @@
 #include <assert.h>
 #include <functional>
 #include <unordered_map>
-#include "details/pool.h"
 #include "details/functions.h"
+#include "details/containers.h"
 
 namespace rift {
 	class EntityManager;
@@ -346,7 +346,7 @@ namespace rift {
 	template<class C>
 	inline C & EntityManager::get(const Entity::ID& id) noexcept
 	{
-		return (*(std::static_pointer_cast<Pool<C>>(component_pools.at(C::family()))))[id.index()];
+		return std::static_pointer_cast<Pool<C>>(component_pools.at(C::family()))->at(id.index());
 	}
 
 	template<class C>
