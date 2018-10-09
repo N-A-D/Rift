@@ -177,6 +177,12 @@ bool rift::EntityManager::valid_id(const Entity::ID& id) const noexcept
 
 void rift::EntityManager::invalidate_id(const Entity::ID& id) noexcept
 {
+	auto mask = component_mask(id);
+	for (auto& pair : search_caches) {
+		if ((mask & pair.first) == pair.first) {
+			pair.second.remove(Entity(this, id));
+		}
+	}
 	reusable_ids.push(entity_records.at(id.index()).renew_master_id());
 }
 

@@ -184,7 +184,7 @@ namespace rift {
 		private:
 			// The current number of entities
 			std::size_t n;
-			// The container full of entities
+			// The container full of entities that match a search criteria (bitmask)
 			std::vector<Entity> dense;
 			// The container of indexes to entities
 			std::vector<std::size_t> sparse;
@@ -226,7 +226,7 @@ namespace rift {
 	private:
 
 		// Query caches
-		std::unordered_map<ComponentMask, Cache> entity_caches;
+		std::unordered_map<ComponentMask, Cache> search_caches;
 	
 		// The collection of Entity::Records
 		std::vector<Entity::Record> entity_records;
@@ -290,18 +290,18 @@ namespace rift {
 		auto mask = signature_for<Rest...>();
 		mask.set(First::family());
 		
-		if (entity_caches.find(mask) != entity_caches.end()) {
-			for (auto& entity : entity_caches.at(mask)) {
+		if (search_caches.find(mask) != search_caches.end()) {
+			for (auto& entity : search_caches.at(mask)) {
 				fun(entity);
 			}
 		}
 		else {
-			entity_caches.emplace(mask, Cache());
+			search_caches.emplace(mask, Cache());
 			for (auto& entity_record : entity_records) {
 				if ((entity_record.components() & mask) == mask) {
 					auto e = Entity(this, entity_record.master_id_copy());
 					fun(e);
-					entity_caches.at(mask).insert(e);
+					search_caches.at(mask).insert(e);
 				}
 			}
 		}
@@ -319,7 +319,7 @@ namespace rift {
 		entity_records.at(id.index()).insert_component(C::family());
 		
 		auto mask = component_mask(id);
-		for (auto& pair : entity_caches) {
+		for (auto& pair : search_caches) {
 			if ((mask & pair.first) == pair.first) {
 				pair.second.insert(Entity(this, id));
 			}
@@ -329,7 +329,7 @@ namespace rift {
 	template<class C>
 	inline void EntityManager::remove(const Entity::ID& id) noexcept
 	{
-		for (auto& pair : entity_caches) {
+		for (auto& pair : search_caches) {
 			if (pair.first.test(C::family())) {
 				pair.second.remove(Entity(this, id));
 			}
