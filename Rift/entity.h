@@ -158,6 +158,38 @@ namespace rift {
 	private:
 #endif // !RIFT_DEBUG
 
+		class Cache {
+		public:
+			using iterator = std::vector<Entity>::iterator;
+			using const_iterator = std::vector<Entity>::const_iterator;
+				
+			Cache();
+
+			iterator begin();
+			iterator end();
+			const_iterator begin() const;
+			const_iterator end() const;
+
+			// Return true if the entity is found, false otherwise
+			bool search(const Entity& e);
+			// Insert the entity into the set unless it already exists within it
+			void insert(const Entity& e);
+			// Remove the entity from the set unless it does not exist within it
+			void remove(const Entity& e);
+			// Clear the set
+			void clear();
+			// Check if the set is empty
+			bool empty() const;
+
+		private:
+			// The current number of entities
+			std::size_t n;
+			// The container full of entities
+			std::vector<Entity> dense;
+			// The container of indexes to entities
+			std::vector<std::size_t> sparse;
+		};
+
 		friend class Entity;
 		
 		// Assign a component to the master Entity::ID of id
@@ -193,7 +225,10 @@ namespace rift {
 
 	private:
 
-		// The collection of EntityRecords
+		// Query caches
+		std::unordered_map<ComponentMask, Cache> entity_caches;
+	
+		// The collection of Entity::Records
 		std::vector<Entity::Record> entity_records;
 		
 		// The queue of reusable Entity::IDs
@@ -241,7 +276,7 @@ namespace rift {
 		auto mask = signature_for<Rest...>();
 		mask.set(First::family());
 		std::size_t count = 0;
-		for (auto entity_record : entity_records) {
+		for (auto& entity_record : entity_records) {
 			if ((entity_record.components() & mask) == mask) {
 				++count;
 			}
@@ -254,9 +289,20 @@ namespace rift {
 	{
 		auto mask = signature_for<Rest...>();
 		mask.set(First::family());
-		for (auto entity_record : entity_records) {
-			if ((entity_record.components() & mask) == mask) {
-				fun(Entity(this, entity_record.master_id_copy()));
+		
+		if (entity_caches.find(mask) != entity_caches.end()) {
+			for (auto& entity : entity_caches.at(mask)) {
+				fun(entity);
+			}
+		}
+		else {
+			entity_caches.emplace(mask, Cache());
+			for (auto& entity_record : entity_records) {
+				if ((entity_record.components() & mask) == mask) {
+					auto e = Entity(this, entity_record.master_id_copy());
+					fun(e);
+					entity_caches.at(mask).insert(e);
+				}
 			}
 		}
 	}
@@ -271,11 +317,23 @@ namespace rift {
 		}
 		pool->at(id.index()) = C(std::forward<Args>(args)...);
 		entity_records.at(id.index()).insert_component(C::family());
+		
+		auto mask = component_mask(id);
+		for (auto& pair : entity_caches) {
+			if ((mask & pair.first) == pair.first) {
+				pair.second.insert(Entity(this, id));
+			}
+		}	
 	}
 
 	template<class C>
 	inline void EntityManager::remove(const Entity::ID& id) noexcept
 	{
+		for (auto& pair : entity_caches) {
+			if (pair.first.test(C::family())) {
+				pair.second.remove(Entity(this, id));
+			}
+		}
 		entity_records.at(id.index()).remove_component(C::family());
 	}
 
