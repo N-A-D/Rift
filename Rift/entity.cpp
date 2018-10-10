@@ -5,12 +5,12 @@ rift::Entity::Entity()
 {
 }
 
-rift::Entity::Entity(EntityManager * em, rift::ID id)
+rift::Entity::Entity(EntityManager * em, rift::Entity::ID id)
 	: mgr(em), m_id(id)
 {
 }
 
-rift::ID rift::Entity::id() const noexcept
+rift::Entity::ID rift::Entity::id() const noexcept
 {
 	return m_id;
 }
@@ -34,7 +34,7 @@ void rift::Entity::destroy() const noexcept
 rift::ComponentMask rift::Entity::component_mask() const noexcept
 {
 	assert(valid() && "Cannot fetch the component mask of an invalid entity");
-	return mgr->component_mask(m_id);
+	return mgr->component_mask_for(m_id);
 }
 
 bool rift::operator<(const rift::Entity & a, const rift::Entity & b) noexcept
@@ -68,24 +68,35 @@ rift::Entity rift::EntityManager::create_entity() noexcept
 		std::size_t index = masks.size();
 		masks.push_back(ComponentMask(0));
 		id_versions.push_back(1);
-		return Entity(this, ID(index, id_versions.back()));
+		return Entity(this, Entity::ID(index, id_versions.back()));
 	}
 }
 
-bool rift::EntityManager::valid_id(const rift::ID & id) const noexcept
+bool rift::EntityManager::valid_id(const rift::Entity::ID & id) const noexcept
 {
 	return id_versions.at(id.index()) == id.version();
 }
 
-void rift::EntityManager::invalidate_id(const rift::ID & id) noexcept
+void rift::EntityManager::invalidate_id(const rift::Entity::ID & id) noexcept
 {
+	delete_components_for(id);
 	auto idx = id.index();
 	masks.at(idx) = 0;
 	++id_versions.at(idx);
-	reusable_ids.push(ID(idx, id_versions.at(idx)));
+	reusable_ids.push(Entity::ID(idx, id_versions.at(idx)));
 }
 
-rift::ComponentMask rift::EntityManager::component_mask(const rift::ID & id) const noexcept
+void rift::EntityManager::delete_components_for(const Entity::ID & id) noexcept
+{
+	auto mask = component_mask_for(id);
+	for (std::size_t i = 0; i < mask.size(); i++) {
+		if (mask.test(i)) {
+			component_pools.at(i)->remove(id.index());
+		}
+	}
+}
+
+rift::ComponentMask rift::EntityManager::component_mask_for(const rift::Entity::ID & id) const noexcept
 {
 	return masks.at(id.index());
 }
