@@ -178,85 +178,10 @@ bool rift::EntityManager::valid_id(const Entity::ID& id) const noexcept
 void rift::EntityManager::invalidate_id(const Entity::ID& id) noexcept
 {
 	auto mask = component_mask(id);
-	for (auto& pair : search_caches) {
-		if ((mask & pair.first) == pair.first) {
-			pair.second.remove(Entity(this, id));
-		}
-	}
 	reusable_ids.push(entity_records.at(id.index()).renew_master_id());
 }
 
 rift::ComponentMask rift::EntityManager::component_mask(const Entity::ID& id) const noexcept
 {
 	return entity_records.at(id.index()).components();
-}
-
-rift::EntityManager::Cache::Cache()
-	: n(0), dense(1, Entity())
-{
-}
-
-rift::EntityManager::Cache::iterator rift::EntityManager::Cache::begin()
-{
-	return dense.begin();
-}
-
-rift::EntityManager::Cache::iterator rift::EntityManager::Cache::end()
-{
-	return dense.begin() + n;
-}
-
-rift::EntityManager::Cache::const_iterator rift::EntityManager::Cache::begin() const
-{
-	return dense.begin();;
-}
-
-rift::EntityManager::Cache::const_iterator rift::EntityManager::Cache::end() const
-{
-	return dense.begin() + n;
-}
-
-bool rift::EntityManager::Cache::search(const Entity & e)
-{
-	auto idx = e.id().index();
-	if (idx >= sparse.size())
-		return false;
-	if (sparse.at(idx) < n && dense.at(sparse.at(idx)) == e)
-		return true;
-	return false;
-}
-
-void rift::EntityManager::Cache::insert(const Entity & e)
-{
-	if (search(e))
-		return;
-	auto idx = e.id().index();
-	if (idx >= sparse.size()) {
-		sparse.resize(idx + 1);
-	}
-	if (n >= dense.size())
-		dense.resize(n + 1);
-	dense.at(n) = e;
-	sparse.at(idx) = n++;
-}
-
-void rift::EntityManager::Cache::remove(const Entity & e)
-{
-	if (!search(e))
-		return;
-	auto idx = e.id().index();
-	auto entity = dense.at(n - 1);
-	dense.at(sparse.at(idx)) = entity;
-	sparse.at(entity.id().index()) = sparse.at(idx);
-	--n;
-}
-
-void rift::EntityManager::Cache::clear()
-{
-	n = 0;
-}
-
-bool rift::EntityManager::Cache::empty() const
-{
-	return n == 0;
 }

@@ -33,7 +33,7 @@
     <ClInclude Include="details\functions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="details\pool.h">
+    <ClInclude Include="details\containers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
