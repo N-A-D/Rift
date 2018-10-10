@@ -139,13 +139,11 @@
     <ClInclude Include="system.h" />
     <ClInclude Include="utility\containers.h" />
     <ClInclude Include="utility\functions.h" />
-    <ClInclude Include="utility\identification.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="component.cpp" />
     <ClCompile Include="entity.cpp" />
     <ClCompile Include="system.cpp" />
-    <ClCompile Include="utility\identification.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -33,9 +33,6 @@
     <ClInclude Include="utility\functions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="utility\identification.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="config.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -48,9 +45,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="component.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="utility\identification.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
