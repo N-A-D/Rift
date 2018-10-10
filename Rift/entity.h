@@ -26,8 +26,10 @@ namespace rift {
 		public:
 			ID();
 			ID(std::size_t index, std::size_t version);
+			// Returns the ID number
+			std::uint64_t number() const noexcept;
 			// Return this Entity::ID with an incremented version number
-			ID& renew() noexcept;
+			void renew() noexcept;
 			// Return the index portion of the Entity::ID 
 			// Note: Used for indexing into arrays
 			std::size_t index() const noexcept;
@@ -35,39 +37,7 @@ namespace rift {
 			// Note: Used for Entity::ID equality comparisons
 			std::size_t version() const noexcept;
 		private:
-			std::size_t m_index;
-			std::size_t m_version;
-		};
-
-		// The Entity::Record class
-		// An Entity::Record records which components belong and do not belong to an Entity::ID
-		// Notes:
-		// - Whenever an Entity handle is created, an associated Entity::Record is created. The newly created
-		//   Entity handle is then given a copy of the Entity::ID created in the Entity::Record.
-		// - Whenever an Entity handle is destroyed, the associated Entity::Record ensures that the destroyed 
-		//   Entity and all copies of it are invalid by renewing its Entity::ID
-		class Record final {
-			using ComponentFamily = std::size_t;
-		public:
-			Record();
-			Record(rift::Entity::ID id);
-			// Renews the record's Entity::ID and returns a copy of it
-			Entity::ID renew_master_id() noexcept;
-			// Returns a copy of the record's Entity::ID
-			Entity::ID master_id_copy() const noexcept;
-			// Returns the ComponentMask for the Entity::ID
-			ComponentMask components() const noexcept;
-			// Insert the bit associated with the component
-			void insert_component(ComponentFamily family) noexcept;
-			// Remove the bit associated with the component
-			void remove_component(ComponentFamily family) noexcept;
-			// Check if the bit associated with the component is active
-			bool check_component(ComponentFamily family) noexcept;
-		private:
-			// The master Entity::ID that owns the component_list
-			rift::Entity::ID id;
-			// The bitmask of components currently assigned to the master Entity::ID
-			rift::ComponentMask component_list;
+			std::uint64_t m_number;
 		};
 
 		// Create an invalid entity
@@ -193,8 +163,11 @@ namespace rift {
 
 	private:
 	
-		// The collection of Entity::Records
-		std::vector<Entity::Record> entity_records;
+		// The collection of ComponentMasks'
+		std::vector<ComponentMask> masks;
+
+		// The collection of ID versions
+		std::vector<std::size_t> id_versions;
 		
 		// The queue of reusable Entity::IDs
 		std::queue<Entity::ID> reusable_ids;
@@ -238,11 +211,11 @@ namespace rift {
 	template <class First, class... Rest>
 	inline std::size_t EntityManager::count_entities_with() const noexcept
 	{
-		auto mask = signature_for<Rest...>();
-		mask.set(First::family());
+		auto signature = signature_for<Rest...>();
+		signature.set(First::family());
 		std::size_t count = 0;
-		for (auto& entity_record : entity_records) {
-			if ((entity_record.components() & mask) == mask) {
+		for (auto& mask : masks) {
+			if ((mask & signature) == signature) {
 				++count;
 			}
 		}
@@ -252,13 +225,11 @@ namespace rift {
 	template <class First, class... Rest>
 	inline void EntityManager::entities_with(std::function<void(const Entity&)>&& fun) noexcept
 	{
-		auto mask = signature_for<Rest...>();
-		mask.set(First::family());
-	
-		for (auto& entity_record : entity_records) {
-			if ((entity_record.components() & mask) == mask) {
-				auto e = Entity(this, entity_record.master_id_copy());
-				fun(e);
+		auto signature = signature_for<Rest...>();
+		signature.set(First::family());
+		for (std::size_t i = 0; i < masks.size(); i++) {
+			if ((masks[i] & signature) == signature) {
+				fun(Entity(this, Entity::ID(i, id_versions[i])));
 			}
 		}
 		
@@ -273,19 +244,19 @@ namespace rift {
 			pool->allocate(id.index() - size + 1);
 		}
 		pool->at(id.index()) = C(std::forward<Args>(args)...);
-		entity_records.at(id.index()).insert_component(C::family());	
+		masks.at(id.index()).set(C::family());	
 	}
 
 	template<class C>
 	inline void EntityManager::remove(const Entity::ID& id) noexcept
 	{
-		entity_records.at(id.index()).remove_component(C::family());
+		masks.at(id.index()).reset(C::family());
 	}
 
 	template<class C>
 	inline bool EntityManager::has(const Entity::ID& id) noexcept
 	{
-		return entity_records.at(id.index()).check_component(C::family());
+		return masks.at(id.index()).test(C::family());
 	}
 
 	template<class C>
@@ -298,7 +269,7 @@ namespace rift {
 	inline std::shared_ptr<Pool<C>> EntityManager::pool_for() noexcept
 	{
 		if (component_pools.find(C::family()) == component_pools.end())
-			component_pools.emplace(C::family(), std::make_shared<Pool<C>>(entity_records.size()));
+			component_pools.emplace(C::family(), std::make_shared<Pool<C>>(masks.size()));
 		return std::static_pointer_cast<Pool<C>>(component_pools.at(C::family()));
 	}
 
