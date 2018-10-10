@@ -45,4 +45,9 @@ namespace rift {
 		std::vector<Object> objects;
 	};
 	
+	template <class...>
+	class Cache;
+
+	
+
 }
