@@ -110,7 +110,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -133,17 +133,19 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="component.h" />
-    <ClInclude Include="details\config.h" />
-    <ClInclude Include="details\functions.h" />
-    <ClInclude Include="details\containers.h" />
+    <ClInclude Include="config.h" />
     <ClInclude Include="entity.h" />
     <ClInclude Include="rift.h" />
     <ClInclude Include="system.h" />
+    <ClInclude Include="utility\containers.h" />
+    <ClInclude Include="utility\functions.h" />
+    <ClInclude Include="utility\identification.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="component.cpp" />
     <ClCompile Include="entity.cpp" />
     <ClCompile Include="system.cpp" />
+    <ClCompile Include="utility\identification.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
