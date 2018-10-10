@@ -5,52 +5,30 @@
 #include <assert.h>
 #include <functional>
 #include <unordered_map>
-#include "details/functions.h"
-#include "details/containers.h"
+#include "utility/functions.h"
+#include "utility/containers.h"
+#include "utility/identification.h"
 
 namespace rift {
 	class EntityManager;
 
     // The Entity class
-	// a handle for an Entity::ID
+	// a handle for an rift::ID
 	class Entity final {
 	public:
-
-		// The Entity::ID class
-		// The concept of an 'entity' is the Entity::ID
-		// Notes:
-		// - An Entity::ID associates with an Entity::Record which contains the list components owned by the Entity::ID
-		// - An Entity::ID determines the lifespan of Entity handles and the current component list through its version
-		// - Components are arranged as parallel arrays and the Entity::ID serves as an index into those arrays
-		class ID final {
-		public:
-			ID();
-			ID(std::size_t index, std::size_t version);
-			// Returns the ID number
-			std::uint64_t number() const noexcept;
-			// Return this Entity::ID with an incremented version number
-			void renew() noexcept;
-			// Return the index portion of the Entity::ID 
-			// Note: Used for indexing into arrays
-			std::size_t index() const noexcept;
-			// Return the version portion of the Entity::ID
-			// Note: Used for Entity::ID equality comparisons
-			std::size_t version() const noexcept;
-		private:
-			std::uint64_t m_number;
-		};
 
 		// Create an invalid entity
 		Entity();
 
-		// Fetch the entity's Entity::ID
-		Entity::ID id() const noexcept;
+		// Fetch the entity's rift::ID
+		rift::ID id() const noexcept;
 
-		// Checks if the entity's Entity::ID is valid
+		// Checks if the entity's rift::ID is valid
 		bool valid() const noexcept;
+
 		operator bool() const noexcept;
 		
-		// Invalidate this entity and all other entities that share the same Entity::ID
+		// Invalidate this entity and all other entities that share the same rift::ID
 		void destroy() const noexcept;
 
 		// Fetch the entity's ComponentMask
@@ -76,50 +54,39 @@ namespace rift {
 		template <class C>
 		C &get() const noexcept;
 
-		// Returns a pointer to this entity's EntityManager
-		// Note: You must not delete the pointer!
-		EntityManager* manager() const noexcept;
+		friend bool operator<(const rift::Entity& a, const rift::Entity& b) noexcept;
+		friend bool operator>(const rift::Entity& a, const rift::Entity& b) noexcept;
+		friend bool operator==(const rift::Entity& a, const rift::Entity& b) noexcept;
+		friend bool operator!=(const rift::Entity& a, const rift::Entity& b) noexcept;
 
 	private:
 		friend class EntityManager;
-
 		// Only EntityManagers are permitted to create valid entity handles
-		Entity(EntityManager *em, Entity::ID id);
-	
-		// A copy of the master Entity::ID owned by the associated Entity::Record
-		Entity::ID m_id;
-		
-		// The manager responsible for creating this Entity
+		Entity(EntityManager *em, rift::ID id);
+		// The manager that created this entity
 		EntityManager* mgr;
+		// The entity's id. Only valid while the version is valid
+		rift::ID m_id;
+	
 	};
-
-	bool operator<(const rift::Entity::ID& a, const rift::Entity::ID& b) noexcept;
-	bool operator>(const rift::Entity::ID& a, const rift::Entity::ID& b) noexcept;
-	bool operator==(const rift::Entity::ID& a, const rift::Entity::ID& b) noexcept;
-	bool operator!=(const rift::Entity::ID& a, const rift::Entity::ID& b) noexcept;
-
-	bool operator<(const rift::Entity& a, const rift::Entity& b) noexcept;
-	bool operator>(const rift::Entity& a, const rift::Entity& b) noexcept;
-	bool operator==(const rift::Entity& a, const rift::Entity& b) noexcept;
-	bool operator!=(const rift::Entity& a, const rift::Entity& b) noexcept;
 
 	// The EntityManager class
 	// Manages Entity::Records and the creation of Entity handles
 	class EntityManager final {
 	public:
 
-		EntityManager();
+		EntityManager() = default;
 		EntityManager(const EntityManager&) = delete;
 		EntityManager& operator=(const EntityManager&) = delete;
 
-		// Generate a new Entity::Record and return an Entity handle to its Entity::ID
+		// Generate a new Entity::Record and return an Entity handle to its rift::ID
 		Entity create_entity() noexcept;
 
-		// Returns the number of Entity::IDs that associate with an instance of each component type
+		// Returns the number of rift::IDs that associate with an instance of each component type
 		template <class First, class... Rest>
 		std::size_t count_entities_with() const noexcept;
 
-		// The function applies 'fun' onto Entities whose Entity::ID associates with an instance of 
+		// The function applies 'fun' onto Entities whose rift::ID associates with an instance of 
 		// each component type given as a template parameter.
 		template <class First, class... Rest>
 		void entities_with(std::function<void(const Entity&)>&& fun) noexcept;
@@ -130,30 +97,30 @@ namespace rift {
 
 		friend class Entity;
 		
-		// Assign a component to the master Entity::ID of id
+		// Assign a component to the master rift::ID of id
 		template <class C, class... Args>
-		void add(const Entity::ID& id, Args&& ...args) noexcept;
+		void add(const rift::ID& id, Args&& ...args) noexcept;
 		
-		// Remove a component from the master Entity::ID of id
+		// Remove a component from the master rift::ID of id
 		template <class C>
-		void remove(const Entity::ID& id) noexcept;
+		void remove(const rift::ID& id) noexcept;
 
-		// Check if the master Entity::ID of id owns a component of type C
+		// Check if the master rift::ID of id owns a component of type C
 		template <class C>
-		bool has(const Entity::ID& id) noexcept;
+		bool has(const rift::ID& id) noexcept;
 
-		// Returns the component of type C associate with the master Entity::ID
+		// Returns the component of type C associate with the master rift::ID
 		template <class C>
-		C &get(const Entity::ID& id) noexcept;
+		C &get(const rift::ID& id) noexcept;
 
-		// Checks if the id is of the same version as its master Entity::ID
-		bool valid_id(const Entity::ID& id) const noexcept;
+		// Checks if the id is of the same version as its master rift::ID
+		bool valid_id(const rift::ID& id) const noexcept;
 
 		// Invalidate id and all copies of it by refreshing the EntityRecord id maps to
-		void invalidate_id(const Entity::ID& id) noexcept;
+		void invalidate_id(const rift::ID& id) noexcept;
 		
-		// Returns the ComponentMask associated with the master Entity::ID of id
-		ComponentMask component_mask(const Entity::ID& id) const noexcept;
+		// Returns the ComponentMask associated with the master rift::ID of id
+		ComponentMask component_mask(const rift::ID& id) const noexcept;
 
 		// Returns the component pool for component type C
 		// Note: 
@@ -169,8 +136,8 @@ namespace rift {
 		// The collection of ID versions
 		std::vector<std::size_t> id_versions;
 		
-		// The queue of reusable Entity::IDs
-		std::queue<Entity::ID> reusable_ids;
+		// The queue of reusable rift::IDs
+		std::queue<rift::ID> reusable_ids;
 
 		using ComponentFamily = std::size_t;
 
@@ -229,14 +196,14 @@ namespace rift {
 		signature.set(First::family());
 		for (std::size_t i = 0; i < masks.size(); i++) {
 			if ((masks[i] & signature) == signature) {
-				fun(Entity(this, Entity::ID(i, id_versions[i])));
+				fun(Entity(this, rift::ID(i, id_versions[i])));
 			}
 		}
 		
 	}
 
 	template<class C, class ...Args>
-	inline void EntityManager::add(const Entity::ID& id, Args && ...args) noexcept
+	inline void EntityManager::add(const rift::ID& id, Args && ...args) noexcept
 	{
 		auto pool = pool_for<C>();
 		auto size = pool->size();
@@ -248,19 +215,19 @@ namespace rift {
 	}
 
 	template<class C>
-	inline void EntityManager::remove(const Entity::ID& id) noexcept
+	inline void EntityManager::remove(const rift::ID& id) noexcept
 	{
 		masks.at(id.index()).reset(C::family());
 	}
 
 	template<class C>
-	inline bool EntityManager::has(const Entity::ID& id) noexcept
+	inline bool EntityManager::has(const rift::ID& id) noexcept
 	{
 		return masks.at(id.index()).test(C::family());
 	}
 
 	template<class C>
-	inline C & EntityManager::get(const Entity::ID& id) noexcept
+	inline C & EntityManager::get(const rift::ID& id) noexcept
 	{
 		return std::static_pointer_cast<Pool<C>>(component_pools.at(C::family()))->at(id.index());
 	}

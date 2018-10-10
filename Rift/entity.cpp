@@ -1,53 +1,16 @@
 #include "entity.h"
 
-rift::Entity::ID::ID()
-	: m_number(0)
-{
-}
-
-rift::Entity::ID::ID(std::size_t index, std::size_t version)
-	: m_number(std::uint64_t(index) << 32 | std::uint64_t(version))
-{
-}
-
-std::uint64_t rift::Entity::ID::number() const noexcept
-{
-	return m_number;
-}
-
-void rift::Entity::ID::renew() noexcept
-{
-	*this = ID(index(), version() + 1);
-}
-
-std::size_t rift::Entity::ID::index() const noexcept
-{
-	return m_number >> 32;
-}
-
-std::size_t rift::Entity::ID::version() const noexcept
-{
-	return m_number & 0xffffffffUL;
-}
-
 rift::Entity::Entity()
-	: mgr(nullptr)
-	, m_id()
+	: m_id(), mgr(nullptr)
 {
 }
 
-rift::EntityManager * rift::Entity::manager() const noexcept
-{
-	return mgr;
-}
-
-rift::Entity::Entity(rift::EntityManager* mgr, rift::Entity::ID id)
-	: mgr(mgr)
-	, m_id(id)
+rift::Entity::Entity(EntityManager * em, rift::ID id)
+	: mgr(em), m_id(id)
 {
 }
 
-rift::Entity::ID rift::Entity::id() const noexcept
+rift::ID rift::Entity::id() const noexcept
 {
 	return m_id;
 }
@@ -74,48 +37,24 @@ rift::ComponentMask rift::Entity::component_mask() const noexcept
 	return mgr->component_mask(m_id);
 }
 
-bool rift::operator<(const rift::Entity::ID & a, const rift::Entity::ID & b) noexcept
-{
-	return a.number() < b.number();
-}
-
-bool rift::operator>(const rift::Entity::ID & a, const rift::Entity::ID & b) noexcept
-{
-	return b < a;
-}
-
-bool rift::operator==(const rift::Entity::ID & a, const rift::Entity::ID & b) noexcept
-{
-	return !(a < b) && !(b < a);
-}
-
-bool rift::operator!=(const rift::Entity::ID & a, const rift::Entity::ID & b) noexcept
-{
-	return !(a == b);
-}
-
 bool rift::operator<(const rift::Entity & a, const rift::Entity & b) noexcept
 {
-	return a.id() < b.id();
+	return a.m_id < b.m_id;
 }
 
 bool rift::operator>(const rift::Entity & a, const rift::Entity & b) noexcept
 {
-	return b.id() < a.id();
+	return b < a;
 }
 
 bool rift::operator==(const rift::Entity & a, const rift::Entity & b) noexcept
 {
-	return a.manager() == b.manager() && a.id() == b.id();
+	return !(a < b) && !(b < a);
 }
 
 bool rift::operator!=(const rift::Entity & a, const rift::Entity & b) noexcept
 {
 	return !(a == b);
-}
-
-rift::EntityManager::EntityManager()
-{
 }
 
 rift::Entity rift::EntityManager::create_entity() noexcept
@@ -129,23 +68,24 @@ rift::Entity rift::EntityManager::create_entity() noexcept
 		std::size_t index = masks.size();
 		masks.push_back(ComponentMask(0));
 		id_versions.push_back(1);
-		return Entity(this, Entity::ID(index, id_versions.back()));
+		return Entity(this, ID(index, id_versions.back()));
 	}
 }
 
-bool rift::EntityManager::valid_id(const Entity::ID& id) const noexcept
+bool rift::EntityManager::valid_id(const rift::ID & id) const noexcept
 {
 	return id_versions.at(id.index()) == id.version();
 }
 
-void rift::EntityManager::invalidate_id(const Entity::ID& id) noexcept
+void rift::EntityManager::invalidate_id(const rift::ID & id) noexcept
 {
-	masks.at(id.index()) = 0;
-	id_versions.at(id.index())++;
-	reusable_ids.push(Entity::ID(id.index(), id_versions.at(id.index())));
+	auto idx = id.index();
+	masks.at(idx) = 0;
+	++id_versions.at(idx);
+	reusable_ids.push(ID(idx, id_versions.at(idx)));
 }
 
-rift::ComponentMask rift::EntityManager::component_mask(const Entity::ID& id) const noexcept
+rift::ComponentMask rift::EntityManager::component_mask(const rift::ID & id) const noexcept
 {
 	return masks.at(id.index());
 }
