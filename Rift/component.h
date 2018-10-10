@@ -1,7 +1,7 @@
 #pragma once
 
 #include <assert.h>
-#include "details/config.h"
+#include "config.h"
 
 namespace rift {
 	
