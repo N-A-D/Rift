@@ -88,6 +88,8 @@ void rift::EntityManager::invalidate_id(const rift::Entity::ID & id) noexcept
 
 void rift::EntityManager::delete_components_for(const Entity::ID & id) noexcept
 {
+	// Get the mask for the id. For each bit that is active, that is, each component the entity had,
+	// go to the component pool associated with that bit (Component type id) and remove the component that belonged to the entity
 	auto mask = component_mask_for(id);
 	for (std::size_t i = 0; i < mask.size(); i++) {
 		if (mask.test(i)) {
