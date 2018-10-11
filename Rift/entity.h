@@ -53,8 +53,7 @@ namespace rift {
 
 		// Adds a component of type C
 		// Note: 
-		// - if the entity already owns a component of type C, 
-		//   then that component is overwritten by the new component created in this function call.
+		// - An assertion is made that the entity does not own a component of type C
 		template <class C, class ...Args>
 		void add(Args&& ...args) const noexcept;
 
@@ -177,6 +176,7 @@ namespace rift {
 	inline void Entity::add(Args && ...args) const noexcept
 	{
 		assert(valid() && "Cannot add components to an invalid entity");
+		assert(!has<C>() && "The entity already owns a component of type C");
 		mgr->add<C>(m_id, std::forward<Args>(args)...);
 	}
 
