@@ -64,6 +64,11 @@ namespace rift {
 
 
 		// Inserts a component into the Pool overwritting any pre-existing component at the given index
+		// Notes:
+		// - Since a component can only be added in one way through an Entity, adding multiple components 
+		//   to the same index is only possible if the Entity is repeatedly adding the same component to itself
+		// - Since instances of this class will be managed by an EntityManager, the only components that will be
+		//   present in the pool are those that are add-ed by live entities.
 		inline void insert(size_type index, void* object) override {
 			// If the pool isn't large enough to fit a component at the given index, 
 			// expand the pool so that it is.
