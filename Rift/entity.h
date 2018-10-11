@@ -17,8 +17,7 @@ namespace rift {
 	public:
 
 		// An Entity::ID is an index into an array
-		// An EntityManager determines if an Entity's index is valid
-		// through the version of the Entity's id
+		// An EntityManager determines if an Entity's index is valid through the version of the Entity::ID
 		class ID {
 		public:
 			ID() = default;
@@ -34,6 +33,7 @@ namespace rift {
 
 
 		// Create an invalid entity
+		// An invalid Entity is an entity that is not created from an EntityManager
 		Entity();
 
 		// Fetch the entity's Entity::ID
@@ -50,14 +50,16 @@ namespace rift {
 		// Fetch the entity's ComponentMask
 		rift::ComponentMask component_mask() const noexcept;
 
-		// Adds a component of type C to the entity's list of components
-		// Note: if the entity already owns a component of type C, 
-		// then that component is overwritten by the new component created in this function call.
+		// Adds a component of type C
+		// Note: 
+		// - if the entity already owns a component of type C, 
+		//   then that component is overwritten by the new component created in this function call.
 		template <class C, class ...Args>
 		void add(Args&& ...args) const noexcept;
 
-		// Removes a component of type C from the entity's list of components
-		// Note: an assertion is made that the entity owns a component of type C
+		// Removes a component of type C
+		// Note: 
+		// - An assertion is made that the entity owns a component of type C
 		template <class C>
 		void remove() const noexcept;
 
@@ -66,7 +68,8 @@ namespace rift {
 		bool has() const noexcept;
 
 		// Fetches the component of type C from the entity's list of components
-		// Note: an assertion is made that the entity owns a component of type C
+		// Note: 
+		// - an assertion is made that the entity owns a component of type C
 		template <class C>
 		C &get() const noexcept;
 
@@ -77,33 +80,37 @@ namespace rift {
 
 	private:
 		friend class EntityManager;
+
 		// Only EntityManagers are permitted to create valid entity handles
 		Entity(EntityManager *em, Entity::ID id);
+
 		// The manager that created this entity
 		EntityManager* mgr;
+
 		// The entity's id. Only valid while the version is valid
 		Entity::ID m_id;
 	
 	};
 
 	// The EntityManager class
-	// Manages Entity::Records and the creation of Entity handles
+	// Manages the lifecycle of Entity handles
 	class EntityManager final {
 	public:
 
 		EntityManager() = default;
+		// EntityManagers may not be copied as Entity handles store pointers 
+		// to the EntityManager's that created them
 		EntityManager(const EntityManager&) = delete;
 		EntityManager& operator=(const EntityManager&) = delete;
 
-		// Generate a new Entity::Record and return an Entity handle to its Entity::ID
+		// Generate a new Entity handle
 		Entity create_entity() noexcept;
 
-		// Returns the number of Entity::IDs that associate with an instance of each component type
+		// Returns the number of Entity::IDs that associate with each of the components
 		template <class First, class... Rest>
 		std::size_t count_entities_with() const noexcept;
 
-		// The function applies 'fun' onto Entities whose Entity::ID associates with an instance of 
-		// each component type given as a template parameter.
+		// Applies the function fun onto entities that own an instance of each component type
 		template <class First, class... Rest>
 		void entities_with(std::function<void(const Entity&)>&& fun) noexcept;
 
@@ -112,27 +119,27 @@ namespace rift {
 #endif // !RIFT_DEBUG
 
 		friend class Entity;
-		
-		// Assign a component to the master Entity::ID of id
+
+		// Set the bit for the component type C in the component mask at id's index
 		template <class C, class... Args>
 		void add(const Entity::ID& id, Args&& ...args) noexcept;
-		
-		// Remove a component from the master Entity::ID of id
+
+		// Reset the bit for component type C in the component mask at id's index
 		template <class C>
 		void remove(const Entity::ID& id) noexcept;
 
-		// Check if the master Entity::ID of id owns a component of type C
+		// Test the bit for component type C in the component mask at id's index
 		template <class C>
 		bool has(const Entity::ID& id) noexcept;
 
-		// Returns the component of type C associate with the master Entity::ID
+		// Fetch the component at id's index
 		template <class C>
 		C &get(const Entity::ID& id) noexcept;
 
-		// Checks if the id is of the same version as its master Entity::ID
+		// Check if id's version number if valid
 		bool valid_id(const Entity::ID& id) const noexcept;
 
-		// Invalidate id and all copies of it by refreshing the EntityRecord id maps to
+		// Invalidate all Entity handles whose Entity::ID is equivalent to id
 		void invalidate_id(const Entity::ID& id) noexcept;
 
 		// Removes all components associated with the Entity::ID
@@ -197,9 +204,11 @@ namespace rift {
 	template <class First, class... Rest>
 	inline std::size_t EntityManager::count_entities_with() const noexcept
 	{
+		// Generate the component mask for the given component types
 		auto signature = signature_for<Rest...>();
 		signature.set(First::family());
 		std::size_t count = 0;
+		// Count the number of masks that match the given signature
 		for (auto& mask : masks) {
 			if ((mask & signature) == signature) {
 				++count;
@@ -211,14 +220,18 @@ namespace rift {
 	template <class First, class... Rest>
 	inline void EntityManager::entities_with(std::function<void(const Entity&)>&& fun) noexcept
 	{
+		// Generate the component mask for the given component types
 		ComponentMask signature;
 		signature.set(First::family());
 		signature |= signature_for<Rest...>();
 
+		// Check if a cached set of entities whose component masks match the signature above
 		if (result_sets.find(signature) != result_sets.end()) {
 			for (auto& entity : result_sets.at(signature))
 				fun(entity);
 		}
+		// If there is no cached set of entities, look for the entities that match the signature
+		// and store them in a cached set for future use while also applying fun
 		else {
 			Cache<Entity> entity_cache;
 			for (std::size_t i = 0; i < masks.size(); i++) {
@@ -235,22 +248,18 @@ namespace rift {
 	template<class C, class ...Args>
 	inline void EntityManager::add(const Entity::ID& id, Args && ...args) noexcept
 	{
-		/*
-		auto pool = pool_for<C>();
-		auto size = pool->size();
-		if (size <= id.index()) {
-			pool->allocate(id.index() - size + 1);
-		}
-		pool->at(id.index()) = C(std::forward<Args>(args)...);
-		auto mask = masks.at(id.index()).set(C::family());	
-		*/
 
+		// Fetch the component pool for component type C and insert a component at
+		// id's index
 		auto pool = pool_for<C>();
 		auto component = C(std::forward<Args>(args)...);
 		pool->insert(id.index(), &component);
 		auto mask = masks.at(id.index()).set(C::family());
 
-		// Insert this entity into any result sets that match 
+		// As cached search results may already exist, ensure that this entity is in
+		// all relevant result sets so that it isn't missed in a query
+		// An entity belongs in a result set if its component list matches the result set's
+		// signature
 		Entity e(this, id);
 		for (auto& pair : result_sets) {
 			if ((mask & pair.first) == pair.first && !pair.second.has(e))
@@ -261,13 +270,19 @@ namespace rift {
 	template<class C>
 	inline void EntityManager::remove(const Entity::ID& id) noexcept
 	{
+		// When an entity loses a component of type C, all result sets whose
+		// signature includes C should remove that entity
 		Entity e(this, id);
-		auto mask = e.component_mask();
 		for (auto& pair : result_sets) {
-			if (pair.first.test(C::family()) && ((mask & pair.first) == pair.first))/*&& pair.second.has(e))*/
+			// If the component bit for component type C is set and the result
+			// set has the entity then remove the entity
+			if (pair.first.test(C::family()) && pair.second.has(e))
 				pair.second.remove(e);
 		}
+		// Remove the component that once belonged to the entity from the component
+		// pool for type C
 		pool_for<C>()->remove(id.index());
+		// Disable the bit for type C in the Entity's component mask
 		masks.at(id.index()).reset(C::family());
 	}
 
@@ -280,7 +295,6 @@ namespace rift {
 	template<class C>
 	inline C & EntityManager::get(const Entity::ID& id) noexcept
 	{
-		//return std::static_pointer_cast<Pool<C>>(component_pools.at(C::family()))->at(id.index());
 		return pool_for<C>()->at(id.index());
 	}
 
