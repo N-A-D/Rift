@@ -235,15 +235,15 @@ namespace rift {
 		// If there is no cached set of entities, look for the entities that match the signature
 		// and store them in a cached set for future use while also applying fun
 		else {
-			ResultSet<Entity> entity_cache;
+			ResultSet<Entity> query_result;
 			for (std::size_t i = 0; i < masks.size(); i++) {
 				if ((masks[i] & signature) == signature) {
 					Entity e(this, Entity::ID(i, id_versions[i]));
-					entity_cache.insert(e);
+					query_result.insert(e);
 					fun(e);
 				}
 			}
-			result_sets.emplace(signature, entity_cache);
+			result_sets.emplace(signature, query_result);
 		}
 	}
 
