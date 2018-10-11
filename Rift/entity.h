@@ -9,6 +9,7 @@
 #include "utility/containers.h"
 
 namespace rift {
+	
 	class EntityManager;
 
     // The Entity class
@@ -156,7 +157,7 @@ namespace rift {
 
 	private:
 		
-		std::unordered_map<ComponentMask, Cache<Entity>> result_sets;
+		std::unordered_map<ComponentMask, ResultSet<Entity>> result_sets;
 
 		// The collection of ComponentMasks'
 		std::vector<ComponentMask> masks;
@@ -233,7 +234,7 @@ namespace rift {
 		// If there is no cached set of entities, look for the entities that match the signature
 		// and store them in a cached set for future use while also applying fun
 		else {
-			Cache<Entity> entity_cache;
+			ResultSet<Entity> entity_cache;
 			for (std::size_t i = 0; i < masks.size(); i++) {
 				if ((masks[i] & signature) == signature) {
 					Entity e(this, Entity::ID(i, id_versions[i]));
