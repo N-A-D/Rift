@@ -66,8 +66,7 @@ namespace rift {
 		inline void remove(size_type index) override {
 			assert(index < forward.size());
 			assert(forward.at(index) < components.size());
-			auto sub = components.back();
-			components.at(forward.at(index)) = sub;
+			components.at(forward.at(index)) = components.back();
 			forward.at(backward.back()) = forward.at(index);
 			components.pop_back();
 			backward.pop_back();
