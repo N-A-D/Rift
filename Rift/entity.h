@@ -107,7 +107,7 @@ namespace rift {
 		// Generate a new Entity handle
 		Entity create_entity() noexcept;
 
-		// Returns the number of Entity::IDs that associate with each of the components
+		// Returns the number of Entity::IDs that associate with each of the component types
 		template <class First, class... Rest>
 		std::size_t count_entities_with() const noexcept;
 
@@ -156,10 +156,8 @@ namespace rift {
 		std::shared_ptr<Pool<C>> pool_for() noexcept;
 
 	private:
-		
-		std::unordered_map<ComponentMask, ResultSet<Entity>> result_sets;
 
-		// The collection of ComponentMasks'
+		// The collection of ComponentMasks
 		std::vector<ComponentMask> masks;
 
 		// The collection of ID versions
@@ -167,6 +165,9 @@ namespace rift {
 		
 		// The queue of reusable Entity::IDs
 		std::queue<Entity::ID> reusable_ids;
+
+		// A map from query signature to result set
+		std::unordered_map<ComponentMask, ResultSet<Entity>> result_sets;
 
 		// The pools of component pools
 		std::unordered_map<ComponentMask, std::shared_ptr<BasePool>> component_pools;
