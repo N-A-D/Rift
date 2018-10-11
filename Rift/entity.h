@@ -250,7 +250,6 @@ namespace rift {
 	template<class C, class ...Args>
 	inline void EntityManager::add(const Entity::ID& id, Args && ...args) noexcept
 	{
-
 		// Fetch the component pool for component type C and insert a component at
 		// id's index
 		auto pool = pool_for<C>();
@@ -264,7 +263,7 @@ namespace rift {
 		// signature
 		Entity e(this, id);
 		for (auto& pair : result_sets) {
-			if ((mask & pair.first) == pair.first && !pair.second.has(e))
+			if (pair.first.test(C::family()) && (mask & pair.first) == pair.first)
 				pair.second.insert(e);
 		}
 	}
@@ -275,10 +274,11 @@ namespace rift {
 		// When an entity loses a component of type C, all result sets whose
 		// signature includes C should remove that entity
 		Entity e(this, id);
+		auto mask = masks.at(id.index());
 		for (auto& pair : result_sets) {
 			// If the component bit for component type C is set and the result
 			// set has the entity then remove the entity
-			if (pair.first.test(C::family()) && pair.second.has(e))
+			if (pair.first.test(C::family()) && (mask & pair.first) == pair.first)
 				pair.second.remove(e);
 		}
 		// Remove the component that once belonged to the entity from the component
