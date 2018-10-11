@@ -146,18 +146,18 @@ namespace rift {
 
 		// Iterators into the set
 
-		iterator begin() { return data.begin(); }
-		iterator end() { return data.end(); }
-		const_iterator begin() const { return data.begin(); }
-		const_iterator end() const { return data.end(); }
+		iterator begin() { return entities.begin(); }
+		iterator end() { return entities.end(); }
+		const_iterator begin() const { return entities.begin(); }
+		const_iterator end() const { return entities.end(); }
 
 		// Checks if the ResultSet already contains a given entity
 		inline bool has(const Entity& e) const {
 			auto idx = e.id().index();
 			if (idx >= forward.size())
 				return false;
-			if (forward.at(idx) < data.size() && 
-				data.at(forward.at(idx)) == e)
+			if (forward.at(idx) < entities.size() && 
+				entities.at(forward.at(idx)) == e)
 				return true;
 			return false;
 		}
@@ -174,8 +174,8 @@ namespace rift {
 			auto idx = e.id().index();
 			if (idx >= forward.size())
 				forward.resize(idx + 1);
-			forward.at(idx) = data.size();
-			data.push_back(e);
+			forward.at(idx) = entities.size();
+			entities.push_back(e);
 		}
 
 		// Removes an entity from the result set
@@ -186,21 +186,21 @@ namespace rift {
 		inline void remove(const Entity& e) {
 			assert(has(e));
 			auto idx = e.id().index();
-			auto sub = data.back();
-			data.at(forward.at(idx)) = sub;
+			auto sub = entities.back();
+			entities.at(forward.at(idx)) = sub;
 			forward.at(sub.id().index()) = forward.at(idx);
-			data.pop_back();
+			entities.pop_back();
 		}
 
 		// Returns the number of entity's in the set
-		size_type size() const noexcept { return data.size(); }
+		size_type size() const noexcept { return entities.size(); }
 
 		// Returns the capacity of the set. I.e., how many entities it can possibly hold
 		size_type capacity() const noexcept { return forward.size(); }
 
 	private:
 
-		std::vector<Entity> data;
+		std::vector<Entity> entities;
 		std::vector<std::size_t> forward;
 	};
 
