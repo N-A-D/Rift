@@ -48,28 +48,23 @@ namespace rift {
 		const_iterator end() const { return components.end(); }
 
 		inline reference at(size_type index) {
-			//assert(forward.at(index) < components.size());
-			//return components.at(forward.at(index));
 			return *(static_cast<Component *>(get(index)));
 		}
 
 		inline const_reference at(size_type index) const {
-			//assert(forward.at(index) < components.size());
-			//return components.at(forward.at(index));
 			return *(static_cast<Component *>(get(index)));
 		}
 
 		inline void insert(size_type index, void* object) override {
-			//assert(forward.at(index) < components.size());
 			if (forward.size() <= index)
 				forward.resize(index + 1);
-			auto size = components.size();
-			forward.push_back(size);
+			forward.at(index) = components.size();
 			backward.push_back(index);
 			components.push_back(*(static_cast<Component *>(object)));
 		}
 
 		inline void remove(size_type index) override {
+			assert(index < forward.size());
 			assert(forward.at(index) < components.size());
 			auto sub = components.back();
 			components.at(forward.at(index)) = sub;
@@ -142,9 +137,8 @@ namespace rift {
 			auto idx = e.id().index();
 			if (idx >= indexes.size())
 				indexes.resize(idx + 1);
-			auto size = data.size();
+			indexes.at(idx) = data.size();
 			data.push_back(e);
-			indexes.at(idx) = size;
 		}
 
 		inline void remove(const Entity& e) {
