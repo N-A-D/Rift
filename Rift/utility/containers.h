@@ -110,9 +110,13 @@ namespace rift {
 		bool test(size_type index) const noexcept override;
 
 		// Insert an object at the given index
-		// Note:
-		// - Multiple insertions at the same index is not permitted
+		// Notes:
+		// - An assertion is made that there does not exist an object at the given index.
+	    //   As a result multiple insertions at the same index is not permitted
+		// - If the size of the cache is smaller than the given index, which also means
+		//   there is no object assigned to the index, the cache will expand to fit the index
 		void insert(size_type index, void* object) override;
+
 		// Remove an object at the given index
 		// Notes:
 		// - An assertion is made that there is an object at the given index
