@@ -231,7 +231,7 @@ namespace rift {
 		signature.set(First::family());
 		signature |= signature_for<Rest...>();
 
-		// Check if a cached set of entities whose component masks match the signature above
+		// Check for a cached set of entities whose component masks match the signature above
 		if (entity_caches.find(signature) != entity_caches.end()) {
 			for (auto& entity : entity_caches.at(signature))
 				fun(entity);
