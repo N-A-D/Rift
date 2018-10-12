@@ -123,7 +123,7 @@ namespace rift {
 		//   As a result, multiple removals at the same index are not permitted
 		void erase(size_type index) override;
 
-		// Return a opaque pointer to the object at the given index
+		// Return a generic pointer to the object at the given index
 		// Note:
 		// - An assertion is made that there exists an object at the given index
 		void* get(size_type index) override;
