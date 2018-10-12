@@ -173,7 +173,7 @@ namespace rift {
 		// A map from query signature to result set
 		std::unordered_map<ComponentMask, Cache<Entity>> entity_caches;
 
-		// The pools of component pools
+		// The component pools
 		using ComponentFamily = std::size_t;
 		std::unordered_map<ComponentFamily, std::shared_ptr<BaseCache>> component_pools;
 	};
@@ -245,6 +245,7 @@ namespace rift {
 			for (std::size_t i = 0; i < masks.size(); i++) {
 				if ((masks[i] & signature) == signature) {
 					Entity e(this, Entity::ID(i, id_versions[i]));
+					// Store a copy into the cache
 					entity_cache.insert(e.id().index(), &e);
 					fun(e);
 				}
@@ -258,6 +259,7 @@ namespace rift {
 	{
 		// Insert a copy of a newly constructed component in the component cache for C
 		auto component = C(std::forward<Args>(args)...);
+		// Store a copy of the component in cache
 		cache_for<C>()->insert(id.index(), &component);
 		auto mask = masks.at(id.index()).set(C::family());
 
@@ -267,6 +269,7 @@ namespace rift {
 		for (auto& pair : entity_caches) {
 			// Only insert into result sets whose signature includes the bit for type C
 			if (pair.first.test(C::family()) && (mask & pair.first) == pair.first)
+				// Store a copy of the entity in the cache
 				pair.second.insert(e.id().index(), &e);
 		}
 	}
