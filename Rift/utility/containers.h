@@ -173,7 +173,7 @@ namespace rift {
 	inline void * Cache<T>::get(size_type index)
 	{
 		assert(test(index));
-		return (void*)&instances.at(forward.at(index));
+		return &instances.at(forward.at(index));
 	}
 
 }
