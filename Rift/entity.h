@@ -243,7 +243,6 @@ namespace rift {
 		// and store them in a cached set for future use while also applying fun
 		else {
 			Cache<Entity> entity_cache;
-			auto& entity_cache = entity_caches.at(signature);
 			for (std::size_t i = 0; i < masks.size(); i++) {
 				if ((masks[i] & signature) == signature) {
 					Entity e(this, Entity::ID(i, id_versions[i]));
