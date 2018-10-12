@@ -161,8 +161,6 @@ namespace rift {
 		template <class C>
 		std::shared_ptr<Cache<C>> cache_for() noexcept;
 
-	private:
-
 		// The collection of ComponentMasks
 		std::vector<ComponentMask> masks;
 
