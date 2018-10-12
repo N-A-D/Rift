@@ -57,6 +57,26 @@ bool rift::operator!=(const rift::Entity & a, const rift::Entity & b) noexcept
 	return !(a == b);
 }
 
+bool rift::operator<(const Entity::ID & a, const Entity::ID & b) noexcept
+{
+	return a.number() < b.number();
+}
+
+bool rift::operator>(const Entity::ID & a, const Entity::ID & b) noexcept
+{
+	return b < a;
+}
+
+bool rift::operator==(const Entity::ID & a, const Entity::ID & b) noexcept
+{
+	return !(a < b) && !(b < a);
+}
+
+bool rift::operator!=(const Entity::ID & a, const Entity::ID & b) noexcept
+{
+	return !(a == b);
+}
+
 rift::Entity rift::EntityManager::create_entity() noexcept
 {
 	if (!reusable_ids.empty()) {
@@ -93,7 +113,7 @@ void rift::EntityManager::delete_components_for(const Entity::ID & id) noexcept
 	auto mask = component_mask_for(id);
 	for (std::size_t i = 0; i < mask.size(); i++) {
 		if (mask.test(i)) {
-			component_pools.at(i)->remove(id.index());
+			component_pools.at(i)->erase(id.index());
 		}
 	}
 }

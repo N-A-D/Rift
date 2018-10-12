@@ -24,7 +24,6 @@ namespace rift {
 			ID() = default;
 			ID(std::uint32_t index, std::uint32_t version)
 				: m_number(std::uint64_t(index) | std::uint64_t(version) << 32) {}
-			operator std::uint64_t() const noexcept { return m_number; }
 			std::uint32_t index() const noexcept { return m_number & 0xFFFFFFFFUL; }
 			std::uint32_t version() const noexcept { return m_number >> 32; }
 			std::uint64_t number() const noexcept { return m_number; }
@@ -92,6 +91,11 @@ namespace rift {
 	
 	};
 
+	bool operator<(const Entity::ID& a, const Entity::ID& b) noexcept;
+	bool operator>(const Entity::ID& a, const Entity::ID& b) noexcept;
+	bool operator==(const Entity::ID& a, const Entity::ID& b) noexcept;
+	bool operator!=(const Entity::ID& a, const Entity::ID& b) noexcept;
+
 	// The EntityManager class
 	// Manages the lifecycle of Entity handles
 	class EntityManager final {
@@ -152,7 +156,7 @@ namespace rift {
 		// Note: 
 		// - If the component type does not exist, it is created then returned.
 		template <class C>
-		std::shared_ptr<Pool<C>> pool_for() noexcept;
+		std::shared_ptr<Cache<C>> cache_for() noexcept;
 
 	private:
 
@@ -166,10 +170,10 @@ namespace rift {
 		std::queue<Entity::ID> reusable_ids;
 
 		// A map from query signature to result set
-		std::unordered_map<ComponentMask, ResultSet<Entity>> result_sets;
+		std::unordered_map<ComponentMask, Cache<Entity>> entity_caches;
 
 		// The pools of component pools
-		std::unordered_map<ComponentMask, std::shared_ptr<BasePool>> component_pools;
+		std::unordered_map<ComponentMask, std::shared_ptr<BaseCache>> component_pools;
 	};
 
 	template<class C, class ...Args>
@@ -228,22 +232,22 @@ namespace rift {
 		signature |= signature_for<Rest...>();
 
 		// Check if a cached set of entities whose component masks match the signature above
-		if (result_sets.find(signature) != result_sets.end()) {
-			for (auto& entity : result_sets.at(signature))
+		if (entity_caches.find(signature) != entity_caches.end()) {
+			for (auto& entity : entity_caches.at(signature))
 				fun(entity);
 		}
 		// If there is no cached set of entities, look for the entities that match the signature
 		// and store them in a cached set for future use while also applying fun
 		else {
-			ResultSet<Entity> query_result;
+			Cache<Entity> entity_cache;
 			for (std::size_t i = 0; i < masks.size(); i++) {
 				if ((masks[i] & signature) == signature) {
 					Entity e(this, Entity::ID(i, id_versions[i]));
-					query_result.insert(e);
+					entity_cache.insert(e.id().index(), &e);
 					fun(e);
 				}
 			}
-			result_sets.emplace(signature, query_result);
+			entity_caches.emplace(signature, entity_cache);
 		}
 	}
 
@@ -252,9 +256,9 @@ namespace rift {
 	{
 		// Fetch the component pool for component type C and insert a component at
 		// id's index
-		auto pool = pool_for<C>();
+		auto cache = cache_for<C>();
 		auto component = C(std::forward<Args>(args)...);
-		pool->insert(id.index(), &component);
+		cache->insert(id.index(), &component);
 		auto mask = masks.at(id.index()).set(C::family());
 
 		// As cached search results may already exist, ensure that this entity is in
@@ -262,9 +266,9 @@ namespace rift {
 		// An entity belongs in a result set if its component list matches the result set's
 		// signature
 		Entity e(this, id);
-		for (auto& pair : result_sets) {
+		for (auto& pair : entity_caches) {
 			if (pair.first.test(C::family()) && (mask & pair.first) == pair.first)
-				pair.second.insert(e);
+				pair.second.insert(e.id().index(), &e);
 		}
 	}
 
@@ -275,15 +279,15 @@ namespace rift {
 		// signature includes C should remove that entity
 		Entity e(this, id);
 		auto mask = masks.at(id.index());
-		for (auto& pair : result_sets) {
+		for (auto& pair : entity_caches) {
 			// If the component bit for component type C is set and the result
 			// set has the entity then remove the entity
 			if (pair.first.test(C::family()) && (mask & pair.first) == pair.first)
-				pair.second.remove(e);
+				pair.second.erase(e.id().index());
 		}
 		// Remove the component that once belonged to the entity from the component
 		// pool for type C
-		pool_for<C>()->remove(id.index());
+		cache_for<C>()->erase(id.index());
 		// Disable the bit for type C in the Entity's component mask
 		masks.at(id.index()).reset(C::family());
 	}
@@ -297,15 +301,15 @@ namespace rift {
 	template<class C>
 	inline C & EntityManager::get(const Entity::ID& id) noexcept
 	{
-		return pool_for<C>()->at(id.index());
+		return *(static_cast<C *>(cache_for<C>()->get(id.index())));
 	}
 
 	template<class C>
-	inline std::shared_ptr<Pool<C>> EntityManager::pool_for() noexcept
+	inline std::shared_ptr<Cache<C>> EntityManager::cache_for() noexcept
 	{
 		if (component_pools.find(C::family()) == component_pools.end())
-			component_pools.emplace(C::family(), std::make_shared<Pool<C>>());
-		return std::static_pointer_cast<Pool<C>>(component_pools.at(C::family()));
+			component_pools.emplace(C::family(), std::make_shared<Cache<C>>());
+		return std::static_pointer_cast<Cache<C>>(component_pools.at(C::family()));
 	}
 
 }
