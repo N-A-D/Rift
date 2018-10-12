@@ -100,6 +100,7 @@ bool rift::EntityManager::valid_id(const rift::Entity::ID & id) const noexcept
 void rift::EntityManager::invalidate_id(const rift::Entity::ID & id) noexcept
 {
 	delete_components_for(id);
+	delete_caches_for(id);
 	auto idx = id.index();
 	masks.at(idx) = 0;
 	++id_versions.at(idx);
@@ -114,6 +115,16 @@ void rift::EntityManager::delete_components_for(const Entity::ID & id) noexcept
 	for (std::size_t i = 0; i < mask.size(); i++) {
 		if (mask.test(i)) {
 			component_pools.at(i)->erase(id.index());
+		}
+	}
+}
+
+void rift::EntityManager::delete_caches_for(const Entity::ID & id) noexcept
+{
+	auto mask = component_mask_for(id);
+	for (auto& pair : entity_caches) {
+		if ((mask & pair.first) == pair.first) {
+			pair.second.erase(id.index());
 		}
 	}
 }

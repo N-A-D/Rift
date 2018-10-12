@@ -148,6 +148,9 @@ namespace rift {
 
 		// Removes all components associated with the Entity::ID
 		void delete_components_for(const Entity::ID& id) noexcept;
+
+		// Remove an Entity from all caches that are relevant
+		void delete_caches_for(const Entity::ID& id) noexcept;
 		
 		// Returns the ComponentMask associated with the master Entity::ID of id
 		ComponentMask component_mask_for(const Entity::ID& id) const noexcept;
@@ -240,6 +243,7 @@ namespace rift {
 		// and store them in a cached set for future use while also applying fun
 		else {
 			Cache<Entity> entity_cache;
+			auto& entity_cache = entity_caches.at(signature);
 			for (std::size_t i = 0; i < masks.size(); i++) {
 				if ((masks[i] & signature) == signature) {
 					Entity e(this, Entity::ID(i, id_versions[i]));
@@ -263,10 +267,9 @@ namespace rift {
 
 		// As cached search results may already exist, ensure that this entity is in
 		// all relevant result sets so that it isn't missed in a query
-		// An entity belongs in a result set if its component list matches the result set's
-		// signature
 		Entity e(this, id);
 		for (auto& pair : entity_caches) {
+			// Only insert into result sets whose signature includes the bit for type C
 			if (pair.first.test(C::family()) && (mask & pair.first) == pair.first)
 				pair.second.insert(e.id().index(), &e);
 		}
@@ -275,8 +278,15 @@ namespace rift {
 	template<class C>
 	inline void EntityManager::remove(const Entity::ID& id) noexcept
 	{
+		// Remove the component that once belonged to the entity from the component
+		// cache for type C
+		cache_for<C>()->erase(id.index());
+		// Disable the bit for type C in the Entity's component mask
+		masks.at(id.index()).reset(C::family());
+
 		// When an entity loses a component of type C, all result sets whose
-		// signature includes C should remove that entity
+		// signature includes C & matches the entity's component signature 
+		// should remove that entity
 		Entity e(this, id);
 		auto mask = masks.at(id.index());
 		for (auto& pair : entity_caches) {
@@ -285,11 +295,6 @@ namespace rift {
 			if (pair.first.test(C::family()) && (mask & pair.first) == pair.first)
 				pair.second.erase(e.id().index());
 		}
-		// Remove the component that once belonged to the entity from the component
-		// pool for type C
-		cache_for<C>()->erase(id.index());
-		// Disable the bit for type C in the Entity's component mask
-		masks.at(id.index()).reset(C::family());
 	}
 
 	template<class C>
