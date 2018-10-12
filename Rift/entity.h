@@ -174,7 +174,8 @@ namespace rift {
 		std::unordered_map<ComponentMask, Cache<Entity>> entity_caches;
 
 		// The pools of component pools
-		std::unordered_map<ComponentMask, std::shared_ptr<BaseCache>> component_pools;
+		using ComponentFamily = std::size_t;
+		std::unordered_map<ComponentFamily, std::shared_ptr<BaseCache>> component_pools;
 	};
 
 	template<class C, class ...Args>
@@ -255,15 +256,13 @@ namespace rift {
 	template<class C, class ...Args>
 	inline void EntityManager::add(const Entity::ID& id, Args && ...args) noexcept
 	{
-		// Fetch the component pool for component type C and insert a component at
-		// id's index
-		auto cache = cache_for<C>();
+		// Insert a copy of a newly constructed component in the component cache for C
 		auto component = C(std::forward<Args>(args)...);
-		cache->insert(id.index(), &component);
+		cache_for<C>()->insert(id.index(), &component);
 		auto mask = masks.at(id.index()).set(C::family());
 
 		// As cached search results may already exist, ensure that this entity is in
-		// all relevant result sets so that it isn't missed in a query
+		// all relevant entity caches so that it isn't missed in a query
 		Entity e(this, id);
 		for (auto& pair : entity_caches) {
 			// Only insert into result sets whose signature includes the bit for type C
@@ -281,7 +280,7 @@ namespace rift {
 		// Disable the bit for type C in the Entity's component mask
 		masks.at(id.index()).reset(C::family());
 
-		// When an entity loses a component of type C, all result sets whose
+		// When an entity loses a component of type C, all entity caches whose
 		// signature includes C & matches the entity's component signature 
 		// should remove that entity
 		Entity e(this, id);
