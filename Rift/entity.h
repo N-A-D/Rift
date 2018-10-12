@@ -270,7 +270,7 @@ namespace rift {
 			// Only insert into result sets whose signature includes the bit for type C
 			if (pair.first.test(C::family()) && (mask & pair.first) == pair.first)
 				// Store a copy of the entity in the cache
-				pair.second.insert(e.id().index(), &e);
+				pair.second.insert(id.index(), &e);
 		}
 	}
 
@@ -286,13 +286,12 @@ namespace rift {
 		// When an entity loses a component of type C, all entity caches whose
 		// signature includes C & matches the entity's component signature 
 		// should remove that entity
-		Entity e(this, id);
 		auto mask = masks.at(id.index());
 		for (auto& pair : entity_caches) {
 			// If the component bit for component type C is set and the result
 			// set has the entity then remove the entity
 			if (pair.first.test(C::family()) && (mask & pair.first) == pair.first)
-				pair.second.erase(e.id().index());
+				pair.second.erase(id.index());
 		}
 	}
 
