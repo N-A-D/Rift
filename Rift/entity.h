@@ -79,7 +79,7 @@ namespace rift {
 
 		bool operator<(const Entity& other) const noexcept { return m_id < other.m_id; }
 		bool operator>(const Entity& other) const noexcept { return other < *this; }
-		bool operator==(const Entity& other) const noexcept { return !(*this < other) && !(other < *this); }
+		bool operator==(const Entity& other) const noexcept { return mgr == other.mgr && !(*this < other) && !(other < *this); }
 		bool operator!=(const Entity& other) const noexcept { return !(*this == other); }
 
 	private:
