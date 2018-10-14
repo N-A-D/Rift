@@ -125,9 +125,9 @@ namespace rift {
 		template <class First, class... Rest>
 		void entities_with(std::function<void(Entity)>&& fun) noexcept;
 
-#ifndef RIFT_DEBUG
+#ifndef RIFT_TEST
 	private:
-#endif // !RIFT_DEBUG
+#endif // !RIFT_TEST
 
 		friend class Entity;
 
