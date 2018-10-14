@@ -123,7 +123,7 @@ namespace rift {
 
 		// Applies the function fun onto entities that own an instance of each component type
 		template <class First, class... Rest>
-		void entities_with(std::function<void(Entity)>&& fun) noexcept;
+		void entities_with(std::function<void(Entity)>&& fun);
 
 #ifndef RIFT_TEST
 	private:
@@ -229,7 +229,7 @@ namespace rift {
 	}
 
 	template<class First, class ...Rest>
-	inline void EntityManager::entities_with(std::function<void(Entity)>&& f) noexcept
+	inline void EntityManager::entities_with(std::function<void(Entity)>&& f)
 	{
 		auto signature = signature_for<First, Rest...>();
 
