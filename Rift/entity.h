@@ -22,8 +22,12 @@ namespace rift {
 		class ID {
 		public:
 			ID() = default;
+			ID(const ID&) = default;
 			ID(std::uint32_t index, std::uint32_t version)
 				: m_number(std::uint64_t(index) | std::uint64_t(version) << 32) {}
+			
+			ID& operator=(const ID&) = default;
+
 			std::uint32_t index() const noexcept { return m_number & 0xFFFFFFFFUL; }
 			std::uint32_t version() const noexcept { return m_number >> 32; }
 			std::uint64_t number() const noexcept { return m_number; }
@@ -37,7 +41,7 @@ namespace rift {
 			std::uint64_t m_number;
 		};
 
-		Entity() : mgr(nullptr), m_id(0, 0) {}
+		Entity();
 		Entity(const Entity&) = default;
 		Entity& operator=(const Entity&) = default;
 
@@ -86,7 +90,7 @@ namespace rift {
 		friend class EntityManager;
 
 		// Only EntityManagers are permitted to create valid entity handles
-		Entity(EntityManager *em, Entity::ID id) : mgr(em), m_id(id) {}
+		Entity(EntityManager *em, Entity::ID id);
 
 		// The manager that created this entity
 		EntityManager* mgr;
@@ -110,13 +114,16 @@ namespace rift {
 		// Generate a new Entity handle
 		Entity create_entity() noexcept;
 
+		// Returns the number of valid Entity::IDs
+		std::size_t size() const noexcept;
+
 		// Returns the number of Entity::IDs that associate with each of the component types
 		template <class First, class... Rest>
 		std::size_t count_entities_with() const noexcept;
 
 		// Applies the function fun onto entities that own an instance of each component type
 		template <class First, class... Rest>
-		void entities_with(std::function<void(const Entity&)>&& fun) noexcept;
+		void entities_with(std::function<void(Entity)>&& fun) noexcept;
 
 #ifndef RIFT_DEBUG
 	private:
@@ -140,11 +147,15 @@ namespace rift {
 		template <class C>
 		C &get(const Entity::ID& id) noexcept;
 
+		// Returns the component pool for component type C
+		template <class C>
+		std::shared_ptr<Cache<C>> component_cache_for(std::size_t id) noexcept;
+
+		// Fetch the ComponentMask for the entity
+		ComponentMask component_mask_for(const Entity::ID& id) const noexcept;
+
 		// Check the validity of the entity's id
 		bool valid_id(const Entity::ID& id) const noexcept;
-
-		// Cleanup resources related to the entity
-		void destroy(const Entity::ID& id) noexcept;
 
 		// Delete all components associated with the entity
 		void delete_components_for(const Entity::ID& id) noexcept;
@@ -152,26 +163,22 @@ namespace rift {
 		// Delete the entity from any search caches it may be in
 		void delete_any_caches_for(const Entity::ID& id) noexcept;
 
-		// Fetch the ComponentMask for the entity
-		ComponentMask component_mask_for(const Entity::ID& id) const noexcept;
+		// Cleanup resources related to the entity
+		void destroy(const Entity::ID& id) noexcept;
 
-		// Returns the component pool for component type C
-		template <class C>
-		std::shared_ptr<Cache<C>> component_cache_for(std::size_t id) noexcept;
+		// Collection of free indexes
+		std::queue<std::uint32_t> free_indexes;
 
-		// The a set of reusable Entity::IDs
-		std::queue<Entity::ID> reusable_ids;
-
-		// The set of entity ComponentMasks 
+		// Collection of component masks
 		std::vector<ComponentMask> masks;
 
-		// The collection of ID versions
-		std::vector<std::size_t> id_versions;
+		// Collection of ID versions
+		std::vector<std::uint32_t> index_versions;
 
-		// The component pools
+		// The component caches
 		std::vector<std::shared_ptr<BaseCache>> component_caches;
 
-		// Caches of entities that satisfy different search queries
+		// Entity search caches
 		std::unordered_map<ComponentMask, Cache<Entity>> search_caches;
 	};
 
@@ -222,22 +229,22 @@ namespace rift {
 	}
 
 	template<class First, class ...Rest>
-	inline void EntityManager::entities_with(std::function<void(const Entity&)>&& fun) noexcept
+	inline void EntityManager::entities_with(std::function<void(Entity)>&& f) noexcept
 	{
 		auto signature = signature_for<First, Rest...>();
 
 		if (search_caches.find(signature) != search_caches.end()) {
-			for (auto& entity : search_caches.at(signature)) {
-				fun(entity);
+			for (auto entity : search_caches.at(signature)) {
+				f(entity);
 			}
 		}
 		else {
 			Cache<Entity> search_cache;
 			for (std::size_t i = 0; i < masks.size(); i++) {
 				if ((masks[i] & signature) == signature) {
-					Entity entity(this, Entity::ID(i, id_versions[i]));
-					search_cache.insert(i, &entity);
-					fun(entity);
+					Entity e(this, Entity::ID(static_cast<std::uint32_t>(i), index_versions[i]));
+					search_cache.insert(i, &e);
+					f(e);
 				}
 			}
 			search_caches.emplace(signature, search_cache);
