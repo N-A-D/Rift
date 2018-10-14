@@ -103,6 +103,7 @@ namespace rift {
 	// The EntityManager class
 	// Manages the lifecycle of Entity handles
 	class EntityManager final {
+		friend class Entity;
 	public:
 
 		EntityManager() = default;
@@ -114,26 +115,39 @@ namespace rift {
 		// Generate a new Entity handle
 		Entity create_entity() noexcept;
 
-		// Returns the number of valid Entity::IDs
+		// Returns the number of managed entities
 		std::size_t size() const noexcept;
 
-		// Returns the number of Entity::IDs that associate with each of the component types
+		// Returns the number of entities that associate with each of the component types
 		template <class First, class... Rest>
 		std::size_t count_entities_with() const noexcept;
 
-		// Applies the function fun onto entities that own an instance of each component type
+		// Applies the function f onto entities that own an instance of each component type
+		// example:
+		// EntityManager em;
+		// ...
+		// em.entities_with<Position, Direction>(...);
 		template <class First, class... Rest>
 		void entities_with(const std::function<void(Entity)>& f);
 
 #ifndef RIFT_TEST
 	private:
+#endif // !RIFT_TEST
+
+#ifdef RIFT_TEST
+		template <class C>
+		bool has_component_cache_for() const noexcept {
+			if (C::family() >= component_caches.size())
+				return false;
+			return component_caches[C::family()] != nullptr;
+		}
 
 		// Testing function: Returns the size of a component cache for type C
 		template <class C>
-		std::size_t component_cache_size_for() const noexcept {
-			return component_cache_for<C>()->size();
+		std::size_t component_cache_size_for() noexcept {
+			return component_cache_for<C>(C::family())->size();
 		}
-		
+
 		// Testing function: Returns the size of an entity search cache for a given signature
 		template <class First, class... Rest>
 		std::size_t entity_cache_size_for() const noexcept {
@@ -143,10 +157,7 @@ namespace rift {
 			else
 				return entity_caches.at(signature).size();
 		}
-
-#endif // !RIFT_TEST
-
-		friend class Entity;
+#endif // RIFT_TEST
 
 		// Enable the component type C in the entity's component mask
 		template <class C, class... Args>
