@@ -123,29 +123,46 @@ namespace rift {
 
 		// Applies the function fun onto entities that own an instance of each component type
 		template <class First, class... Rest>
-		void entities_with(std::function<void(Entity)>&& fun);
+		void entities_with(const std::function<void(Entity)>& f);
 
 #ifndef RIFT_TEST
 	private:
+
+		// Testing function: Returns the size of a component cache for type C
+		template <class C>
+		std::size_t component_cache_size_for() const noexcept {
+			return component_cache_for<C>()->size();
+		}
+		
+		// Testing function: Returns the size of an entity search cache for a given signature
+		template <class First, class... Rest>
+		std::size_t entity_cache_size_for() const noexcept {
+			auto signature = signature_for<First, Rest...>();
+			if (entity_caches.empty())
+				return 0;
+			else
+				return entity_caches.at(signature).size();
+		}
+
 #endif // !RIFT_TEST
 
 		friend class Entity;
 
 		// Enable the component type C in the entity's component mask
 		template <class C, class... Args>
-		void add(const Entity::ID& id, Args&& ...args) noexcept;
+		void add_component(const Entity::ID& id, Args&& ...args) noexcept;
 
 		// Disable the component type C in the entity's component mask
 		template <class C>
-		void remove(const Entity::ID& id) noexcept;
+		void remove_component(const Entity::ID& id) noexcept;
 
 		// Test the component type C is enabled in the entity's component mask
 		template <class C>
-		bool has(const Entity::ID& id) noexcept;
+		bool has_component(const Entity::ID& id) noexcept;
 
 		// Fetch the component for the entity
 		template <class C>
-		C &get(const Entity::ID& id) noexcept;
+		C &get_component(const Entity::ID& id) noexcept;
 
 		// Returns the component pool for component type C
 		template <class C>
@@ -166,6 +183,8 @@ namespace rift {
 		// Cleanup resources related to the entity
 		void destroy(const Entity::ID& id) noexcept;
 
+	private:
+
 		// Collection of free indexes
 		std::queue<std::uint32_t> free_indexes;
 
@@ -179,7 +198,7 @@ namespace rift {
 		std::vector<std::shared_ptr<BaseCache>> component_caches;
 
 		// Entity search caches
-		std::unordered_map<ComponentMask, Cache<Entity>> search_caches;
+		std::unordered_map<ComponentMask, Cache<Entity>> entity_caches;
 	};
 
 
@@ -188,7 +207,7 @@ namespace rift {
 	{
 		assert(valid() && "Cannot add a component to an invalid entity!");
 		assert(!has<C>() && "Adding multiple components of the same type to the same entity is not allowed!");
-		mgr->add<C>(m_id, std::forward<Args>(args)...);
+		mgr->add_component<C>(m_id, std::forward<Args>(args)...);
 	}
 
 	template<class C>
@@ -196,14 +215,14 @@ namespace rift {
 	{
 		assert(valid() && "Cannot remove a component from an invalid entity!");
 		assert(has<C>() && "The entity does not own a component of the given type!");
-		mgr->remove<C>(m_id);
+		mgr->remove_component<C>(m_id);
 	}
 
 	template<class C>
 	inline bool Entity::has() const noexcept
 	{
 		assert(valid() && "Cannot check if an invalid entity has a component!");
-		return mgr->has<C>(m_id);
+		return mgr->has_component<C>(m_id);
 	}
 
 	template<class C>
@@ -211,7 +230,7 @@ namespace rift {
 	{
 		assert(valid() && "Cannot get a compnent for an invalid entity!");
 		assert(has<C>() && "The entity does not have a component of the given type!");
-		return mgr->get<C>(m_id);
+		return mgr->get_component<C>(m_id);
 	}
 
 	template<class First, class ...Rest>
@@ -229,12 +248,12 @@ namespace rift {
 	}
 
 	template<class First, class ...Rest>
-	inline void EntityManager::entities_with(std::function<void(Entity)>&& f)
+	inline void EntityManager::entities_with(const std::function<void(Entity)>& f)
 	{
 		auto signature = signature_for<First, Rest...>();
 
-		if (search_caches.find(signature) != search_caches.end()) {
-			for (auto entity : search_caches.at(signature)) {
+		if (entity_caches.find(signature) != entity_caches.end()) {
+			for (auto entity : entity_caches.at(signature)) {
 				f(entity);
 			}
 		}
@@ -247,12 +266,12 @@ namespace rift {
 					f(e);
 				}
 			}
-			search_caches.emplace(signature, search_cache);
+			entity_caches.emplace(signature, search_cache);
 		}
 	}
 
 	template<class C, class ...Args>
-	inline void EntityManager::add(const Entity::ID & id, Args && ...args) noexcept
+	inline void EntityManager::add_component(const Entity::ID & id, Args && ...args) noexcept
 	{
 		auto family_id = C::family();
 		auto index = id.index();
@@ -261,7 +280,7 @@ namespace rift {
 		component_cache_for<C>(family_id)->insert(index, &component);
 
 		Entity e(this, id);
-		for (auto& search_cache : search_caches) {
+		for (auto& search_cache : entity_caches) {
 			if (search_cache.first.test(family_id) &&
 				(mask & search_cache.first) == search_cache.first) {
 				search_cache.second.insert(index, &e);
@@ -270,13 +289,13 @@ namespace rift {
 	}
 
 	template<class C>
-	inline void EntityManager::remove(const Entity::ID & id) noexcept
+	inline void EntityManager::remove_component(const Entity::ID & id) noexcept
 	{
 		auto family_id = C::family();
 		auto index = id.index();
 		auto mask = masks[index];
 
-		for (auto& search_cache : search_caches) {
+		for (auto& search_cache : entity_caches) {
 			if (search_cache.first.test(family_id) &&
 				(mask & search_cache.first) == search_cache.first) {
 				search_cache.second.erase(index);
@@ -288,13 +307,13 @@ namespace rift {
 	}
 
 	template<class C>
-	inline bool EntityManager::has(const Entity::ID & id) noexcept
+	inline bool EntityManager::has_component(const Entity::ID & id) noexcept
 	{
 		return masks[id.index()].test(C::family());
 	}
 
 	template<class C>
-	inline C & EntityManager::get(const Entity::ID & id) noexcept
+	inline C & EntityManager::get_component(const Entity::ID & id) noexcept
 	{
 		return *(static_cast<C *>(component_cache_for<C>(C::family())->get(id.index())));
 	}
