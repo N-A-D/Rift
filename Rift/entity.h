@@ -14,12 +14,12 @@ namespace rift {
 	class EntityManager;
 
 	// The Entity class
-	// a handle for an Entity::ID
+	// a convenience class for an index
 	class Entity final {
 	public:
 
-		// An Entity::ID is an index into an array
-		// An EntityManager determines if an Entity's index is valid through the version of the Entity::ID
+		// An Entity::ID is a versionable index
+		// The index held by the Entity::ID is invalid if its version is invalid
 		class ID {
 		public:
 			ID() = default;
@@ -119,6 +119,9 @@ namespace rift {
 		// Returns the number of managed entities
 		std::size_t size() const noexcept;
 
+		// Returns the capacity 
+		std::size_t capacity() const noexcept;
+
 		// Returns the number of entities that associate with each of the component types
 		template <class First, class... Rest>
 		std::size_t count_entities_with() const noexcept;
@@ -130,10 +133,6 @@ namespace rift {
 		// em.entities_with<Position, Direction>(...);
 		template <class First, class... Rest>
 		void entities_with(const std::function<void(Entity)>& f);
-
-#ifndef RIFT_TEST
-	private:
-#endif // !RIFT_TEST
 
 #ifdef RIFT_TEST
 		template <class C>
@@ -159,6 +158,10 @@ namespace rift {
 				return entity_caches.at(signature).size();
 		}
 #endif // RIFT_TEST
+
+#ifndef RIFT_TEST
+	private:
+#endif // !RIFT_TEST
 
 		// Enable the component type C in the entity's component mask
 		template <class C, class... Args>

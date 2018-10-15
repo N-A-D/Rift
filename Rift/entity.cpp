@@ -59,6 +59,11 @@ std::size_t rift::EntityManager::size() const noexcept
 	return masks.size() - free_indexes.size();
 }
 
+std::size_t rift::EntityManager::capacity() const noexcept
+{
+	return masks.size();
+}
+
 bool rift::EntityManager::valid_id(const Entity::ID & id) const noexcept
 {
 	return index_versions[id.index()] == id.version();
