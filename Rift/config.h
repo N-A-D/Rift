@@ -1,5 +1,6 @@
 #pragma once
-
+#ifndef _RIFT_CONFIG_
+#define _RIFT_CONFIG_
 #include <bitset>
 
 namespace rift {
@@ -10,3 +11,4 @@ namespace rift {
 	}
 	using ComponentMask = std::bitset<config::MAX_COMPONENT_TYPES>;
 }
+#endif // !_RIFT_CONFIG_

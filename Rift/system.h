@@ -1,5 +1,6 @@
 #pragma once
-
+#ifndef _RIFT_SYSTEM_
+#define _RIFT_SYSTEM_
 #include <memory>
 #include <assert.h>
 #include <unordered_map>
@@ -117,8 +118,10 @@ namespace rift {
 	template<class S>
 	inline std::shared_ptr<S> SystemManager::get() noexcept
 	{
-		return systems.find(S::system_id()) != systems.end() 
-			   ? std::static_pointer_cast<S>(systems.at(S::family()))
-			   : std::shared_ptr<S>(nullptr);
+		return systems.find(S::system_id()) != systems.end()
+			? std::static_pointer_cast<S>(systems.at(S::family()))
+			: std::shared_ptr<S>(nullptr);
 	}
 }
+
+#endif // !_RIFT_SYSTEM_

@@ -1,5 +1,6 @@
 #pragma once
-
+#ifndef _RIFT_UTIL_CONTAINERS_
+#define _RIFT_UTIL_CONTAINERS_
 #include <vector>
 
 namespace rift {
@@ -8,7 +9,7 @@ namespace rift {
 	// An interface that specifies what 'cache' objects should be able to do
 	class BaseCache {
 	public:
-		
+
 		BaseCache() = default;
 		virtual ~BaseCache() = default;
 
@@ -22,7 +23,7 @@ namespace rift {
 		virtual void* get(std::size_t index) = 0;
 
 	};
-	
+
 	// The Cache class
 	// Provides contiguous storage for objects of a single type
 	// Note:
@@ -33,7 +34,7 @@ namespace rift {
 	template <class T>
 	class Cache : public BaseCache {
 	public:
-	
+
 		template <bool is_const>
 		class Iterator final {
 		public:
@@ -47,19 +48,19 @@ namespace rift {
 			Iterator() = default;
 			Iterator(const Iterator&) = default;
 			Iterator& operator=(const Iterator&) = default;
-			
+
 			explicit Iterator(T* data)
 				: current(data) {}
 
 			template <bool _cond = is_const>
 			std::enable_if_t<_cond, reference>
-			operator*() const {
+				operator*() const {
 				return *current;
 			}
 
 			template <bool _cond = is_const>
 			std::enable_if_t<!_cond, reference>
-			operator*() const {
+				operator*() const {
 				return *current;
 			}
 
@@ -67,7 +68,7 @@ namespace rift {
 				++current;
 				return *this;
 			}
-			
+
 			Iterator& operator++(int) {
 				Iterator tmp = *this;
 				++current;
@@ -88,7 +89,7 @@ namespace rift {
 
 		using size_type = std::size_t;
 		using value_type = T;
-		using reference = T&;
+		using reference = T & ;
 		using const_reference = const T&;
 		using iterator = Iterator<false>;
 		using const_iterator = Iterator<true>;
@@ -112,7 +113,7 @@ namespace rift {
 		// Insert an object at the given index
 		// Notes:
 		// - An assertion is made that there does not exist an object at the given index.
-	    //   As a result, multiple insertions at the same index is not permitted
+		//   As a result, multiple insertions at the same index is not permitted
 		// - If the size of the cache is smaller than the given index, which also means
 		//   there is no object assigned to the index, the cache will expand to fit the index
 		void insert(size_type index, void* object) override;
@@ -177,3 +178,5 @@ namespace rift {
 	}
 
 }
+
+#endif // !_RIFT_UTIL_CONTAINERS_

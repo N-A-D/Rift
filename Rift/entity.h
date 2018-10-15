@@ -1,5 +1,6 @@
 #pragma once
-
+#ifndef _RIFT_ENTITY_
+#define _RIFT_ENTITY_
 #include <queue>
 #include <memory>
 #include <assert.h>
@@ -25,7 +26,7 @@ namespace rift {
 			ID(const ID&) = default;
 			ID(std::uint32_t index, std::uint32_t version)
 				: m_number(std::uint64_t(index) | std::uint64_t(version) << 32) {}
-			
+
 			ID& operator=(const ID&) = default;
 
 			std::uint32_t index() const noexcept { return m_number & 0xFFFFFFFFUL; }
@@ -340,3 +341,5 @@ namespace rift {
 	}
 
 }
+
+#endif // !_RIFT_ENTITY_

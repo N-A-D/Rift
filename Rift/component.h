@@ -1,10 +1,11 @@
 #pragma once
-
+#ifndef _RIFT_COMPONENT_
+#define _RIFT_COMPONENT_
 #include <assert.h>
 #include "config.h"
 
 namespace rift {
-	
+
 	using ComponentFamily = std::size_t;
 
 	// The BaseComponent class
@@ -15,7 +16,7 @@ namespace rift {
 	protected:
 		static ComponentFamily m_family;
 	};
-	
+
 	// The Component class
 	// Classes that are meant to be components must inherit from this class for registration as a 'component'
 	// Note: 
@@ -39,3 +40,5 @@ namespace rift {
 		}
 	};
 }
+
+#endif // !_RIFT_COMPONENT_

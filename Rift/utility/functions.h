@@ -1,5 +1,6 @@
 #pragma once
-
+#ifndef _RIFT_UTIL_FUNCTIONS_
+#define _RIFT_UTIL_FUNCTIONS_
 #include "../config.h"
 
 namespace rift {
@@ -14,3 +15,5 @@ namespace rift {
 	}
 
 }
+#define _RIFT_UTIL_FUNCTIONS_
+#endif // !_RIFT_UTIL_FUNCTIONS_
