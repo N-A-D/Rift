@@ -29,8 +29,9 @@ namespace rift {
 	// Note:
 	// - Caches cannot be sorted
 	// - Caches are read only when iterating.
-	// - The class is implemented in a very similar way to a SparseSet
-	//   *Clearing the cache takes O(n) time operator vs the O(1) time to clear a SparseSet
+	// - The class is implemented similar to a SparseSet
+	//   but unlike a SparseSet, clearing the cache takes 
+	//   O(n) time vs the O(1) time to clear a SparseSet
 	template <class T>
 	class Cache : public BaseCache {
 	public:
