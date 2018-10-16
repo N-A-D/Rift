@@ -34,73 +34,19 @@ namespace rift {
 	template <class T>
 	class Cache : public BaseCache {
 	public:
-
-		template <bool is_const>
-		class Iterator final {
-		public:
-
-			using value_type = T;
-			using difference_type = std::ptrdiff_t;
-			using reference = std::conditional_t<is_const, const T&, T&>;
-			using pointer = std::conditional_t<is_const, const T*, T*>;
-			using iterator_category = std::input_iterator_tag;
-
-			Iterator() = default;
-			Iterator(const Iterator&) = default;
-			Iterator& operator=(const Iterator&) = default;
-
-			explicit Iterator(T* data)
-				: current(data) {}
-
-			template <bool _cond = is_const>
-			std::enable_if_t<_cond, reference>
-				operator*() const {
-				return *current;
-			}
-
-			template <bool _cond = is_const>
-			std::enable_if_t<!_cond, reference>
-				operator*() const {
-				return *current;
-			}
-
-			Iterator& operator++() {
-				++current;
-				return *this;
-			}
-
-			Iterator& operator++(int) {
-				Iterator tmp = *this;
-				++current;
-				return tmp;
-			}
-
-			bool operator==(const Iterator& other) const {
-				return current == other.current;
-			}
-
-			bool operator!=(const Iterator& other) const {
-				return !(*this == other);
-			}
-
-		private:
-			T* current;
-		};
-
+		
 		using size_type = std::size_t;
 		using value_type = T;
 		using reference = T & ;
 		using const_reference = const T&;
-		using iterator = Iterator<false>;
-		using const_iterator = Iterator<true>;
+		using const_iterator = typename std::vector<T>::const_iterator;
 
 		Cache() = default;
 		virtual ~Cache() = default;
-
-		iterator begin() { return Iterator<false>(instances.data()); }
-		iterator end() { return Iterator<false>(instances.data() + instances.size()); }
-		const_iterator begin() const { return Iterator<true>(instances.data()); }
-		const_iterator end() const { return Iterator<true>(instances.data() + instances.size()); }
+		
+		// Caches are read only
+		const_iterator begin() const { return instances.begin(); }
+		const_iterator end() const { return instances.end(); }
 
 		bool empty() const noexcept override { return reverse.empty(); }
 		void clear() noexcept override { instances.clear(); reverse.clear(); }
