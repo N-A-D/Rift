@@ -41,8 +41,8 @@ namespace rift {
 
 			using value_type = T;
 			using difference_type = std::ptrdiff_t;
-			using reference = typename std::conditional_t<is_const, const T&, T&>;
-			using pointer = typename std::conditional_t<is_const, const T*, T*>;
+			using reference = std::conditional_t<is_const, const T&, T&>;
+			using pointer = std::conditional_t<is_const, const T*, T*>;
 			using iterator_category = std::input_iterator_tag;
 
 			Iterator() = default;
