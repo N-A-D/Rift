@@ -132,7 +132,7 @@ namespace rift {
 		// ...
 		// em.entities_with<Position, Direction>(...);
 		template <class First, class... Rest>
-		void entities_with(const std::function<void(Entity)>& f);
+		void entities_with(std::function<void(Entity)> f);
 
 #ifdef RIFT_TEST
 		template <class C>
@@ -263,7 +263,7 @@ namespace rift {
 	}
 
 	template<class First, class ...Rest>
-	inline void EntityManager::entities_with(const std::function<void(Entity)>& f)
+	inline void EntityManager::entities_with(std::function<void(Entity)> f)
 	{
 		auto signature = signature_for<First, Rest...>();
 
