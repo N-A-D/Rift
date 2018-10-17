@@ -347,26 +347,57 @@ namespace UnitTests
 		}
 
 		TEST_METHOD(EntityManagerEntitiesWithEntityCaching) {
+			/*
+				Tests the following:
+				1) Upon first search, a cache of entities satisfying a search criteria is built
+				2) After the search cache is built, removing/destroying entities a part of any search cache 
+				   must be removed from those search caches
+				3) Any entity that is given components that would enable it to be a part of an existing search
+				   cache should be added into that search cache without re-searching for entities
+			*/
+
 			rift::EntityManager em;
 			auto a = em.create_entity();
 			auto b = em.create_entity();
 			auto c = em.create_entity();
+			auto d = em.create_entity();
 
 			a.add<Position>();
 			b.add<Position>();
-			c.add<Direction>();
+			c.add<Position>();
 
-			// This will cache the two entities, a and b into a 
-			// search cache to speed up subsequent lookups
+			// Test 1)
+			// This will cache the three entities: a, b, c 
 			em.entities_with<Position>([](rift::Entity e) {});
-
-			// The size of the search cache must be 2
-			Assert::IsTrue(em.count_entities_with<Position>() == 2);
+			// There are three entities with the Position component and thus there should be three 
+			// entities in the search cache for entities with: Position
+			Assert::IsTrue(em.count_entities_with<Position>() == 3);
 			Assert::IsTrue(em.entity_cache_size_for<Position>() == em.count_entities_with<Position>());
 
+			// Test 2) i) destruction
 			a.destroy();
-			// The size of the search cache must now be 1 since a is dead
+			// Now that a has been destroyed, the number of entities with a Position component is two
+			// In other words, the two entities with Position components are: b and c
+			// Moreover, with a dead, the search cache for entities with Position components must not
+			// include entity a
+			Assert::IsTrue(em.count_entities_with<Position>() == 2);
+			Assert::IsTrue(em.entity_cache_size_for<Position>() == em.count_entities_with<Position>());
+			
+			// Test 2) ii) component removal
+			c.remove<Position>();
+			// Now that c has removed its Position component, the number of entities with a Position component
+			// is only 1; entity b
+			// This also means that the search cache for entities with Position components must also be of size 1
 			Assert::IsTrue(em.count_entities_with<Position>() == 1);
+			Assert::IsTrue(em.entity_cache_size_for<Position>() == em.count_entities_with<Position>());
+
+			// Test 3)
+			d.add<Position>();
+			// Now that entity d has added a Position component, the number of entities with Position components
+			// should now be 2
+			// Furthermore, the search cache of entities with Position components should also be 2 to include b and now
+			// d
+			Assert::IsTrue(em.count_entities_with<Position>() == 2);
 			Assert::IsTrue(em.entity_cache_size_for<Position>() == em.count_entities_with<Position>());
 		}
 
