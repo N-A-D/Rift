@@ -12,7 +12,7 @@ namespace rift {
 	// Note: this class should not but subclassed directly as components need to be registered... See the Component class.
 	class BaseComponent {
 	public:
-		virtual ~BaseComponent();
+		virtual ~BaseComponent() = default;
 	protected:
 		static ComponentFamily m_family;
 	};
@@ -31,7 +31,7 @@ namespace rift {
 	template <class Derived>
 	class Component : public BaseComponent {
 	public:
-		virtual ~Component() {}
+		virtual ~Component() = default;
 		// Returns the Component type id
 		static ComponentFamily family() noexcept {
 			assert(m_family < config::MAX_COMPONENT_TYPES && "The maximum number of components has been reached!");
