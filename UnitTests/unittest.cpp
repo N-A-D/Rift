@@ -32,6 +32,23 @@ namespace UnitTests
 
 			Assert::IsTrue(integer_cache.test(0));
 			Assert::IsTrue((*(static_cast<int *>(integer_cache.get(0))) == x));
+			
+			rift::EntityManager em;
+
+			auto a = em.create_entity();
+			auto b = em.create_entity();
+
+			rift::Cache<rift::Entity> entity_cache;
+			entity_cache.insert(a.id().index(), &a);
+			entity_cache.insert(b.id().index(), &b);
+
+			// There are two entities in the cache
+			Assert::IsTrue(entity_cache.size() == 2);
+
+			// Check if the inserted entities are correct
+			Assert::IsTrue(a == *(static_cast<rift::Entity *>(entity_cache.get(a.id().index()))));
+			Assert::IsTrue(b == *(static_cast<rift::Entity *>(entity_cache.get(b.id().index()))));
+
 		}
 
 		TEST_METHOD(Search) {
@@ -42,6 +59,24 @@ namespace UnitTests
 			Assert::IsTrue(integer_cache.test(0));
 			Assert::IsTrue((*(static_cast<int *>(integer_cache.get(0))) == x));
 			Assert::IsFalse(integer_cache.test(10));
+
+
+			rift::EntityManager em;
+
+			auto a = em.create_entity();
+			auto b = em.create_entity();
+
+			rift::Cache<rift::Entity> entity_cache;
+			entity_cache.insert(a.id().index(), &a);
+			entity_cache.insert(b.id().index(), &b);
+
+			// There are two entities in the cache
+			Assert::IsTrue(entity_cache.size() == 2);
+
+			// Check if there are inserted entities at the indices for a and b
+			Assert::IsTrue(entity_cache.test(a.id().index()));
+			Assert::IsTrue(entity_cache.test(b.id().index()));
+
 		}
 
 		TEST_METHOD(Removal) {
@@ -55,6 +90,29 @@ namespace UnitTests
 			integer_cache.erase(0);
 
 			Assert::IsFalse(integer_cache.test(0));
+
+			rift::EntityManager em;
+
+			auto a = em.create_entity();
+			auto b = em.create_entity();
+
+			rift::Cache<rift::Entity> entity_cache;
+			entity_cache.insert(a.id().index(), &a);
+			entity_cache.insert(b.id().index(), &b);
+
+			// There are two entities in the cache
+			Assert::IsTrue(entity_cache.size() == 2);
+
+			// Check if there are inserted entities at the indices for a and b
+			Assert::IsTrue(entity_cache.test(a.id().index()));
+			Assert::IsTrue(entity_cache.test(b.id().index()));
+
+			entity_cache.erase(a.id().index());
+			entity_cache.erase(b.id().index());
+
+			Assert::IsFalse(entity_cache.test(a.id().index()));
+			Assert::IsFalse(entity_cache.test(b.id().index()));
+
 		}
 		TEST_METHOD(Get) {
 			rift::Cache<int> integer_cache;
@@ -212,6 +270,32 @@ namespace UnitTests
 
 		}
 
+		TEST_METHOD(EntityManagerCapacity) {
+			rift::EntityManager em;
+			auto a = em.create_entity();
+			auto b = em.create_entity();
+			auto c = em.create_entity();
+			auto d = em.create_entity();
+			auto e = em.create_entity();
+
+			// The manager created 5 entities so its 
+			// should possess 5 valid entity masks
+			Assert::IsTrue(em.size() == 5);
+
+			c.destroy();
+			// Now that c is destroyed, the manager should
+			// only have 4 entity masks, the other free for reuse
+			Assert::IsTrue(em.size() == 4);
+
+			e.destroy();
+			// Now that e is destroyed, the manager should only have
+			// 3 entity masks, the others 2 are now free for resuse
+			Assert::IsTrue(em.size() == 3);
+
+			// Assert that there are 2 reusable slots available
+			Assert::IsTrue(em.capacity() - em.size() == 2);
+		}
+
 		TEST_METHOD(EntityManagerCountEntitiesWith) {
 			rift::EntityManager em;
 			auto a = em.create_entity();
@@ -262,29 +346,71 @@ namespace UnitTests
 			Assert::IsTrue(em.component_cache_size_for<Position>() == 1);
 		}
 
-		TEST_METHOD(EntityManagerEntitiesWith) {
+		TEST_METHOD(EntityManagerEntitiesWithEntityCaching) {
 			rift::EntityManager em;
 			auto a = em.create_entity();
 			auto b = em.create_entity();
+			auto c = em.create_entity();
 
 			a.add<Position>();
 			b.add<Position>();
+			c.add<Direction>();
 
 			// This will cache the two entities, a and b into a 
 			// search cache to speed up subsequent lookups
 			em.entities_with<Position>([](rift::Entity e) {});
 
 			// The size of the search cache must be 2
-			Assert::IsTrue(em.entity_cache_size_for<Position>() == 2);
+			Assert::IsTrue(em.count_entities_with<Position>() == 2);
+			Assert::IsTrue(em.entity_cache_size_for<Position>() == em.count_entities_with<Position>());
 
 			a.destroy();
 			// The size of the search cache must now be 1 since a is dead
-			Assert::IsTrue(em.entity_cache_size_for<Position>() == 1);
+			Assert::IsTrue(em.count_entities_with<Position>() == 1);
+			Assert::IsTrue(em.entity_cache_size_for<Position>() == em.count_entities_with<Position>());
 		}
 
+		TEST_METHOD(EntityManagerEntitiesWithComponentUpdate) {
+
+			rift::EntityManager em;
+			auto a = em.create_entity();
+			auto b = em.create_entity();
+			auto c = em.create_entity();
+
+			a.add<Toggle>();
+			b.add<Toggle>();
+
+			em.entities_with<Toggle>([a, b](rift::Entity e) {
+				Assert::IsTrue(e.id() == a.id() || e.id() == b.id());
+				auto& t = e.get<Toggle>();
+				t.on = true;
+			});
+
+			auto t = a.get<Toggle>();
+			Assert::IsTrue(t.on);
+
+			t = b.get<Toggle>();
+			Assert::IsTrue(t.on);
+		}
+
+
 	};
-
+	
 	TEST_CLASS(System) {
+		TEST_METHOD(SingleSystemIteration) {
 
+		}
+		TEST_METHOD(MultiSystemIteration) {
+
+		}
+		TEST_METHOD(SystemManagerSystemInsertion) {
+
+		}
+		TEST_METHOD(SystemManagerSystemRemoval) {
+
+		}
+		TEST_METHOD(SystemManagerSystemCheck) {
+
+		}
 	};
 }

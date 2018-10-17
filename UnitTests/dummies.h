@@ -14,6 +14,12 @@ struct Direction : public rift::Component<Direction> {
 	double x, y;
 };
 
+struct Toggle : public rift::Component<Toggle> {
+	Toggle() : on(false) {}
+	Toggle(bool start) : on(start) {}
+	bool on;
+};
+
 struct Movement : public rift::System<Movement> {
 	Movement() {}
 
