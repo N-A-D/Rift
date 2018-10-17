@@ -163,6 +163,10 @@ namespace rift {
 	private:
 #endif // !RIFT_TEST
 
+		/// Internal functions that an Entity interfaces with
+		/// In all cases, the entity first checks if it itself is valid
+		/// before invoking any of the below functions
+
 		// Enable the component type C in the entity's component mask
 		template <class C, class... Args>
 		void add_component(const Entity::ID& id, Args&& ...args) noexcept;
