@@ -54,7 +54,7 @@ namespace rift {
 
 		operator bool() const noexcept;
 
-		// Immediately destroy this Entity and all others that have the same Entity::ID
+		// Immediately destroy the entity and all others that have the same Entity::ID
 		void destroy() const noexcept;
 
 		// Fetch the entity's ComponentMask
