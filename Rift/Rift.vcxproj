@@ -74,7 +74,7 @@
     <OutDir>$(SolutionDir)$(Configuration)\Win32\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <TargetName>rift32r</TargetName>
+    <TargetName>rift32</TargetName>
     <OutDir>$(SolutionDir)$(Configuration)\Win32\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -82,7 +82,7 @@
     <OutDir>$(SolutionDir)$(Configuration)\Win64\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <TargetName>rift64r</TargetName>
+    <TargetName>rift64</TargetName>
     <OutDir>$(SolutionDir)$(Configuration)\Win64\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
