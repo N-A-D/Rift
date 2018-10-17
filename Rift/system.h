@@ -16,7 +16,7 @@ namespace rift {
 	// Note: this class should not be subclassed directly as systems need to be registered... See the System class. 
 	class BaseSystem {
 	public:
-		virtual ~BaseSystem();
+		virtual ~BaseSystem() = default;
 
 		// Where derived systems implement their logic
 		virtual void update(EntityManager& em, double dt) = 0;
@@ -33,7 +33,7 @@ namespace rift {
 	template <class Derived>
 	class System : public BaseSystem {
 	public:
-		virtual ~System() {}
+		virtual ~System() = default;
 
 		// Returns the System type id
 		static SystemFamily family() noexcept {
@@ -48,7 +48,7 @@ namespace rift {
 	public:
 
 		// Creates a new System manager
-		SystemManager();
+		SystemManager() = default;
 
 		// Adds a new managed system
 		// Note: Only one system per system type can be managed by any one system 
