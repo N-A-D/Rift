@@ -96,7 +96,7 @@ namespace rift {
 		// The manager that created this entity
 		EntityManager* mgr;
 
-		// The entity's id. Only valid while the version is valid
+		// The entity's index. Only valid while the version is valid
 		Entity::ID m_id;
 
 	};
@@ -152,10 +152,9 @@ namespace rift {
 		template <class First, class... Rest>
 		std::size_t entity_cache_size_for() const noexcept {
 			auto signature = signature_for<First, Rest...>();
-			if (entity_caches.empty())
+			if (entity_caches.empty() || entity_caches.find(signature) == entity_caches.end())
 				return 0;
-			else
-				return entity_caches.at(signature).size();
+			return entity_caches.at(signature).size();
 		}
 #endif // RIFT_TEST
 
@@ -210,7 +209,7 @@ namespace rift {
 		// Collection of component masks
 		std::vector<ComponentMask> masks;
 
-		// Collection of ID versions
+		// Collection of index versions
 		std::vector<std::uint32_t> index_versions;
 
 		// The component caches
