@@ -260,3 +260,5 @@ paket-files/
 __pycache__/
 *.pyc
 /ParticleEffect/SDL2/include
+/TempBenchmark
+/TestBenchmarks
