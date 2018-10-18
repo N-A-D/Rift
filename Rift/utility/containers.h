@@ -17,7 +17,7 @@ namespace rift {
 		virtual void clear() noexcept = 0;
 		virtual std::size_t size() const noexcept = 0;
 		virtual std::size_t capacity() const noexcept = 0;
-		virtual bool test(std::size_t index) const noexcept = 0;
+		virtual bool exists(std::size_t index) const noexcept = 0;
 		virtual void insert(std::size_t index, void* object) = 0;
 		virtual void erase(std::size_t index) = 0;
 		virtual void* get(std::size_t index) = 0;
@@ -55,7 +55,7 @@ namespace rift {
 		size_type capacity() const noexcept override { return forward.size(); }
 
 		// Check if there exists an object at the given index
-		bool test(size_type index) const noexcept override;
+		bool exists(size_type index) const noexcept override;
 
 		// Insert an object at the given index
 		// Notes:
@@ -86,7 +86,7 @@ namespace rift {
 	};
 
 	template<class T>
-	inline bool Cache<T>::test(size_type index) const noexcept
+	inline bool Cache<T>::exists(size_type index) const noexcept
 	{
 		if (index >= forward.size())
 			return false;
@@ -98,7 +98,7 @@ namespace rift {
 	template<class T>
 	inline void Cache<T>::insert(size_type index, void * object)
 	{
-		assert(!test(index));
+		assert(!exists(index));
 		if (index >= forward.size())
 			forward.resize(index + 1);
 		forward.at(index) = reverse.size();
@@ -109,7 +109,7 @@ namespace rift {
 	template<class T>
 	inline void Cache<T>::erase(size_type index)
 	{
-		assert(test(index));
+		assert(exists(index));
 		instances.at(forward.at(index)) = instances.back();
 		reverse.at(forward.at(index)) = reverse.back();
 		forward.at(reverse.back()) = forward.at(index);
@@ -120,7 +120,7 @@ namespace rift {
 	template<class T>
 	inline void * Cache<T>::get(size_type index)
 	{
-		assert(test(index));
+		assert(exists(index));
 		return &instances.at(forward.at(index));
 	}
 
