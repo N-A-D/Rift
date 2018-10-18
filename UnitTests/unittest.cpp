@@ -30,7 +30,7 @@ namespace UnitTests
 			int x = 3;
 			integer_cache.insert(0, &x);
 
-			Assert::IsTrue(integer_cache.test(0));
+			Assert::IsTrue(integer_cache.exists(0));
 			Assert::IsTrue((*(static_cast<int *>(integer_cache.get(0))) == x));
 			
 			rift::EntityManager em;
@@ -56,9 +56,9 @@ namespace UnitTests
 			int x = 3;
 			integer_cache.insert(0, &x);
 
-			Assert::IsTrue(integer_cache.test(0));
+			Assert::IsTrue(integer_cache.exists(0));
 			Assert::IsTrue((*(static_cast<int *>(integer_cache.get(0))) == x));
-			Assert::IsFalse(integer_cache.test(10));
+			Assert::IsFalse(integer_cache.exists(10));
 
 
 			rift::EntityManager em;
@@ -74,8 +74,8 @@ namespace UnitTests
 			Assert::IsTrue(entity_cache.size() == 2);
 
 			// Check if there are inserted entities at the indices for a and b
-			Assert::IsTrue(entity_cache.test(a.id().index()));
-			Assert::IsTrue(entity_cache.test(b.id().index()));
+			Assert::IsTrue(entity_cache.exists(a.id().index()));
+			Assert::IsTrue(entity_cache.exists(b.id().index()));
 
 		}
 
@@ -84,12 +84,12 @@ namespace UnitTests
 			int x = 3;
 			integer_cache.insert(0, &x);
 
-			Assert::IsTrue(integer_cache.test(0));
+			Assert::IsTrue(integer_cache.exists(0));
 			Assert::IsTrue((*(static_cast<int *>(integer_cache.get(0))) == x));
 			
 			integer_cache.erase(0);
 
-			Assert::IsFalse(integer_cache.test(0));
+			Assert::IsFalse(integer_cache.exists(0));
 
 			rift::EntityManager em;
 
@@ -104,14 +104,14 @@ namespace UnitTests
 			Assert::IsTrue(entity_cache.size() == 2);
 
 			// Check if there are inserted entities at the indices for a and b
-			Assert::IsTrue(entity_cache.test(a.id().index()));
-			Assert::IsTrue(entity_cache.test(b.id().index()));
+			Assert::IsTrue(entity_cache.exists(a.id().index()));
+			Assert::IsTrue(entity_cache.exists(b.id().index()));
 
 			entity_cache.erase(a.id().index());
 			entity_cache.erase(b.id().index());
 
-			Assert::IsFalse(entity_cache.test(a.id().index()));
-			Assert::IsFalse(entity_cache.test(b.id().index()));
+			Assert::IsFalse(entity_cache.exists(a.id().index()));
+			Assert::IsFalse(entity_cache.exists(b.id().index()));
 
 		}
 		TEST_METHOD(Get) {
@@ -119,7 +119,7 @@ namespace UnitTests
 			int x = 3;
 			integer_cache.insert(0, &x);
 
-			Assert::IsTrue(integer_cache.test(0));
+			Assert::IsTrue(integer_cache.exists(0));
 			Assert::IsTrue((*(static_cast<int *>(integer_cache.get(0))) == x));
 		}
 
@@ -327,80 +327,6 @@ namespace UnitTests
 			Assert::IsTrue(em.count_entities_with<Position, Direction>() == 2);
 		}
 
-		TEST_METHOD(EntityManagerComponentPoolCreation) {
-			rift::EntityManager em;
-			auto a = em.create_entity();
-			auto b = em.create_entity();
-
-			a.add<Position>();
-			b.add<Position>();
-
-			// There should now be a cache of Position components
-			// for the two entities that have it
-			Assert::IsTrue(em.has_component_cache_for<Position>());
-			// The size of the cache should be 2
-			Assert::IsTrue(em.component_cache_size_for<Position>() == 2);
-
-			// The component cache for Position should now be size 1
-			a.remove<Position>();
-			Assert::IsTrue(em.component_cache_size_for<Position>() == 1);
-		}
-
-		TEST_METHOD(EntityManagerEntitiesWithEntityCaching) {
-			/*
-				Tests the following:
-				1) Upon first search, a cache of entities satisfying a search criteria is built
-				2) After the search cache is built, removing/destroying entities a part of any search cache 
-				   must be removed from those search caches
-				3) Any entity that is given components that would enable it to be a part of an existing search
-				   cache should be added into that search cache without re-searching for entities
-			*/
-
-			rift::EntityManager em;
-			auto a = em.create_entity();
-			auto b = em.create_entity();
-			auto c = em.create_entity();
-			auto d = em.create_entity();
-
-			a.add<Position>();
-			b.add<Position>();
-			c.add<Position>();
-
-			// Test 1)
-			// This will cache the three entities: a, b, c 
-			em.entities_with<Position>([](rift::Entity e) {});
-			// There are three entities with the Position component and thus there should be three 
-			// entities in the search cache for entities with: Position
-			Assert::IsTrue(em.count_entities_with<Position>() == 3);
-			Assert::IsTrue(em.entity_cache_size_for<Position>() == em.count_entities_with<Position>());
-
-			// Test 2) i) destruction
-			a.destroy();
-			// Now that a has been destroyed, the number of entities with a Position component is two
-			// In other words, the two entities with Position components are: b and c
-			// Moreover, with a dead, the search cache for entities with Position components must not
-			// include entity a
-			Assert::IsTrue(em.count_entities_with<Position>() == 2);
-			Assert::IsTrue(em.entity_cache_size_for<Position>() == em.count_entities_with<Position>());
-			
-			// Test 2) ii) component removal
-			c.remove<Position>();
-			// Now that c has removed its Position component, the number of entities with a Position component
-			// is only 1; entity b
-			// This also means that the search cache for entities with Position components must also be of size 1
-			Assert::IsTrue(em.count_entities_with<Position>() == 1);
-			Assert::IsTrue(em.entity_cache_size_for<Position>() == em.count_entities_with<Position>());
-
-			// Test 3)
-			d.add<Position>();
-			// Now that entity d has added a Position component, the number of entities with Position components
-			// should now be 2
-			// Furthermore, the search cache of entities with Position components should also be 2 to include b and now
-			// d
-			Assert::IsTrue(em.count_entities_with<Position>() == 2);
-			Assert::IsTrue(em.entity_cache_size_for<Position>() == em.count_entities_with<Position>());
-		}
-
 		TEST_METHOD(EntityManagerEntitiesWithComponentUpdate) {
 
 			rift::EntityManager em;
@@ -423,7 +349,6 @@ namespace UnitTests
 			t = b.get<Toggle>();
 			Assert::IsTrue(t.on);
 		}
-
 
 	};
 	
