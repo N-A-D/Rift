@@ -134,33 +134,7 @@ namespace rift {
 		template <class First, class... Rest>
 		void entities_with(std::function<void(Entity)> f);
 
-#ifdef RIFT_TEST
-		template <class C>
-		bool has_component_cache_for() const noexcept {
-			if (C::family() >= component_caches.size())
-				return false;
-			return component_caches[C::family()] != nullptr;
-		}
-
-		// Testing function: Returns the size of a component cache for type C
-		template <class C>
-		std::size_t component_cache_size_for() noexcept {
-			return component_cache_for<C>(C::family())->size();
-		}
-
-		// Testing function: Returns the size of an entity search cache for a given signature
-		template <class First, class... Rest>
-		std::size_t entity_cache_size_for() const noexcept {
-			auto signature = signature_for<First, Rest...>();
-			if (entity_caches.empty() || entity_caches.find(signature) == entity_caches.end())
-				return 0;
-			return entity_caches.at(signature).size();
-		}
-#endif // RIFT_TEST
-
-#ifndef RIFT_TEST
 	private:
-#endif // !RIFT_TEST
 
 		/// Internal functions that an Entity interfaces with
 		/// In all cases, the entity first checks if it itself is valid
