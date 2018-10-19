@@ -18,8 +18,7 @@ namespace UnitTests
 			Assert::IsTrue(Direction::family() != Toggle::family());
 		}
 
-
-		TEST_METHOD(ComponentSignature) {
+		TEST_METHOD(EquivalentComponentSignatures) {
 			Assert::IsTrue(rift::signature_for<Position, Direction>() == rift::signature_for<Direction, Position>());
 			Assert::IsTrue(rift::signature_for<Position, Toggle>() == rift::signature_for<Toggle, Position>());
 			Assert::IsTrue(rift::signature_for<Direction, Toggle>() == rift::signature_for<Toggle, Direction>());
