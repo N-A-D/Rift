@@ -13,7 +13,7 @@ namespace rift {
 	template <class ...Components>
 	ComponentMask signature_for() noexcept {
 		ComponentMask mask;
-		[&mask](...) {}((mask.set(Components::family()))...);
+		[](...) {}((mask.set(Components::family()))...);
 		return mask;
 	}
 
