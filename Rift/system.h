@@ -25,6 +25,8 @@ namespace rift {
 		static SystemFamily m_family;
 	};
 
+	class SystemManager;
+
 	// The System class
 	// Classes that are meant to be systems must inherit from this class for registration as a 'system'
 	// example:
@@ -35,7 +37,10 @@ namespace rift {
 	public:
 		virtual ~System() = default;
 
+	private:
+		friend class SystemManager;
 		// Returns the System type id
+		// Used only by the system manager
 		static SystemFamily family() noexcept {
 			static SystemFamily system_family = m_family++;
 			return system_family;
@@ -51,11 +56,8 @@ namespace rift {
 		SystemManager() = default;
 
 		// Adds a new managed system
-		// Note: Only one system per system type can be managed by any one system 
-		// manager. If a given system manager already manages a system of type S, 
-		// then if another or the same caller were to add another system of the 
-		// same type S, then that system will replace the currently managed system
-		// example:
+		// Note: 
+		// - Asserts the system type is not managed
 		// SystemManager sm();
 		// sm.add<MovementSystem>();
 		// 
@@ -66,7 +68,8 @@ namespace rift {
 		// example:
 		// SystemManager sm();
 		// sm.remove<MovementSystem>();
-		//
+		// Note:
+		// - Asserts the system type is managed
 		template <class S>
 		void remove() noexcept;
 
@@ -85,7 +88,8 @@ namespace rift {
 		// sm.add<MovementSystem>();
 		// std::shared_ptr<MovementSystem> ms = sm.get<MovementSystem>();
 		// if (ms) {}
-		//
+		// Note:
+		// - Asserts the system type is managed
 		template <class S>
 		std::shared_ptr<S> get() noexcept;
 
@@ -99,13 +103,14 @@ namespace rift {
 	template<class S, class ...Args>
 	inline void SystemManager::add(Args && ...args) noexcept
 	{
+		assert(!has<S>() && "Already managing the given system type!");
 		systems.insert(std::make_pair(S::family(), std::make_shared<S>(std::forward<Args>(args)...)));
 	}
 
 	template<class S>
 	inline void SystemManager::remove() noexcept
 	{
-		assert(has<S>() && "The system manager does not manage a system of type S.");
+		assert(has<S>() && "Cannot remove an unmanaged system type!");
 		systems.erase(S::family());
 	}
 
@@ -118,9 +123,8 @@ namespace rift {
 	template<class S>
 	inline std::shared_ptr<S> SystemManager::get() noexcept
 	{
-		return systems.find(S::system_id()) != systems.end()
-			? std::static_pointer_cast<S>(systems.at(S::family()))
-			: std::shared_ptr<S>(nullptr);
+		assert(has<S>() && "Cannot fetch an unmanaged system type!");
+		return std::static_pointer_cast<S>(systems.at(S::family()));
 	}
 }
 
