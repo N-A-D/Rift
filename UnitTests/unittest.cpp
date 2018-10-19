@@ -14,17 +14,23 @@ namespace UnitTests
 		TEST_METHOD(ComponentFamilies)
 		{
 			Assert::IsTrue(Position::family() != Direction::family());
+			Assert::IsTrue(Position::family() != Toggle::family());
+			Assert::IsTrue(Direction::family() != Toggle::family());
 		}
 
+
 		TEST_METHOD(ComponentSignature) {
-			auto signature = rift::signature_for<Position, Direction>();
-			Assert::IsTrue(signature == 3);
+			Assert::IsTrue(rift::signature_for<Position, Direction>() == rift::signature_for<Direction, Position>());
+			Assert::IsTrue(rift::signature_for<Position, Toggle>() == rift::signature_for<Toggle, Position>());
+			Assert::IsTrue(rift::signature_for<Direction, Toggle>() == rift::signature_for<Toggle, Direction>());
+			Assert::IsTrue(rift::signature_for<Position, Direction, Toggle>() == rift::signature_for<Position, Toggle, Direction>());
+			Assert::IsTrue(rift::signature_for<Position, Direction, Toggle>() == rift::signature_for<Toggle, Direction, Position>());
 		}
 
 	};
 
 	TEST_CLASS(Containers) {
-
+	public:
 		TEST_METHOD(Insertion) {
 			rift::Cache<int> integer_cache;
 			int x = 3;
@@ -126,6 +132,7 @@ namespace UnitTests
 	};
 
 	TEST_CLASS(Entity) {
+	public:
 		TEST_METHOD(EntityID) {
 			auto e = rift::Entity::ID(10, 11);
 			auto f(e);
@@ -326,7 +333,7 @@ namespace UnitTests
 			// There should be 2 entities with Position & Direction, b and c
 			Assert::IsTrue(em.count_entities_with<Position, Direction>() == 2);
 		}
-
+		
 		TEST_METHOD(EntityManagerEntitiesWithComponentUpdate) {
 
 			rift::EntityManager em;
@@ -349,24 +356,95 @@ namespace UnitTests
 			t = b.get<Toggle>();
 			Assert::IsTrue(t.on);
 		}
-
+		
 	};
 	
 	TEST_CLASS(System) {
+	public:
 		TEST_METHOD(SingleSystemIteration) {
+			rift::EntityManager em;
+			for (int i = 0; i < 20; i++) {
+				auto e = em.create_entity();
+				e.add<Toggle>();
+			}
 
+			// Test stand alone system update
+			ToggleSystem ts;
+			ts.update(em, 1.0);
+			em.entities_with<Toggle>([](rift::Entity e) {
+				auto& t = e.get<Toggle>();
+				Assert::IsTrue(t.on);
+				t.on = false;
+			});
+
+			// Test system manager update
+			rift::SystemManager sm;
+			sm.add<ToggleSystem>();
+			sm.update(em, 1.0);
+			em.entities_with<Toggle>([](rift::Entity e) {
+				auto& t = e.get<Toggle>();
+				Assert::IsTrue(t.on);
+			});
 		}
+		
 		TEST_METHOD(MultiSystemIteration) {
+			rift::EntityManager em;
+			for (int i = 0; i < 20; i++) {
+				auto e = em.create_entity();
+				e.add<Toggle>();
+				e.add<Position>(1.0f, 1.0f);
+				e.add<Direction>(1.0f, 1.0f);
+			}
 
+			// Two single system update
+			ToggleSystem ts;
+			MovementSystem ms;
+			// Update the toggle system
+			ts.update(em, 1.0);
+			em.entities_with<Toggle>([](rift::Entity e) {
+				auto& t = e.get<Toggle>();
+				Assert::IsTrue(t.on);
+				t.on = false;
+			});
+			ms.update(em, 1.0);
+			em.entities_with<Direction, Position>([](rift::Entity e) {
+				auto& p = e.get<Position>();
+				Assert::IsTrue(p.x == 2.0f && p.y == 2.0f);
+			});
+
+			// SystemManager multisystem update
+			rift::SystemManager sm;
+			sm.add<ToggleSystem>();
+			sm.add<MovementSystem>();
+			sm.update(em, 1.0);
+			em.entities_with<Toggle>([](rift::Entity e) {
+				auto& t = e.get<Toggle>();
+				Assert::IsTrue(t.on);
+			});
+			em.entities_with<Direction, Position>([](rift::Entity e) {
+				auto& p = e.get<Position>();
+				Assert::IsTrue(p.x == 3.0f && p.y == 3.0f);
+			});
 		}
-		TEST_METHOD(SystemManagerSystemInsertion) {
 
+
+		TEST_METHOD(SystemManagerSystemInsertion) {
+			rift::SystemManager sm;
+			sm.add<ToggleSystem>();
+			Assert::IsTrue(sm.has<ToggleSystem>());
 		}
 		TEST_METHOD(SystemManagerSystemRemoval) {
-
+			rift::SystemManager sm;
+			sm.add<ToggleSystem>();
+			Assert::IsTrue(sm.has<ToggleSystem>());
+			sm.remove<ToggleSystem>();
+			Assert::IsTrue(!sm.has<ToggleSystem>());
 		}
 		TEST_METHOD(SystemManagerSystemCheck) {
-
+			rift::SystemManager sm;
+			Assert::IsTrue(!sm.has<ToggleSystem>());
+			sm.add<ToggleSystem>();
+			Assert::IsTrue(sm.has<ToggleSystem>());
 		}
 	};
 }

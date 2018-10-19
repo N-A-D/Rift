@@ -20,11 +20,21 @@ struct Toggle : public rift::Component<Toggle> {
 	bool on;
 };
 
-struct Movement : public rift::System<Movement> {
-	Movement() {}
+struct ToggleSystem : public rift::System<ToggleSystem> {
 
 	void update(rift::EntityManager& em, double dt) noexcept override {
-		em.entities_with<Position, Direction>([dt](const rift::Entity& e) {
+		em.entities_with<Toggle>([](rift::Entity e) {
+			auto& t = e.get<Toggle>();
+			t.on = true;
+		});
+	}
+};
+
+struct MovementSystem : public rift::System<MovementSystem> {
+	MovementSystem() {}
+
+	void update(rift::EntityManager& em, double dt) noexcept override {
+		em.entities_with<Position, Direction>([dt](rift::Entity e) {
 			Position &p = e.get<Position>();
 			Direction& d = e.get<Direction>();
 			p.x += d.x * dt;
