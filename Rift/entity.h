@@ -46,10 +46,10 @@ namespace rift {
 		Entity(const Entity&) = default;
 		Entity& operator=(const Entity&) = default;
 
-		// Fetch the entity's Entity::ID
+		// Fetch the entity's index
 		Entity::ID id() const noexcept;
 
-		// Checks if the entity's Entity::ID is valid
+		// Checks if the entity's index is valid
 		bool valid() const noexcept;
 
 		operator bool() const noexcept;
