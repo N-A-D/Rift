@@ -9,7 +9,7 @@ namespace rift {
 	// example: ComponentMask mask = signature_for<Position, Velocity, Direction>();
 	template <class ...Components>
 	ComponentMask signature_for() noexcept {
-		ComponentMask mask = 0;
+		ComponentMask mask;
 		[&mask](...) {}((mask.set(Components::family()))...);
 		return mask;
 	}
