@@ -22,7 +22,7 @@ namespace rift {
 		// The index held by the Entity::ID is invalid if its version is invalid
 		class ID {
 		public:
-			ID() = default;
+			ID() : m_number(0) {}
 			ID(const ID&) = default;
 			ID(std::uint32_t index, std::uint32_t version)
 				: m_number(std::uint64_t(index) | std::uint64_t(version) << 32) {}
