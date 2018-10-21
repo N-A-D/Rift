@@ -90,7 +90,7 @@ namespace rift {
 	{
 		if (index >= forward.size())
 			return false;
-		if (forward.at(index) < reverse.size() && reverse.at(forward.at(index)) == index)
+		if (forward[index] < reverse.size() && reverse[forward[index]] == index)
 			return true;
 		return false;
 	}
@@ -101,7 +101,7 @@ namespace rift {
 		assert(!exists(index));
 		if (index >= forward.size())
 			forward.resize(index + 1);
-		forward.at(index) = reverse.size();
+		forward[index] = reverse.size();
 		instances.push_back(*(static_cast<T *>(object)));
 		reverse.push_back(index);
 	}
@@ -110,9 +110,9 @@ namespace rift {
 	inline void Cache<T>::erase(size_type index)
 	{
 		assert(exists(index));
-		instances.at(forward.at(index)) = instances.back();
-		reverse.at(forward.at(index)) = reverse.back();
-		forward.at(reverse.back()) = forward.at(index);
+		instances[forward[index]] = instances.back();
+		reverse[forward[index]] = reverse.back();
+		forward[reverse.back()] = forward[index];
 		instances.pop_back();
 		reverse.pop_back();
 	}
@@ -121,7 +121,7 @@ namespace rift {
 	inline void * Cache<T>::get(size_type index)
 	{
 		assert(exists(index));
-		return &instances.at(forward.at(index));
+		return &instances[forward[index]];
 	}
 
 }
