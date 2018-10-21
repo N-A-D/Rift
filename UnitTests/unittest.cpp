@@ -157,6 +157,27 @@ namespace UnitTests
 			Assert::IsFalse(c);
 		}
 
+		TEST_METHOD(EntityInvalidation) {
+			rift::EntityManager em;
+
+			auto a = em.create_entity();
+			auto b(a);
+			auto c(a);
+
+			Assert::IsTrue(a && b && c);
+
+			// Invalidating an entity only destroys the caller
+			// Other equivalent entities are unaffected
+			a.invalidate();
+			Assert::IsFalse(a);
+			Assert::IsTrue(b && c);
+
+			// Destroying an entity destroys all other equivalent entities
+			b.destroy();
+			Assert::IsFalse(b);
+			Assert::IsFalse(c);
+		}
+
 		TEST_METHOD(EntityDestruction) {
 			rift::EntityManager em;
 			rift::Entity a = em.create_entity();
