@@ -32,27 +32,33 @@ namespace UnitTests
 	public:
 		TEST_METHOD(Insertion) {
 			rift::Cache<int> integer_cache;
-			int x = 3;
-			integer_cache.insert(0, &x);
+			
+			auto integer_insert = [&integer_cache](std::size_t index, int x) {
+				Assert::IsFalse(integer_cache.exists(index));
+				integer_cache.insert(index, &x);
+			};
+
+			integer_insert(0, 3);
 
 			Assert::IsTrue(integer_cache.exists(0));
-			Assert::IsTrue((*(static_cast<int *>(integer_cache.get(0))) == x));
-			
+			Assert::IsTrue(*(static_cast<int *>(integer_cache.get(0))) == 3);
+
 			rift::EntityManager em;
 
-			auto a = em.create_entity();
-			auto b = em.create_entity();
+			auto e = em.create_entity();
 
 			rift::Cache<rift::Entity> entity_cache;
-			entity_cache.insert(a.id().index(), &a);
-			entity_cache.insert(b.id().index(), &b);
 
-			// There are two entities in the cache
-			Assert::IsTrue(entity_cache.size() == 2);
+			auto entity_insert = [&entity_cache](std::size_t index, const rift::Entity& e) {
+				Assert::IsFalse(entity_cache.exists(index));
+				auto f(e);
+				entity_cache.insert(index, &f);
+			};
 
-			// Check if the inserted entities are correct
-			Assert::IsTrue(a == *(static_cast<rift::Entity *>(entity_cache.get(a.id().index()))));
-			Assert::IsTrue(b == *(static_cast<rift::Entity *>(entity_cache.get(b.id().index()))));
+			entity_insert(e.id().index(), e);
+
+			Assert::IsTrue(entity_cache.exists(e.id().index()));
+			Assert::IsTrue(*(static_cast<rift::Entity *>(entity_cache.get(e.id().index()))) == e);
 
 		}
 
