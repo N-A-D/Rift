@@ -471,7 +471,7 @@ namespace UnitTests
 
 			sm.add<MovementSystem>();
 
-			// Ensure the system manage manages a movement system
+			// Ensure the system manager manages a movement system
 			Assert::IsTrue(sm.has<MovementSystem>());
 
 			sm.remove<MovementSystem>();
@@ -524,25 +524,29 @@ namespace UnitTests
 			// Ensure the number of reusable entities is zero
 			Assert::IsTrue(em.reusable_entities() == 0);
 
+			// Ensure that there are zero entities with toggle components before all systems update
+			Assert::IsTrue(em.count_entities_with<Toggle>() == 0);
+
 			a.add<Toggle>();
 			b.add<Toggle>();
 			c.add<Toggle>();
 			d.add<Toggle>();
 
 			// Ensure that there are four entities with toggle components before all systems update
-			Assert::IsTrue(em.count_entities_with<Toggle>());
+			Assert::IsTrue(em.count_entities_with<Toggle>() == 4);
 
 			// Update all systems
 			sm.update(1.0);
 
-			// Ensure the number of managed entities is zero
-			Assert::IsTrue(em.size() == 0);
+			// Ensure there are zero entities with toggle components
+			Assert::IsTrue(em.count_entities_with<Toggle>() == 0);
 
 			// Ensure the number of reusable entities is now four
 			Assert::IsTrue(em.reusable_entities() == 4);
 
-			// Ensure there are zero entities with toggle components
-			Assert::IsTrue(em.count_entities_with<Toggle>() == 0);
+			// Ensure the number of managed entities is zero
+			Assert::IsTrue(em.size() == 0);
+
 		}
 	};
 }
