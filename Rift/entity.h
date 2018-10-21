@@ -1,7 +1,6 @@
 #pragma once
 #ifndef _RIFT_ENTITY_
 #define _RIFT_ENTITY_
-#include <set>
 #include <queue>
 #include <memory>
 #include <assert.h>
@@ -188,7 +187,7 @@ namespace rift {
 	private:
 
 		// Collection of entities to be destroyed next frame
-		std::set<Entity::ID> ids;
+		Cache<Entity::ID> ids;
 
 		// Collection of free indexes
 		std::queue<std::uint32_t> free_indexes;

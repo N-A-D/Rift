@@ -93,8 +93,10 @@ bool rift::EntityManager::valid_id(const Entity::ID & id) const noexcept
 
 void rift::EntityManager::destroy(const Entity::ID & id) noexcept
 {
-	if (ids.find(id) == ids.end())
-		ids.insert(id);
+	if (!ids.exists(id.index())) {
+		auto idx(id);
+		ids.insert(id.index(), &idx);
+	}
 }
 
 void rift::EntityManager::delete_components_for(const Entity::ID & id) noexcept
