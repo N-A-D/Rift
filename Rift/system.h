@@ -1,6 +1,7 @@
 #pragma once
 #ifndef _RIFT_SYSTEM_
 #define _RIFT_SYSTEM_
+#include <vector>
 #include <memory>
 #include <assert.h>
 #include <unordered_map>
@@ -97,28 +98,34 @@ namespace rift {
 		void update(double dt);
 
 	private:
-		rift::EntityManager & entity_manager;
-		std::unordered_map<SystemFamily, std::shared_ptr<BaseSystem>> systems;
+		rift::EntityManager& entity_manager;
+		std::vector<std::shared_ptr<BaseSystem>> systems;
 	};
 
 	template<class S, class ...Args>
 	inline void SystemManager::add(Args && ...args) noexcept
 	{
 		assert(!has<S>() && "Cannot manager more than one system of a given type!");
-		systems.insert(std::make_pair(S::family(), std::make_shared<S>(std::forward<Args>(args)...)));
+		if (S::family() >= systems.size())
+			systems.resize(S::family() + 1);
+		systems[S::family()] = std::make_shared<S>(std::forward<Args>(args)...);
 	}
 
 	template<class S>
 	inline void SystemManager::remove() noexcept
 	{
 		assert(has<S>() && "Cannot remove an unmanaged system type!");
-		systems.erase(S::family());
+		systems[S::family()] = nullptr;
 	}
 
 	template<class S>
 	inline bool SystemManager::has() noexcept
 	{
-		return systems.find(S::family()) != systems.end();
+		if (S::family() >= systems.size())
+			return false;
+		if (systems[S::family()])
+			return true;
+		return false;
 	}
 
 	template<class S>

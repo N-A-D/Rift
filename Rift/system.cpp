@@ -10,9 +10,12 @@ rift::SystemManager::SystemManager(rift::EntityManager & entity_manager)
 
 void rift::SystemManager::update(double dt)
 {
-	// Update all systems
-	for (auto system_pair : systems)
-		system_pair.second->update(entity_manager, dt);
+	// Update all valid systems
+	for (auto system : systems) {
+		if (system) {
+			system->update(entity_manager, dt);
+		}
+	}
 	// Update the entity_manager
 	entity_manager.update();
 }
