@@ -27,6 +27,12 @@ rift::Entity::operator bool() const noexcept
 	return valid();
 }
 
+bool rift::Entity::pending_delete() const noexcept
+{
+	assert(valid() && "Cannot check if an invalid entity is waiting for deletion!");
+	return mgr->pending_delete(m_id);
+}
+
 void rift::Entity::destroy() const noexcept
 {
 	assert(valid() && "Cannot destroy an invalid entity!");
@@ -122,4 +128,9 @@ void rift::EntityManager::delete_any_caches_for(const Entity::ID & id) noexcept
 ComponentMask rift::EntityManager::component_mask_for(const Entity::ID & id) const noexcept
 {
 	return masks[id.index()];
+}
+
+bool rift::EntityManager::pending_delete(const Entity::ID & id) const noexcept
+{
+	return ids.exists(id.index());
 }
