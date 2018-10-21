@@ -2,8 +2,6 @@
 
 using namespace rift;
 
-const rift::Entity::ID Entity::INVALID_ID;
-
 rift::Entity::Entity()
 	: mgr(nullptr), m_id(0, 0)
 {
@@ -29,17 +27,10 @@ rift::Entity::operator bool() const noexcept
 	return valid();
 }
 
-void rift::Entity::destroy() noexcept
+void rift::Entity::destroy() const noexcept
 {
 	assert(valid() && "Cannot destroy an invalid entity!");
 	mgr->destroy(m_id);
-	invalidate();
-}
-
-void rift::Entity::invalidate() noexcept
-{
-	mgr = nullptr;
-	m_id = INVALID_ID;
 }
 
 rift::ComponentMask rift::Entity::component_mask() const noexcept
@@ -73,6 +64,28 @@ std::size_t rift::EntityManager::capacity() const noexcept
 	return masks.size();
 }
 
+std::size_t rift::EntityManager::reusable_entities() const noexcept
+{
+	return free_indexes.size();
+}
+
+std::size_t rift::EntityManager::entities_to_destroy() const noexcept
+{
+	return ids.size();
+}
+
+void rift::EntityManager::update() noexcept
+{
+	for (auto id : ids) {
+		delete_components_for(id);
+		delete_any_caches_for(id);
+		masks[id.index()].reset();
+		index_versions[id.index()]++;
+		free_indexes.push(id.index());
+	}
+	ids.clear();
+}
+
 bool rift::EntityManager::valid_id(const Entity::ID & id) const noexcept
 {
 	return index_versions[id.index()] == id.version();
@@ -80,11 +93,8 @@ bool rift::EntityManager::valid_id(const Entity::ID & id) const noexcept
 
 void rift::EntityManager::destroy(const Entity::ID & id) noexcept
 {
-	delete_components_for(id);
-	delete_any_caches_for(id);
-	masks[id.index()].reset();
-	index_versions[id.index()]++;
-	free_indexes.push(id.index());
+	if (ids.find(id) == ids.end())
+		ids.insert(id);
 }
 
 void rift::EntityManager::delete_components_for(const Entity::ID & id) noexcept

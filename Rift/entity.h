@@ -1,6 +1,7 @@
 #pragma once
 #ifndef _RIFT_ENTITY_
 #define _RIFT_ENTITY_
+#include <set>
 #include <queue>
 #include <memory>
 #include <assert.h>
@@ -54,11 +55,8 @@ namespace rift {
 
 		operator bool() const noexcept;
 
-		// Immediately destroy the entity and all others that have the same Entity::ID
-		void destroy() noexcept;
-
-		// Invalidate this handle, disassociating it from the manager that created it
-		void invalidate() noexcept;
+		// Destroy the entity and all others that have the same Entity::ID after the next EntityManager update
+		void destroy() const noexcept;
 
 		// Fetch the entity's ComponentMask
 		rift::ComponentMask component_mask() const noexcept;
@@ -93,8 +91,6 @@ namespace rift {
 	private:
 		friend class EntityManager;
 
-		static const ID INVALID_ID;
-
 		// Only EntityManagers are permitted to create valid entity handles
 		Entity(EntityManager *em, Entity::ID id);
 
@@ -124,8 +120,14 @@ namespace rift {
 		// Returns the number of managed entities
 		std::size_t size() const noexcept;
 
-		// Returns the capacity 
+		// Returns the capacity (number of managed entities + those that can reused)
 		std::size_t capacity() const noexcept;
+
+		// Returns the number of entities that can be reused
+		std::size_t reusable_entities() const noexcept;
+
+		// Returns the number of entities waiting to be destroyed
+		std::size_t entities_to_destroy() const noexcept;
 
 		// Returns the number of entities that associate with each of the component types
 		template <class First, class... Rest>
@@ -138,6 +140,9 @@ namespace rift {
 		// em.entities_with<Position, Direction>(...);
 		template <class First, class... Rest>
 		void entities_with(std::function<void(Entity)> f);
+
+		// Cleanup the resources for entities that were destroyed last frame
+		void update() noexcept;
 
 	private:
 
@@ -177,10 +182,13 @@ namespace rift {
 		// Delete the entity from any search caches it may be in
 		void delete_any_caches_for(const Entity::ID& id) noexcept;
 
-		// Cleanup resources bound to the entity
+		// Queue the all entities with the same id for destruction
 		void destroy(const Entity::ID& id) noexcept;
 
 	private:
+
+		// Collection of entities to be destroyed next frame
+		std::set<Entity::ID> ids;
 
 		// Collection of free indexes
 		std::queue<std::uint32_t> free_indexes;
@@ -235,20 +243,25 @@ namespace rift {
 	{
 		auto signature = signature_for<First, Rest...>();
 
-		std::size_t count = 0;
-		for (auto& mask : masks) {
-			if ((mask & signature) == signature) {
-				++count;
-			}
+		if (entity_caches.find(signature) != entity_caches.end()) {
+			return entity_caches.at(signature).size();
 		}
-		return count;
+		else {
+			std::size_t count = 0;
+			for (auto& mask : masks) {
+				if ((mask & signature) == signature) {
+					++count;
+				}
+			}
+			return count;
+		}
 	}
 
 	template<class First, class ...Rest>
 	inline void EntityManager::entities_with(std::function<void(Entity)> f)
 	{
 		auto signature = signature_for<First, Rest...>();
-
+		
 		if (entity_caches.find(signature) != entity_caches.end()) {
 			for (auto entity : entity_caches.at(signature)) {
 				f(entity);
