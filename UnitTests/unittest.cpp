@@ -138,11 +138,16 @@ namespace UnitTests
 			auto e = em.create_entity();
 			auto f = em.create_entity();
 			auto g = em.create_entity();
-			
+
 			// Check if the above entities have unique ids
 			Assert::IsTrue(e.id().index() == 0 && e.id().version() == 1);
 			Assert::IsTrue(f.id().index() == 1 && f.id().version() == 1);
 			Assert::IsTrue(g.id().index() == 2 && g.id().version() == 1);
+
+			rift::Entity::ID id(e.id());
+
+			Assert::IsTrue(id.index() == e.id().index());
+			Assert::IsTrue(id.version() == e.id().version());
 		}
 
 		TEST_METHOD(Ordering) {
