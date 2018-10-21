@@ -53,7 +53,7 @@ namespace rift {
 	public:
 
 		// Creates a new System manager
-		SystemManager() = default;
+		SystemManager(rift::EntityManager& em);
 
 		// Adds a new managed system
 		// Note: 
@@ -94,16 +94,17 @@ namespace rift {
 		std::shared_ptr<S> get() noexcept;
 
 		// Updates all systems
-		void update(EntityManager& em, double dt);
+		void update(double dt);
 
 	private:
+		rift::EntityManager & entity_manager;
 		std::unordered_map<SystemFamily, std::shared_ptr<BaseSystem>> systems;
 	};
 
 	template<class S, class ...Args>
 	inline void SystemManager::add(Args && ...args) noexcept
 	{
-		assert(!has<S>() && "Already managing the given system type!");
+		assert(!has<S>() && "Cannot manager more than one system of a given type!");
 		systems.insert(std::make_pair(S::family(), std::make_shared<S>(std::forward<Args>(args)...)));
 	}
 
