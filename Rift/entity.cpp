@@ -2,6 +2,8 @@
 
 using namespace rift;
 
+const rift::Entity::ID Entity::INVALID_ID;
+
 rift::Entity::Entity()
 	: mgr(nullptr), m_id(0, 0)
 {
@@ -27,10 +29,17 @@ rift::Entity::operator bool() const noexcept
 	return valid();
 }
 
-void rift::Entity::destroy() const noexcept
+void rift::Entity::destroy() noexcept
 {
 	assert(valid() && "Cannot destroy an invalid entity!");
 	mgr->destroy(m_id);
+	invalidate();
+}
+
+void rift::Entity::invalidate() noexcept
+{
+	mgr = nullptr;
+	m_id = INVALID_ID;
 }
 
 rift::ComponentMask rift::Entity::component_mask() const noexcept

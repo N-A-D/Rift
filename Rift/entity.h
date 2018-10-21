@@ -55,7 +55,10 @@ namespace rift {
 		operator bool() const noexcept;
 
 		// Immediately destroy the entity and all others that have the same Entity::ID
-		void destroy() const noexcept;
+		void destroy() noexcept;
+
+		// Invalidate this handle, disassociating it from the manager that created it
+		void invalidate() noexcept;
 
 		// Fetch the entity's ComponentMask
 		rift::ComponentMask component_mask() const noexcept;
@@ -89,6 +92,8 @@ namespace rift {
 
 	private:
 		friend class EntityManager;
+
+		static const ID INVALID_ID;
 
 		// Only EntityManagers are permitted to create valid entity handles
 		Entity(EntityManager *em, Entity::ID id);
