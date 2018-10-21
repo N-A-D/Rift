@@ -168,7 +168,7 @@ namespace rift {
 		// Fetch the ComponentMask for the entity
 		ComponentMask component_mask_for(const Entity::ID& id) const noexcept;
 
-		// Check the validity of the entity's id
+		// Check the validity of the entity
 		bool valid_id(const Entity::ID& id) const noexcept;
 
 		// Delete all components associated with the entity
@@ -177,7 +177,7 @@ namespace rift {
 		// Delete the entity from any search caches it may be in
 		void delete_any_caches_for(const Entity::ID& id) noexcept;
 
-		// Cleanup resources related to the entity
+		// Cleanup resources bound to the entity
 		void destroy(const Entity::ID& id) noexcept;
 
 	private:
