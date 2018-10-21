@@ -153,7 +153,7 @@ namespace rift {
 		template <class C>
 		void remove_component(const Entity::ID& id) noexcept;
 
-		// Test the component type C is enabled in the entity's component mask
+		// Check if the component type C is enabled in the entity's component mask
 		template <class C>
 		bool has_component(const Entity::ID& id) noexcept;
 
