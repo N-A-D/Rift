@@ -48,8 +48,7 @@ namespace rift {
 		}
 	};
 
-	// Responsible for the management of a single instance of any system type
-	// All Systems managed by a rift::SystemManager must subclass rift::System
+	// Manages different system types
 	class SystemManager final {
 	public:
 
@@ -58,39 +57,49 @@ namespace rift {
 
 		// Adds a new managed system
 		// Note: 
-		// - Asserts the system type is not managed
-		// SystemManager sm();
+		// - Asserts the system type is not already managed
+		// Example:
+		// EntityManager em;
+		// ...
+		// SystemManager sm(em);
 		// sm.add<MovementSystem>();
-		// 
 		template <class S, class... Args>
 		void add(Args&& ...args) noexcept;
 
 		// Removes a managed system if any
-		// example:
-		// SystemManager sm();
-		// sm.remove<MovementSystem>();
+		//
 		// Note:
 		// - Asserts the system type is managed
+		//
+		// Example:
+		// EntityManager em;
+		// ...
+		// SystemManager sm(em);
+		// sm.remove<MovementSystem>();
 		template <class S>
 		void remove() noexcept;
 
 		// Checks if the manager has a system S
-		// example:
-		// SystemManager sm();
+		//
+		// Example:
+		// EntityManager em;
+		// ...
+		// SystemManager sm(em);
 		// sm.add<MovementSystem>();
 		// bool has = sm.has<MovementSystem>();
-		// 
 		template <class S>
 		bool has() const noexcept;
 
 		// Retrieves the system of type S if any
-		// example:
-		// SystemManager sm();
+		// Note:
+		// - Asserts the system type is managed
+		// Example:
+		// EntityManager em;
+		// ...
+		// SystemManager sm(em);
 		// sm.add<MovementSystem>();
 		// std::shared_ptr<MovementSystem> ms = sm.get<MovementSystem>();
 		// if (ms) {}
-		// Note:
-		// - Asserts the system type is managed
 		template <class S>
 		std::shared_ptr<S> get() const noexcept;
 
@@ -100,13 +109,17 @@ namespace rift {
 		// Update an ordered list of managed systems
 		// Note:
 		// - Asserts that each system type is managed
-		// example: system_manager.update_systems<Movement, Collision>(dt);
+		// Example:
+		// EntityManager em;
+		// ...
+		// SystemManager sm(em);
+		// sm.update_systems<Movement, Collision>(dt);
 		template <class First, class... Rest>
 		void update_systems(double dt);
 		
 	private:
 
-		// Helper function for the update_systems function
+		// Helper for the update_systems function
 		template <class S>
 		std::shared_ptr<BaseSystem> update_systems_helper() const noexcept;
 
