@@ -57,7 +57,7 @@ namespace rift {
 		// Checks if this entity will be invalid next frame
 		bool pending_invalidation() const noexcept;
 
-		// Destroy the entity and all others that have the same Entity::ID after the next EntityManager update
+		// Signal the EntityManager to destroy this entity and all equivalent entities at the end of this frame
 		void destroy() const noexcept;
 
 		// Fetch the entity's ComponentMask
