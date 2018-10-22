@@ -106,7 +106,7 @@ namespace rift {
 		// Updates all systems
 		void update(double dt);
 		
-		// Update an ordered list of managed systems
+		// Update an ordered list of managed system types
 		// Note:
 		// - Asserts that each system type is managed
 		// Example:
