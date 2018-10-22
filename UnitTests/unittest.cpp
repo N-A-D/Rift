@@ -194,7 +194,7 @@ namespace UnitTests
 			// as their manager hasn't updated itself yet
 			e.destroy();
 			Assert::IsTrue(e && f);
-			Assert::IsTrue(e.pending_delete() && f.pending_delete());
+			Assert::IsTrue(e.pending_invalidation() && f.pending_invalidation());
 
 			// Now that their manager has updated itself, e and f are now invalid
 			em.update();
@@ -313,7 +313,7 @@ namespace UnitTests
 			Assert::IsTrue(e && f && g && h);
 
 			// Ensure that g and h are not pending delete
-			Assert::IsTrue(!g.pending_delete() && !h.pending_delete());
+			Assert::IsTrue(!g.pending_invalidation() && !h.pending_invalidation());
 
 			// The number of entities to be destroyed should now be one
 			// The number of reusable entities should now be zero
@@ -325,7 +325,7 @@ namespace UnitTests
 			Assert::IsTrue(em.reusable_entities() == 0);
 			Assert::IsTrue(em.size() == 3);
 			Assert::IsTrue(em.capacity() == em.size());
-			Assert::IsTrue(g.pending_delete() && h.pending_delete());
+			Assert::IsTrue(g.pending_invalidation() && h.pending_invalidation());
 
 			// Ensure that multiple calls to destroy the same entity does not 
 			// affect the true number of entities to destroy
@@ -335,7 +335,7 @@ namespace UnitTests
 				Assert::IsTrue(em.reusable_entities() == 0);
 				Assert::IsTrue(em.size() == 3);
 				Assert::IsTrue(em.capacity() == em.size());
-				Assert::IsTrue(g.pending_delete() && h.pending_delete());
+				Assert::IsTrue(g.pending_invalidation() && h.pending_invalidation());
 			}
 
 			// Update the manager and ensure that the number of reusable entities
@@ -392,7 +392,7 @@ namespace UnitTests
 			Assert::IsTrue(em.count_entities_with<Toggle>() == 4);
 
 			// Ensure that a-d entities are not pending deletion
-			Assert::IsTrue(!a.pending_delete() && !b.pending_delete() && !c.pending_delete() && !d.pending_delete());
+			Assert::IsTrue(!a.pending_invalidation() && !b.pending_invalidation() && !c.pending_invalidation() && !d.pending_invalidation());
 
 			// Destroy every entity with a toggle component
 			DestructionSystem ds;
@@ -402,7 +402,7 @@ namespace UnitTests
 			Assert::IsTrue(em.entities_to_destroy() == 4);
 
 			// Ensure that a-d entities are now pending deletion
-			Assert::IsTrue(a.pending_delete() && b.pending_delete() && c.pending_delete() && d.pending_delete());
+			Assert::IsTrue(a.pending_invalidation() && b.pending_invalidation() && c.pending_invalidation() && d.pending_invalidation());
 
 			// Update the entity manager to ensure that destruction takes place
 			em.update();
