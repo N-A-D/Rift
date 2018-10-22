@@ -81,7 +81,7 @@ namespace rift {
 		// bool has = sm.has<MovementSystem>();
 		// 
 		template <class S>
-		bool has() noexcept;
+		bool has() const noexcept;
 
 		// Retrieves the system of type S if any
 		// example:
@@ -92,11 +92,11 @@ namespace rift {
 		// Note:
 		// - Asserts the system type is managed
 		template <class S>
-		std::shared_ptr<S> get() noexcept;
+		std::shared_ptr<S> get() const noexcept;
 
 		// Updates all systems
 		void update(double dt);
-
+		
 	private:
 		rift::EntityManager& entity_manager;
 		std::vector<std::shared_ptr<BaseSystem>> systems;
@@ -119,7 +119,7 @@ namespace rift {
 	}
 
 	template<class S>
-	inline bool SystemManager::has() noexcept
+	inline bool SystemManager::has() const noexcept
 	{
 		if (S::family() >= systems.size())
 			return false;
@@ -129,7 +129,7 @@ namespace rift {
 	}
 
 	template<class S>
-	inline std::shared_ptr<S> SystemManager::get() noexcept
+	inline std::shared_ptr<S> SystemManager::get() const noexcept
 	{
 		assert(has<S>() && "Cannot fetch an unmanaged system type!");
 		return std::static_pointer_cast<S>(systems.at(S::family()));
