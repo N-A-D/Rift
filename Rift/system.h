@@ -97,7 +97,19 @@ namespace rift {
 		// Updates all systems
 		void update(double dt);
 		
+		// Update an ordered list of managed systems
+		// Note:
+		// - Asserts that each system type is managed
+		// example: system_manager.update_systems<Movement, Collision>(dt);
+		template <class First, class... Rest>
+		void update_systems(double dt);
+		
 	private:
+
+		// Helper function for the update_systems function
+		template <class S>
+		std::shared_ptr<BaseSystem> update_systems_helper() const noexcept;
+
 		rift::EntityManager& entity_manager;
 		std::vector<std::shared_ptr<BaseSystem>> systems;
 	};
@@ -133,6 +145,23 @@ namespace rift {
 	{
 		assert(has<S>() && "Cannot fetch an unmanaged system type!");
 		return std::static_pointer_cast<S>(systems.at(S::family()));
+	}
+
+	template<class First, class ...Rest>
+	inline void SystemManager::update_systems(double dt)
+	{
+		auto system_list = { (update_systems_helper<First>()), (update_systems_helper<Rest>())... };
+		for (auto system : system_list) {
+			system->update(entity_manager, dt);
+		}
+		entity_manager.update();
+	}
+
+	template<class S>
+	inline std::shared_ptr<BaseSystem> SystemManager::update_systems_helper() const noexcept
+	{
+		assert(has<S>() && "Cannot update an unmanaged system!");
+		return systems.at(S::family());
 	}
 }
 
