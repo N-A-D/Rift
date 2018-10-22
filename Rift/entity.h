@@ -55,7 +55,7 @@ namespace rift {
 		operator bool() const noexcept;
 
 		// Checks if this entity will be invalid next frame
-		bool pending_delete() const noexcept;
+		bool pending_invalidation() const noexcept;
 
 		// Destroy the entity and all others that have the same Entity::ID after the next EntityManager update
 		void destroy() const noexcept;
@@ -176,7 +176,7 @@ namespace rift {
 		ComponentMask component_mask_for(const Entity::ID& id) const noexcept;
 
 		// Checks if the entity is pending deletion
-		bool pending_delete(const Entity::ID& id) const noexcept;
+		bool pending_invalidation(const Entity::ID& id) const noexcept;
 
 		// Check the validity of the entity
 		bool valid_id(const Entity::ID& id) const noexcept;
