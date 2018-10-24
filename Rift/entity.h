@@ -65,7 +65,7 @@ namespace rift {
 
 		// Adds a component to the entity
 		// Note: 
-		// - Asserts the entity owns a component of type C
+		// - Asserts the entity does not own a component of type C
 		template <class C, class ...Args>
 		void add(Args&& ...args) const noexcept;
 
