@@ -563,5 +563,56 @@ namespace UnitTests
 			Assert::IsTrue(em.size() == 0);
 
 		}
+
+		TEST_METHOD(UpdateSelectedSystems) {
+			// Test system to destroy entities with a toggle component
+			struct DestructionSystem : rift::System<DestructionSystem> {
+				void update(rift::EntityManager &em, double dt) override {
+					em.entities_with<Toggle>([](rift::Entity e) {
+						e.destroy();
+					});
+				}
+			};
+
+			rift::EntityManager em;
+			rift::SystemManager sm(em);
+
+			sm.add<ToggleSystem>();
+			sm.add<DestructionSystem>();
+
+			auto a = em.create_entity();
+			auto b = em.create_entity();
+			auto c = em.create_entity();
+			auto d = em.create_entity();
+
+			// Ensure the number of managed entities is four
+			Assert::IsTrue(em.size() == 4);
+
+			// Ensure the number of reusable entities is zero
+			Assert::IsTrue(em.reusable_entities() == 0);
+
+			// Ensure that there are zero entities with toggle components before all systems update
+			Assert::IsTrue(em.count_entities_with<Toggle>() == 0);
+
+			a.add<Toggle>();
+			b.add<Toggle>();
+			c.add<Toggle>();
+			d.add<Toggle>();
+
+			// Ensure that there are four entities with toggle components before all systems update
+			Assert::IsTrue(em.count_entities_with<Toggle>() == 4);
+
+			// Update all systems
+			sm.update_systems<DestructionSystem, ToggleSystem>(1.0);
+
+			// Ensure there are zero entities with toggle components
+			Assert::IsTrue(em.count_entities_with<Toggle>() == 0);
+
+			// Ensure the number of reusable entities is now four
+			Assert::IsTrue(em.reusable_entities() == 4);
+
+			// Ensure the number of managed entities is zero
+			Assert::IsTrue(em.size() == 0);
+		}
 	};
 }
