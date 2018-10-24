@@ -181,11 +181,11 @@ namespace rift {
 		// Check the validity of the entity
 		bool valid_id(const Entity::ID& id) const noexcept;
 
-		// Delete all components associated with the entity
+		// Delete all components the entity owns
 		void delete_components_for(const Entity::ID& id) noexcept;
 
-		// Delete the entity from any search caches it may be in
-		void delete_any_caches_for(const Entity::ID& id) noexcept;
+		// Delete the entity from all search caches it may be in
+		void delete_all_caches_for(const Entity::ID& id) noexcept;
 
 		// Prep all entities with the same Entity::ID for invalidation
 		void destroy(const Entity::ID& id) noexcept;

@@ -84,7 +84,7 @@ void rift::EntityManager::update() noexcept
 {
 	for (auto id : ids) {
 		delete_components_for(id);
-		delete_any_caches_for(id);
+		delete_all_caches_for(id);
 		masks[id.index()].reset();
 		index_versions[id.index()]++;
 		free_indexes.push(id.index());
@@ -115,7 +115,7 @@ void rift::EntityManager::delete_components_for(const Entity::ID & id) noexcept
 	}
 }
 
-void rift::EntityManager::delete_any_caches_for(const Entity::ID & id) noexcept
+void rift::EntityManager::delete_all_caches_for(const Entity::ID & id) noexcept
 {
 	auto mask = component_mask_for(id);
 	for (auto& search_cache : entity_caches) {
