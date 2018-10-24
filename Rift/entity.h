@@ -19,7 +19,7 @@ namespace rift {
 	public:
 
 		// An Entity::ID is a versionable index
-		// The index held by the Entity::ID is invalid if its version is invalid
+		// The index is valid as long as the version is valid
 		class ID {
 		public:
 			ID() : m_number(0) {}
@@ -57,7 +57,7 @@ namespace rift {
 		// Checks if this entity will be invalid next frame
 		bool pending_invalidation() const noexcept;
 
-		// Signal the EntityManager to destroy this entity and all equivalent entities at the end of this frame
+		// Signals the EntityManager to destroy this entity and all equivalent entities at the end of this frame
 		void destroy() const noexcept;
 
 		// Fetch the entity's ComponentMask
@@ -65,13 +65,13 @@ namespace rift {
 
 		// Adds a component to the entity
 		// Note: 
-		// - An assertion is made that the entity does not own a component of type C
+		// - Asserts the entity owns a component of type C
 		template <class C, class ...Args>
 		void add(Args&& ...args) const noexcept;
 
 		// Removes a component from the entity
 		// Note: 
-		// - An assertion is made that the entity owns a component of type C
+		// - Asserts the entity owns a component of type C
 		template <class C>
 		void remove() const noexcept;
 
@@ -81,7 +81,7 @@ namespace rift {
 
 		// Fetch the component for the entity
 		// Note: 
-		// - an assertion is made that the entity owns a component of type C
+		// - Asserts the entity owns a component of type C
 		template <class C>
 		C &get() const noexcept;
 
@@ -131,11 +131,11 @@ namespace rift {
 		// Returns the number of entities waiting to be destroyed
 		std::size_t entities_to_destroy() const noexcept;
 
-		// Returns the number of entities that associate with each of the component types
+		// Returns the number of entities that have each component type
 		template <class First, class... Rest>
 		std::size_t count_entities_with() const noexcept;
 
-		// Applies the function f onto entities that own an instance of each component type
+		// Applies the function f onto entities that have each component type
 		// example:
 		// EntityManager em;
 		// ...
@@ -187,7 +187,7 @@ namespace rift {
 		// Delete the entity from any search caches it may be in
 		void delete_any_caches_for(const Entity::ID& id) noexcept;
 
-		// Queue the all entities with the same id for destruction
+		// Prep all entities with the same Entity::ID for invalidation
 		void destroy(const Entity::ID& id) noexcept;
 
 	private:
