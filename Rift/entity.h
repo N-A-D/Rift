@@ -131,17 +131,17 @@ namespace rift {
 		// Returns the number of entities waiting to be destroyed
 		std::size_t entities_to_destroy() const noexcept;
 
-		// Returns the number of entities that have each component type
+		// Returns the number of entities with each component type
 		template <class First, class... Rest>
-		std::size_t count_entities_with() const noexcept;
+		std::size_t entities_with() const noexcept;
 
 		// Applies the function f onto entities that have each component type
 		// example:
 		// EntityManager em;
 		// ...
-		// em.entities_with<Position, Direction>(...);
+		// em.for_each_entity_with<Position, Direction>(...);
 		template <class First, class... Rest>
-		void entities_with(std::function<void(Entity)> f);
+		void for_each_entity_with(std::function<void(Entity)> f);
 
 		// Cleanup the resources for entities that were destroyed last frame
 		void update() noexcept;
@@ -244,7 +244,7 @@ namespace rift {
 	}
 
 	template<class First, class ...Rest>
-	inline std::size_t EntityManager::count_entities_with() const noexcept
+	inline std::size_t EntityManager::entities_with() const noexcept
 	{
 		auto signature = signature_for<First, Rest...>();
 
@@ -263,7 +263,7 @@ namespace rift {
 	}
 
 	template<class First, class ...Rest>
-	inline void EntityManager::entities_with(std::function<void(Entity)> f)
+	inline void EntityManager::for_each_entity_with(std::function<void(Entity)> f)
 	{
 		auto signature = signature_for<First, Rest...>();
 		
