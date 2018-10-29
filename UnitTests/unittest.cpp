@@ -214,6 +214,31 @@ namespace UnitTests
 			Assert::IsTrue(e.component_mask() != 0);
 		}
 
+		TEST_METHOD(ReplaceComponent) {
+			rift::EntityManager em;
+			auto e = em.create_entity();
+			auto f = em.create_entity();
+
+			// The entity has no components
+			Assert::IsTrue(e.component_mask() == 0);
+
+			// The entity now has a component
+			e.add<Toggle>();
+			Assert::IsTrue(e.component_mask() != 0);
+
+			auto t = e.get<Toggle>();
+
+			// The Toggle component given to e was off 
+			Assert::IsFalse(t.on);
+
+			e.replace<Toggle>(true);
+
+			// The Toggle component given to e is now on
+			t = e.get<Toggle>();
+			Assert::IsTrue(t.on);
+
+		}
+
 		TEST_METHOD(RemoveComponent) {
 			rift::EntityManager em;
 			auto e = em.create_entity();

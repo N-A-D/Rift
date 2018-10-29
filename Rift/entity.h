@@ -69,6 +69,12 @@ namespace rift {
 		template <class C, class ...Args>
 		void add(Args&& ...args) const noexcept;
 
+		// Replaces the entity's component
+		// Note:
+		// - Asserts the entity owns a component of type C
+		template <class C, class ...Args>
+		void replace(Args&& ...args) const noexcept;
+
 		// Removes a component from the entity
 		// Note: 
 		// - Asserts the entity owns a component of type C
@@ -156,6 +162,10 @@ namespace rift {
 		template <class C, class... Args>
 		void add_component(const Entity::ID& id, Args&& ...args) noexcept;
 
+		// Replace the entity's component
+		template <class C, class ...Args>
+		void replace_component(const Entity::ID& id, Args&& ...args) noexcept;
+
 		// Disable the component type C in the entity's component mask
 		template <class C>
 		void remove_component(const Entity::ID& id) noexcept;
@@ -218,6 +228,14 @@ namespace rift {
 		assert(valid() && "Cannot add a component to an invalid entity!");
 		assert(!has<C>() && "Adding multiple components of the same type to the same entity is not allowed!");
 		mgr->add_component<C>(m_id, std::forward<Args>(args)...);
+	}
+
+	template<class C, class ...Args>
+	inline void Entity::replace(Args && ...args) const noexcept
+	{
+		assert(valid() && "Cannot replace a component for an invalid entity!");
+		assert(has<C>() && "The entity does own a component of the given type!");
+		mgr->replace_component<C>(m_id, std::forward<Args>(args)...);
 	}
 
 	template<class C>
@@ -301,6 +319,13 @@ namespace rift {
 				search_cache.second.insert(index, &e);
 			}
 		}
+	}
+
+	template<class C, class ...Args>
+	inline void EntityManager::replace_component(const Entity::ID & id, Args && ...args) noexcept
+	{
+		remove_component<C>(id);
+		add_component<C>(id, std::forward<Args>(args)...);
 	}
 
 	template<class C>
