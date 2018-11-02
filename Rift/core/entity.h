@@ -7,7 +7,7 @@
 #include <functional>
 #include <unordered_map>
 #include "utility/cache.h"
-#include "utility/functions.h"
+#include "utility/signature.h"
 
 namespace rift {
 
