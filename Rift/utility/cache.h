@@ -1,6 +1,6 @@
 #pragma once
-#ifndef _RIFT_UTIL_CONTAINERS_
-#define _RIFT_UTIL_CONTAINERS_
+#ifndef _RIFT_UTIL_CACHE_
+#define _RIFT_UTIL_CACHE_
 #include <vector>
 
 namespace rift {
@@ -126,4 +126,4 @@ namespace rift {
 
 }
 
-#endif // !_RIFT_UTIL_CONTAINERS_
+#endif // !_RIFT_UTIL_CACHE_
