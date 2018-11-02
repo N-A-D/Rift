@@ -9,14 +9,13 @@
 #define M_PI 3.14159265358979323846
 #endif // !M_PI
 
-#include "../rift.h"
+#include "../core/rift.h"
 #include <stdexcept>
 #include <vector>
 #include <unordered_map>
 #include <numeric>
 #include <list>
 #include <array>
-
 
 namespace rift {
 
@@ -354,7 +353,6 @@ namespace rift {
 	}
 
 	namespace agent {
-
 
 		enum class Behaviour {
 

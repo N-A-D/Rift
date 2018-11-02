@@ -133,18 +133,20 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="component.h" />
-    <ClInclude Include="config.h" />
-    <ClInclude Include="entity.h" />
-    <ClInclude Include="rift.h" />
-    <ClInclude Include="system.h" />
-    <ClInclude Include="utility\containers.h" />
-    <ClInclude Include="utility\functions.h" />
+    <ClInclude Include="agent\agent.h" />
+    <ClInclude Include="core\component.h" />
+    <ClInclude Include="core\config.h" />
+    <ClInclude Include="core\entity.h" />
+    <ClInclude Include="core\rift.h" />
+    <ClInclude Include="core\system.h" />
+    <ClInclude Include="core\utility\cache.h" />
+    <ClInclude Include="core\utility\event.h" />
+    <ClInclude Include="core\utility\functions.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="component.cpp" />
-    <ClCompile Include="entity.cpp" />
-    <ClCompile Include="system.cpp" />
+    <ClCompile Include="core\component.cpp" />
+    <ClCompile Include="core\entity.cpp" />
+    <ClCompile Include="core\system.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

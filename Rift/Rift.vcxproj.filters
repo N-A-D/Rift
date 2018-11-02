@@ -13,39 +13,63 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header Files\Agent">
+      <UniqueIdentifier>{e6dc8ade-526b-4e13-8f91-6d953309d402}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Core">
+      <UniqueIdentifier>{3964568a-1921-4a97-872c-214876436e70}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Core">
+      <UniqueIdentifier>{a51d5f67-d059-446d-b3d4-e7a69a47c848}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Agent">
+      <UniqueIdentifier>{a4bf5e22-0e2c-48d2-917b-8ef86502ecd9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Core\Utility">
+      <UniqueIdentifier>{b15e3d8f-0670-4429-8f1d-77318ccc5264}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Agent\Utility">
+      <UniqueIdentifier>{af83d7ce-da09-499c-8343-fe12f5f52d12}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="system.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="agent\agent.h">
+      <Filter>Header Files\Agent</Filter>
     </ClInclude>
-    <ClInclude Include="entity.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="core\utility\cache.h">
+      <Filter>Header Files\Core\Utility</Filter>
     </ClInclude>
-    <ClInclude Include="component.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="core\utility\event.h">
+      <Filter>Header Files\Core\Utility</Filter>
     </ClInclude>
-    <ClInclude Include="rift.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="core\utility\functions.h">
+      <Filter>Header Files\Core\Utility</Filter>
     </ClInclude>
-    <ClInclude Include="utility\containers.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="core\component.h">
+      <Filter>Header Files\Core</Filter>
     </ClInclude>
-    <ClInclude Include="utility\functions.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="core\config.h">
+      <Filter>Header Files\Core</Filter>
     </ClInclude>
-    <ClInclude Include="config.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="core\entity.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\rift.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\system.h">
+      <Filter>Header Files\Core</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="entity.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="core\component.cpp">
+      <Filter>Source Files\Core</Filter>
     </ClCompile>
-    <ClCompile Include="system.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="core\entity.cpp">
+      <Filter>Source Files\Core</Filter>
     </ClCompile>
-    <ClCompile Include="component.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="core\system.cpp">
+      <Filter>Source Files\Core</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
