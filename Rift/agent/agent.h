@@ -4,6 +4,11 @@
 
 #define _USE_MATH_DEFINES
 #include <cmath>
+
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif // !M_PI
+
 #include "../rift.h"
 #include <stdexcept>
 #include <vector>
@@ -11,6 +16,7 @@
 #include <numeric>
 #include <list>
 #include <array>
+
 
 namespace rift {
 
@@ -86,7 +92,7 @@ namespace rift {
 
 		// Returns a normalized u
 		template <class T>
-		Vec2<T> norm(const Vec2<T>& u) noexcept;
+		Vec2<T> norm(const Vec2<T>& u);
 
 		// Returns a truncated to 'length' u
 		template <class T>
@@ -151,7 +157,7 @@ namespace rift {
 		}
 
 		template<class T>
-		Vec2<T> norm(const Vec2<T>& u) noexcept
+		Vec2<T> norm(const Vec2<T>& u)
 		{
 			auto mag = length(u);
 			if (mag == 0) throw std::runtime_error("Cannot normalize the zero vector");
@@ -319,9 +325,9 @@ namespace rift {
 			// Note:
 			// - Asserts the entity is a part of the spatial partitioning
 			template <class T>
-			void update_entity(const Entity& entity, const Vec2<T>& op, const Vec2<T>& p) noexcept {
+			void update_entity(const Entity& entity, const Vec2<T>& p) noexcept {
 				assert(contains(entity));
-				auto old_cell = cell_for(op);
+				auto old_cell = entity_cell_locations.at(entity.id().number());
 				auto new_cell = cell_for(p);
 				if (old_cell != new_cell) {
 					grid.at(old_cell).members.remove(entity);
