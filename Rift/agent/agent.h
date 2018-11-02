@@ -184,17 +184,8 @@ namespace rift {
 		template <class T>
 		class Mat2 {
 		public:
-			Mat2() : x11(0), x12(0), x21(0), x22(0) {}
 			Mat2(T x11, T x12, T x21, T x22)
 				: x11(x11), x12(x12), x21(x21), x22(x22) {}
-
-			static Mat2<T> identity() noexcept {
-				return Mat2<T>(1, 0, 0, 1);
-			}
-
-			static Mat2<T> rotation(const Vec2<T>& u, const Vec2<T>& v) noexcept {
-				return Mat2<T>(u.x, u.y, v.x, v.y);
-			}
 
 			Vec2<T> operator*=(const Vec2<T>& p) noexcept {
 				auto x = p.x * x11 + p.y * x12;
@@ -214,16 +205,16 @@ namespace rift {
 		template <class T>
 		Vec2<T> convert_to_local_space(const Vec2<T>& origin, const Vec2<T>& u, const Vec2<T>& v, const Vec2<T>& p) noexcept {
 			Vec2<T> translated_point = p - origin;
-			Mat2<T> rotation(Mat2<T>::rotation(u, v));
+			Mat2<T> rotation(u.x, u.y, v.x, v.y);
 			return rotation * translated_point;
 		}
 
 		// Converts points in entity local space to world space
 		template <class T>
 		Vec2<T> convert_to_world_space(const Vec2<T>& origin, const Vec2<T>& u, const Vec2<T>& v, const Vec2<T>& p) noexcept {
-			Mat2<T> rotation(Mat2<T>::rotation(Vec2<T>(u.x, v.x), Vec2<T>(u.y, v.y)));
+			Mat2<T> rotation(u.x, v.x, u.y, v.y);
 			Vec2<T> rotated_point = rotation * p;
-			return rotated_point + origin;
+			return origin + rotated_point;
 		}
 
 		// Spatial partitioner
