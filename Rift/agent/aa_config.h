@@ -11,7 +11,7 @@ namespace rift {
 			using SINGLE_PRECISION = float;
 			using DOUBLE_PRECISION = double;
 
-			using Vec2D = impl::Vec2<SINGLE_PRECISION>; // If double precision is needed us DOUBLE_PRECISION
+			using Vec2D = impl::Vec2<SINGLE_PRECISION>; // If double precision is needed use DOUBLE_PRECISION
 
 			// Different behavior types
 			enum class Behavior {
