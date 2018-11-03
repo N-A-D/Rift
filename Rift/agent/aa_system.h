@@ -8,7 +8,7 @@
 namespace rift {
 	namespace agent {
 
-		struct AAgentSystem : public System<AAgentSystem> {
+		struct AutonomousAgentSystem : public System<AutonomousAgentSystem> {
 
 		};
 

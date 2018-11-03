@@ -9,7 +9,7 @@ namespace rift {
 
 	namespace agent {
 
-		struct AAgent : public Component<AAgent> {
+		struct AutonomousAgent : public Component<AutonomousAgent> {
 
 			config::Vec2D pos;
 			config::Vec2D vel;
