@@ -1,6 +1,5 @@
 #pragma once
-#ifndef _RIFT_SYSTEM_
-#define _RIFT_SYSTEM_
+
 #include <vector>
 #include <memory>
 #include <assert.h>
@@ -176,5 +175,3 @@ namespace rift {
 		return systems.at(S::family());
 	}
 }
-
-#endif // !_RIFT_SYSTEM_

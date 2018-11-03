@@ -1,6 +1,4 @@
 #pragma once
-#ifndef _RIFT_EVENT_
-#define _RIFT_EVENT_
 
 #include <cstddef>
 
@@ -48,5 +46,3 @@ namespace rift {
 	};
 
 }
-
-#endif // !_RIFT_EVENT_

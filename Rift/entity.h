@@ -1,6 +1,5 @@
 #pragma once
-#ifndef _RIFT_ENTITY_
-#define _RIFT_ENTITY_
+
 #include <queue>
 #include <memory>
 #include <assert.h>
@@ -369,5 +368,3 @@ namespace rift {
 	}
 
 }
-
-#endif // !_RIFT_ENTITY_

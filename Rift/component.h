@@ -1,6 +1,5 @@
 #pragma once
-#ifndef _RIFT_COMPONENT_
-#define _RIFT_COMPONENT_
+
 #include <assert.h>
 #include "config/config.h"
 
@@ -40,5 +39,3 @@ namespace rift {
 		}
 	};
 }
-
-#endif // !_RIFT_COMPONENT_

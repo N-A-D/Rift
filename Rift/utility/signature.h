@@ -1,6 +1,5 @@
 #pragma once
-#ifndef _RIFT_SIGNATURE_
-#define _RIFT_SIGNATURE_
+
 #include "config/config.h"
 
 namespace rift {
@@ -18,5 +17,3 @@ namespace rift {
 	}
 
 }
-
-#endif // !_RIFT_SIGNATURE_

@@ -1,6 +1,5 @@
 #pragma once
-#ifndef _RIFT_CACHE_
-#define _RIFT_CACHE_
+
 #include <vector>
 
 namespace rift {
@@ -125,5 +124,3 @@ namespace rift {
 	}
 
 }
-
-#endif // !_RIFT_CACHE_
