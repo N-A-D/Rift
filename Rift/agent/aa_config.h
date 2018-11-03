@@ -15,9 +15,16 @@ namespace rift {
 
 			// Different behavior types
 			enum class Behavior {
-				NONE = 1,
-				SEEK = 2,
-				FLEE = 4
+				NONE       = 0x00000,
+				SEEK       = 0x00002,
+				FLEE       = 0x00004,
+				EVADE      = 0x00008,
+				ARRIVE     = 0x00010,
+				WANDER     = 0x00020,
+				PURSUIT    = 0x00040,
+				COHESION   = 0x00080,
+				ALIGNMENT  = 0x00100,
+				SEPARATION = 0x00200
 			};
 
 		}
