@@ -2,7 +2,7 @@
 #ifndef _RIFT_COMPONENT_
 #define _RIFT_COMPONENT_
 #include <assert.h>
-#include "config.h"
+#include "config/config.h"
 
 namespace rift {
 

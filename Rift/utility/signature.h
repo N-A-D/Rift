@@ -1,7 +1,7 @@
 #pragma once
 #ifndef _RIFT_SIGNATURE_
 #define _RIFT_SIGNATURE_
-#include "config.h"
+#include "config/config.h"
 
 namespace rift {
 

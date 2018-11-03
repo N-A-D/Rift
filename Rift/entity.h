@@ -6,8 +6,8 @@
 #include <assert.h>
 #include <functional>
 #include <unordered_map>
-#include "cache.h"
-#include "signature.h"
+#include "utility/cache.h"
+#include "utility/signature.h"
 
 namespace rift {
 
