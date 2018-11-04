@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../rift/core/rift.h"
+#include "../rift/rift.h"
 
 struct Position : public rift::Component<Position> {
 	Position() : x(0.0), y(0.0) {}

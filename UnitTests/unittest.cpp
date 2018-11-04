@@ -4,7 +4,13 @@
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
 #include "dummies.h"
-#include "../Rift/agent/agent.h"
+#include "../rift/agent/details/vec2.h"
+#include "../rift/agent/details/mat2x2.h"
+#include "../rift/agent/details/pov.h"
+#include "../rift/agent/details/spatial.h"
+#include "../rift/agent/details/trig.h"
+#include "../rift/agent/details/geom.h"
+#include "../rift/agent/details/rand.h"
 
 namespace UnitTests
 {		
@@ -642,114 +648,84 @@ namespace UnitTests
 		}
 	};
 
-	TEST_CLASS(Vector2) {
+	TEST_CLASS(Geometry) {
 	public:
-
-		TEST_METHOD(Length) {
-			rift::impl::Vec2f v(3, 4);
-			Assert::IsTrue(rift::impl::length(v) == 5.0f);
+		TEST_METHOD(VectorLength) {
+			rift::details::Vec2<float> u(3, 4);
+			Assert::IsTrue(rift::details::length(u) == 5.0f);
+		}
+		
+		TEST_METHOD(VectorLengthSq) {
+			rift::details::Vec2<float> u(3, 4);
+			Assert::IsTrue(rift::details::length_sq(u) == 25.0f);
 		}
 
-		TEST_METHOD(LengthSq) {
-			rift::impl::Vec2f v(3, 4);
-			Assert::IsTrue(rift::impl::length_sq(v) == 25.0f);
+		TEST_METHOD(DistanceBetweenVectors) {
+			rift::details::Vec2<float> u(0, 0);
+			rift::details::Vec2<float> v(3, 0);
+			Assert::IsTrue(rift::details::dist_btwn(u, v) == 3.0f);
 		}
 
-		TEST_METHOD(Distance) {
-			rift::impl::Vec2f u(3, 4);
-			rift::impl::Vec2f v(2, 2);
-			Assert::IsTrue(rift::impl::dist_btwn(u, v) == sqrt(5.0f));
-		}
-
-		TEST_METHOD(DistanceSq) {
-			rift::impl::Vec2f u(3, 4);
-			rift::impl::Vec2f v(2, 2);
-			Assert::IsTrue(rift::impl::dist_btwn_sq(u, v) == 5.0f);
-		}
-
-		TEST_METHOD(Angle) {
-			rift::impl::Vec2f u(1, 1);
-			rift::impl::Vec2f v(1, 0);
-			Assert::IsTrue(rift::impl::angle_btwn(u, v) == 45.0f);
+		TEST_METHOD(DistanceBetweenVectorsSq) {
+			rift::details::Vec2<float> u(0, 0);
+			rift::details::Vec2<float> v(3, 0);
+			Assert::IsTrue(rift::details::dist_btwn_sq(u, v) == 9.0f);
 		}
 
 		TEST_METHOD(DotProduct) {
-			rift::impl::Vec2f u(0, 1);
-			rift::impl::Vec2f v(1, 0);
-			Assert::IsTrue(rift::impl::dot(u, v) == 0);
+			rift::details::Vec2<float> u(1, 0);
+			rift::details::Vec2<float> v(0, 1);
+			Assert::IsTrue(rift::details::dot(u, v) == 0.0f);
 		}
 
-		TEST_METHOD(Normalize) {
-			rift::impl::Vec2f u(3, 4);
-			u = rift::impl::norm(u);
-			Assert::IsTrue(rift::impl::length(u) == 1.0f);
+		TEST_METHOD(VectorNormalization) {
+			rift::details::Vec2<float> u(3, 4);
+			Assert::IsTrue(rift::details::length(u) == 5.0f);
+			u = rift::details::norm(u);
+			Assert::IsTrue(rift::details::length(u) == 1.0f);
 		}
 
-		TEST_METHOD(Truncate) {
-			rift::impl::Vec2f u(1, 0);
-			u = rift::impl::trunc(u, 10.0f);
-			Assert::IsTrue(rift::impl::length(u) == 10.0f);
+		TEST_METHOD(VectorTruncation) {
+			rift::details::Vec2<float> u(10, 11);
+			u = rift::details::trunc(u, 5.0f);
+			Assert::IsTrue(rift::details::length(u) == 5.0f);
 		}
-		
-		/*
-		TEST_METHOD(Rotate) {
-			rift::impl::Vec2f u(1, 0);
-			u = rift::impl::rotate(u, 90.0f);
-			Assert::IsTrue(rift::impl::dot(u, rift::impl::Vec2f(1, 0)) == 0);
-		}
-		*/
 
-		TEST_METHOD(Orthogonal) {
-			rift::impl::Vec2f u(3, 4);
-			auto perp = rift::impl::ortho(u);
-			Assert::IsTrue(rift::impl::dot(perp, u) == 0.0f);
+		TEST_METHOD(OrthogonalVector) {
+			rift::details::Vec2<float> u(1, 0);
+			auto v = rift::details::ortho(u);
+			Assert::IsTrue(rift::details::dot(u, v) == 0.0f);
+		}
+	};
+
+	TEST_CLASS(RandomNumbers) {
+	public:
+		TEST_METHOD(RandomNumberBetweenZeroAndOne) {
+			for (int i = 0; i < 1000; i++) {
+				auto x = rift::details::random<float>();
+				Assert::IsTrue(x >= 0.0f && x <= 1.0f);
+			}
+		}
+
+		TEST_METHOD(RandomNumberInRange) {
+			float min = 100.0f, max = 3000.0f;
+			for (int i = 0; i < 1000; i++) {
+				auto x = rift::details::random_in_range(min, max);
+				Assert::IsTrue(min >= 0.0f && x <= max);
+			}
 		}
 
 	};
 
-	TEST_CLASS(Matrix2) {
+	TEST_CLASS(Trigonometry) {
 	public:
 
-		TEST_METHOD(Multiplication) {
-			rift::impl::Mat2<float> a(1, 0, 0, 1);
-			rift::impl::Vec2f p(3, 4);
-			Assert::IsTrue(rift::impl::length(p) == 5.0f);
-			p = a * p;
-			Assert::IsTrue(rift::impl::length(p) == 5.0f);
+		TEST_METHOD(AngleBetweenTwoVectors) {
+			rift::details::Vec2<double> u(1, 0);
+			rift::details::Vec2<double> v(0, 1);
+			Assert::IsTrue(rift::details::angle_btwn(u, v) == 90.0);
 		}
 
-	};
-
-	TEST_CLASS(CellSpace) {
-	public:
-	};
-
-	TEST_CLASS(ViewPointTransformations) {
-	public:
-
-		TEST_METHOD(LocalViewTransform) {
-			rift::impl::Vec2f origin(3, 4);
-			rift::impl::Vec2f xaxis(rift::impl::norm(rift::impl::Vec2f(1, 1)));
-			rift::impl::Vec2f yaxis(rift::impl::ortho(xaxis));
-			rift::impl::Vec2f world_space_point(10, 11);
-
-			/*
-				| x' | = |  root(2) / 2 root(2) / 2 | \/ | x - origin.x |
-				| y' | = | -root(2) / 2 root(2) / 2 | /\ | y - origin.y |
-			
-			*/
-			auto point = rift::impl::convert_to_local_space(origin, xaxis, yaxis, world_space_point);
-
-			/*
-				| x'' | = | x' + origin.x | = |  root(2) / 2 -root(2) / 2 | \/ | x |
-				| y'' |   | y' + origin.y |   |  root(2) / 2  root(2) / 2 | /\ | y |
-
-			*/
-			point = rift::impl::convert_to_world_space(origin, xaxis, yaxis, point);
-
-			Assert::IsTrue(point.x == 10.0f && point.y == 11.0f);
-
-		}
 	};
 
 }

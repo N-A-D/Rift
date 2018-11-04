@@ -27,6 +27,9 @@
     <Filter Include="Header Files\Agent\Details">
       <UniqueIdentifier>{c936a5cf-f9b4-431a-b148-82d2f4a145bc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Utility">
+      <UniqueIdentifier>{d106e951-e2a3-4f19-86cd-d3914b862cce}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="agent\agent.h">
@@ -87,6 +90,9 @@
     </ClCompile>
     <ClCompile Include="system.cpp">
       <Filter>Source Files\Entity</Filter>
+    </ClCompile>
+    <ClCompile Include="utility\event.cpp">
+      <Filter>Source Files\Utility</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
