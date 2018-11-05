@@ -18,7 +18,7 @@ namespace rift {
 	struct MovementEvent : public Event<MovementEvent> {
 		MovementEvent() : x(0), y(0) {}
 		MovementEvent(rift::Entity entity, _AGENT_FP_PRECISION_TYPE_ x, _AGENT_FP_PRECISION_TYPE_ y)
-			: x(x), y(y) {}
+			: entity(entity), x(x), y(y) {}
 		rift::Entity entity;
 		_AGENT_FP_PRECISION_TYPE_ x, y;
 	};
