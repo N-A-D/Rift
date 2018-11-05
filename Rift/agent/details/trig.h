@@ -4,14 +4,13 @@
 #define _USE_MATH_DEFINES
 #endif // !_USE_MATH_DEFINES
 
-#ifndef M_PI 
-#define M_PI 3.14159265358979323846
-#endif // !M_PI 
-
-
 #include <cmath>
 #include <type_traits>
 #include "vec2.h"
+
+#ifndef M_PI 
+#define M_PI 3.14159265358979323846
+#endif // !M_PI 
 
 namespace rift {
 	namespace details {
