@@ -337,11 +337,11 @@ namespace rift {
 		for (auto& search_cache : entity_caches) {
 			if (search_cache.first.test(family_id) &&
 				(mask & search_cache.first) == search_cache.first) {
-				search_cache.second.erase(index);
+				search_cache.second.remove(index);
 			}
 		}
 
-		component_cache_for<C>(family_id)->erase(index);
+		component_cache_for<C>(family_id)->remove(index);
 		masks[index].reset(family_id);
 	}
 

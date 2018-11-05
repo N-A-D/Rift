@@ -16,9 +16,9 @@ namespace rift {
 		virtual void clear() noexcept = 0;
 		virtual std::size_t size() const noexcept = 0;
 		virtual std::size_t capacity() const noexcept = 0;
-		virtual bool exists(std::size_t index) const noexcept = 0;
+		virtual bool contains(std::size_t index) const noexcept = 0;
 		virtual void insert(std::size_t index, void* object) = 0;
-		virtual void erase(std::size_t index) = 0;
+		virtual void remove(std::size_t index) = 0;
 		virtual void* get(std::size_t index) = 0;
 
 	};
@@ -54,7 +54,7 @@ namespace rift {
 		size_type capacity() const noexcept override { return forward.size(); }
 
 		// Check if there exists an object at the given index
-		bool exists(size_type index) const noexcept override;
+		bool contains(size_type index) const noexcept override;
 
 		// Insert an object at the given index
 		// Notes:
@@ -68,7 +68,7 @@ namespace rift {
 		// Note:
 		// - An assertion is made that there exists an object at the given index.
 		//   As a result, multiple removals at the same index are not permitted
-		void erase(size_type index) override;
+		void remove(size_type index) override;
 
 		// Return a generic pointer to the object at the given index
 		// Note:
@@ -85,7 +85,7 @@ namespace rift {
 	};
 
 	template<class T>
-	inline bool Cache<T>::exists(size_type index) const noexcept
+	inline bool Cache<T>::contains(size_type index) const noexcept
 	{
 		if (index >= forward.size())
 			return false;
@@ -97,7 +97,7 @@ namespace rift {
 	template<class T>
 	inline void Cache<T>::insert(size_type index, void * object)
 	{
-		assert(!exists(index));
+		assert(!contains(index));
 		if (index >= forward.size())
 			forward.resize(index + 1);
 		forward[index] = reverse.size();
@@ -106,9 +106,9 @@ namespace rift {
 	}
 
 	template<class T>
-	inline void Cache<T>::erase(size_type index)
+	inline void Cache<T>::remove(size_type index)
 	{
-		assert(exists(index));
+		assert(contains(index));
 		instances[forward[index]] = instances.back();
 		reverse[forward[index]] = reverse.back();
 		forward[reverse.back()] = forward[index];
@@ -119,7 +119,7 @@ namespace rift {
 	template<class T>
 	inline void * Cache<T>::get(size_type index)
 	{
-		assert(exists(index));
+		assert(contains(index));
 		return &instances[forward[index]];
 	}
 
