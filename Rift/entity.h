@@ -154,7 +154,7 @@ namespace rift {
 	private:
 
 		/// Internal functions that an Entity interfaces with
-		/// In all cases, the entity is verified to be valid
+		/// In all cases, the entity is asserts its validity 
 		/// before invoking any of the below functions
 
 		// Enable the component type C in the entity's component mask
