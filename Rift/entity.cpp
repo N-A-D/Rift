@@ -77,19 +77,19 @@ std::size_t rift::EntityManager::reusable_entities() const noexcept
 
 std::size_t rift::EntityManager::entities_to_destroy() const noexcept
 {
-	return ids.size();
+	return invalid_ids.size();
 }
 
 void rift::EntityManager::update() noexcept
 {
-	for (auto id : ids) {
+	for (auto id : invalid_ids) {
 		delete_components_for(id);
 		delete_all_caches_for(id);
 		masks[id.index()].reset();
 		index_versions[id.index()]++;
 		free_indexes.push(id.index());
 	}
-	ids.clear();
+	invalid_ids.clear();
 }
 
 bool rift::EntityManager::valid_id(const Entity::ID & id) const noexcept
@@ -104,14 +104,14 @@ ComponentMask rift::EntityManager::component_mask_for(const Entity::ID & id) con
 
 bool rift::EntityManager::pending_invalidation(const Entity::ID & id) const noexcept
 {
-	return ids.contains(id.index());
+	return invalid_ids.contains(id.index());
 }
 
 void rift::EntityManager::destroy(const Entity::ID & id) noexcept
 {
-	if (!ids.contains(id.index())) {
+	if (!invalid_ids.contains(id.index())) {
 		auto idx(id);
-		ids.insert(id.index(), &idx);
+		invalid_ids.insert(id.index(), &idx);
 	}
 }
 
