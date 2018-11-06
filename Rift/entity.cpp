@@ -97,6 +97,16 @@ bool rift::EntityManager::valid_id(const Entity::ID & id) const noexcept
 	return index_versions[id.index()] == id.version();
 }
 
+ComponentMask rift::EntityManager::component_mask_for(const Entity::ID & id) const noexcept
+{
+	return masks[id.index()];
+}
+
+bool rift::EntityManager::pending_invalidation(const Entity::ID & id) const noexcept
+{
+	return ids.contains(id.index());
+}
+
 void rift::EntityManager::destroy(const Entity::ID & id) noexcept
 {
 	if (!ids.contains(id.index())) {
@@ -118,19 +128,14 @@ void rift::EntityManager::delete_components_for(const Entity::ID & id) noexcept
 void rift::EntityManager::delete_all_caches_for(const Entity::ID & id) noexcept
 {
 	auto mask = component_mask_for(id);
-	for (auto& search_cache : entity_caches) {
+	for (auto& search_cache : search_caches) {
 		if ((mask & search_cache.first) == search_cache.first) {
 			search_cache.second.remove(id.index());
 		}
 	}
 }
 
-ComponentMask rift::EntityManager::component_mask_for(const Entity::ID & id) const noexcept
+bool rift::EntityManager::contains_search_cache_for(const ComponentMask & signature) const noexcept
 {
-	return masks[id.index()];
-}
-
-bool rift::EntityManager::pending_invalidation(const Entity::ID & id) const noexcept
-{
-	return ids.contains(id.index());
+	return search_caches.find(signature) != search_caches.end();
 }

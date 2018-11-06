@@ -153,10 +153,13 @@ namespace rift {
 
 	private:
 
-		/// Internal functions that an Entity interfaces with
-		/// In all cases, the entity is asserts its validity 
-		/// before invoking any of the below functions
-
+		/*
+		 *
+		 * The following are internal functions that an Entity interfaces with.
+		 * In all cases an entity is asserts it is valid before and of them.
+		 *
+		 */
+		
 		// Enable the component type C in the entity's component mask
 		template <class C, class... Args>
 		void add_component(const Entity::ID& id, Args&& ...args) noexcept;
@@ -177,10 +180,6 @@ namespace rift {
 		template <class C>
 		C &get_component(const Entity::ID& id) noexcept;
 
-		// Returns the component pool for component type C
-		template <class C>
-		std::shared_ptr<Cache<C>> component_cache_for(std::size_t id) noexcept;
-
 		// Fetch the ComponentMask for the entity
 		ComponentMask component_mask_for(const Entity::ID& id) const noexcept;
 
@@ -190,14 +189,27 @@ namespace rift {
 		// Check the validity of the entity
 		bool valid_id(const Entity::ID& id) const noexcept;
 
+		// Prep all entities with the same Entity::ID for invalidation
+		void destroy(const Entity::ID& id) noexcept;
+
+		/*
+		 *
+		 * The following are internal functions that the entity manager only uses
+		 *
+		 */
+
+		// Returns the component pool for component type C
+		template <class C>
+		std::shared_ptr<Cache<C>> component_cache_for(std::size_t id) noexcept;
+
 		// Delete all components the entity owns
 		void delete_components_for(const Entity::ID& id) noexcept;
 
 		// Delete the entity from all search caches it may be in
 		void delete_all_caches_for(const Entity::ID& id) noexcept;
 
-		// Prep all entities with the same Entity::ID for invalidation
-		void destroy(const Entity::ID& id) noexcept;
+		// Checks if a search cache for a given signature exists
+		bool contains_search_cache_for(const ComponentMask& signature) const noexcept;
 
 	private:
 
@@ -217,7 +229,7 @@ namespace rift {
 		std::vector<std::shared_ptr<BaseCache>> component_caches;
 
 		// Entity search caches
-		std::unordered_map<ComponentMask, Cache<Entity>> entity_caches;
+		std::unordered_map<ComponentMask, Cache<Entity>> search_caches;
 	};
 
 
@@ -265,8 +277,8 @@ namespace rift {
 	{
 		auto signature = signature_for<First, Rest...>();
 
-		if (entity_caches.find(signature) != entity_caches.end()) {
-			return entity_caches.at(signature).size();
+		if (contains_search_cache_for(signature)) {
+			return search_caches.at(signature).size();
 		}
 		else {
 			std::size_t count = 0;
@@ -284,8 +296,8 @@ namespace rift {
 	{
 		auto signature = signature_for<First, Rest...>();
 		
-		if (entity_caches.find(signature) != entity_caches.end()) {
-			for (auto entity : entity_caches.at(signature)) {
+		if (contains_search_cache_for(signature)) {
+			for (auto entity : search_caches.at(signature)) {
 				f(entity);
 			}
 		}
@@ -298,7 +310,7 @@ namespace rift {
 					f(e);
 				}
 			}
-			entity_caches.emplace(signature, search_cache);
+			search_caches.emplace(signature, search_cache);
 		}
 	}
 
@@ -312,7 +324,7 @@ namespace rift {
 		component_cache_for<C>(family_id)->insert(index, &component);
 
 		Entity e(this, id);
-		for (auto& search_cache : entity_caches) {
+		for (auto& search_cache : search_caches) {
 			if (search_cache.first.test(family_id) &&
 				(mask & search_cache.first) == search_cache.first) {
 				search_cache.second.insert(index, &e);
@@ -334,7 +346,7 @@ namespace rift {
 		auto index = id.index();
 		auto mask = masks[index];
 
-		for (auto& search_cache : entity_caches) {
+		for (auto& search_cache : search_caches) {
 			if (search_cache.first.test(family_id) &&
 				(mask & search_cache.first) == search_cache.first) {
 				search_cache.second.remove(index);
