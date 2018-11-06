@@ -156,7 +156,7 @@ namespace rift {
 		/*
 		 *
 		 * The following are internal functions that an Entity interfaces with.
-		 * In all cases an entity is asserts it is valid before and of them.
+		 * In all cases an entity is asserts it is valid before using any of them.
 		 *
 		 */
 		
