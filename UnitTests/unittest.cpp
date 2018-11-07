@@ -41,13 +41,13 @@ namespace UnitTests
 			rift::Cache<int> integer_cache;
 			
 			auto integer_insert = [&integer_cache](std::size_t index, int x) {
-				Assert::IsFalse(integer_cache.exists(index));
+				Assert::IsFalse(integer_cache.contains(index));
 				integer_cache.insert(index, &x);
 			};
 
 			integer_insert(0, 3);
 
-			Assert::IsTrue(integer_cache.exists(0));
+			Assert::IsTrue(integer_cache.contains(0));
 			Assert::IsTrue(*(static_cast<int *>(integer_cache.get(0))) == 3);
 
 			rift::EntityManager em;
@@ -57,14 +57,14 @@ namespace UnitTests
 			rift::Cache<rift::Entity> entity_cache;
 
 			auto entity_insert = [&entity_cache](std::size_t index, const rift::Entity& e) {
-				Assert::IsFalse(entity_cache.exists(index));
+				Assert::IsFalse(entity_cache.contains(index));
 				auto f(e);
 				entity_cache.insert(index, &f);
 			};
 
 			entity_insert(e.id().index(), e);
 
-			Assert::IsTrue(entity_cache.exists(e.id().index()));
+			Assert::IsTrue(entity_cache.contains(e.id().index()));
 			Assert::IsTrue(*(static_cast<rift::Entity *>(entity_cache.get(e.id().index()))) == e);
 
 		}
@@ -74,9 +74,9 @@ namespace UnitTests
 			int x = 3;
 			integer_cache.insert(0, &x);
 
-			Assert::IsTrue(integer_cache.exists(0));
+			Assert::IsTrue(integer_cache.contains(0));
 			Assert::IsTrue((*(static_cast<int *>(integer_cache.get(0))) == x));
-			Assert::IsFalse(integer_cache.exists(10));
+			Assert::IsFalse(integer_cache.contains(10));
 
 
 			rift::EntityManager em;
@@ -92,8 +92,8 @@ namespace UnitTests
 			Assert::IsTrue(entity_cache.size() == 2);
 
 			// Check if there are inserted entities at the indices for a and b
-			Assert::IsTrue(entity_cache.exists(a.id().index()));
-			Assert::IsTrue(entity_cache.exists(b.id().index()));
+			Assert::IsTrue(entity_cache.contains(a.id().index()));
+			Assert::IsTrue(entity_cache.contains(b.id().index()));
 
 		}
 
@@ -102,12 +102,12 @@ namespace UnitTests
 			int x = 3;
 			integer_cache.insert(0, &x);
 
-			Assert::IsTrue(integer_cache.exists(0));
+			Assert::IsTrue(integer_cache.contains(0));
 			Assert::IsTrue((*(static_cast<int *>(integer_cache.get(0))) == x));
 			
-			integer_cache.erase(0);
+			integer_cache.remove(0);
 
-			Assert::IsFalse(integer_cache.exists(0));
+			Assert::IsFalse(integer_cache.contains(0));
 
 			rift::EntityManager em;
 
@@ -122,14 +122,14 @@ namespace UnitTests
 			Assert::IsTrue(entity_cache.size() == 2);
 
 			// Check if there are inserted entities at the indices for a and b
-			Assert::IsTrue(entity_cache.exists(a.id().index()));
-			Assert::IsTrue(entity_cache.exists(b.id().index()));
+			Assert::IsTrue(entity_cache.contains(a.id().index()));
+			Assert::IsTrue(entity_cache.contains(b.id().index()));
 
-			entity_cache.erase(a.id().index());
-			entity_cache.erase(b.id().index());
+			entity_cache.remove(a.id().index());
+			entity_cache.remove(b.id().index());
 
-			Assert::IsFalse(entity_cache.exists(a.id().index()));
-			Assert::IsFalse(entity_cache.exists(b.id().index()));
+			Assert::IsFalse(entity_cache.contains(a.id().index()));
+			Assert::IsFalse(entity_cache.contains(b.id().index()));
 
 		}
 
@@ -138,7 +138,7 @@ namespace UnitTests
 			int x = 3;
 			integer_cache.insert(0, &x);
 
-			Assert::IsTrue(integer_cache.exists(0));
+			Assert::IsTrue(integer_cache.contains(0));
 			Assert::IsTrue((*(static_cast<int *>(integer_cache.get(0))) == x));
 		}
 
