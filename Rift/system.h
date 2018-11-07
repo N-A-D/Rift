@@ -117,9 +117,9 @@ namespace rift {
 		
 	private:
 
-		// Helper for the update_systems function
+		// Fetch a generic pointer to a specific system
 		template <class S>
-		std::shared_ptr<BaseSystem> update_systems_helper() const noexcept;
+		std::shared_ptr<BaseSystem> fetch_system() const noexcept;
 
 		rift::EntityManager& entity_manager;
 		std::vector<std::shared_ptr<BaseSystem>> systems;
@@ -154,14 +154,13 @@ namespace rift {
 	template<class S>
 	inline std::shared_ptr<S> SystemManager::get() const noexcept
 	{
-		assert(has<S>() && "Cannot fetch an unmanaged system type!");
-		return std::static_pointer_cast<S>(systems.at(S::family()));
+		return std::static_pointer_cast<S>(fetch_system<S>());
 	}
 
 	template<class First, class ...Rest>
 	inline void SystemManager::update_systems(double dt)
 	{
-		auto system_list = { (update_systems_helper<First>()), (update_systems_helper<Rest>())... };
+		auto system_list = { (fetch_system<First>()), (fetch_system<Rest>())... };
 		for (auto system : system_list) {
 			system->update(entity_manager, dt);
 		}
@@ -169,9 +168,9 @@ namespace rift {
 	}
 
 	template<class S>
-	inline std::shared_ptr<BaseSystem> SystemManager::update_systems_helper() const noexcept
+	inline std::shared_ptr<BaseSystem> SystemManager::fetch_system() const noexcept
 	{
-		assert(has<S>() && "Cannot update an unmanaged system!");
+		assert(has<S>() && "Cannot update an unmanaged system type!");
 		return systems.at(S::family());
 	}
 }
