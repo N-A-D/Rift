@@ -93,7 +93,7 @@ namespace rift {
 				auto cell = cell_for(position);
 				auto e(entity);
 				cells.at(cell).members.insert(entity.id().index(), &e);
-				entity_lookup_table.insert(entity.id().number(), cell);
+				entity_lookup_table.insert(std::make_pair(entity.id().number(), cell));
 			}
 
 			// Remove an entity from the spatial partitioning
@@ -114,7 +114,7 @@ namespace rift {
 					auto e(entity);
 					cells.at(old_cell).members.remove(entity.id().index());
 					cells.at(new_cell).members.insert(entity.id().index(), &e);
-					entity_lookup_table.at(entity.id().index()) = new_cell;
+					entity_lookup_table.at(entity.id().number()) = new_cell;
 				}
 			}
 
