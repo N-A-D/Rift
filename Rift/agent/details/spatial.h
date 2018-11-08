@@ -69,6 +69,9 @@ namespace rift {
 				}
 			}
 
+			// Returns the number of entities mapped in the spatial partition
+			std::size_t size() const noexcept { return entity_lookup_table.size(); }
+
 			// Checks if the spatial partition contains an entity
 			bool contains(const rift::Entity& entity) const noexcept {
 				return entity_lookup_table.find(entity.id().number()) != entity_lookup_table.end();
