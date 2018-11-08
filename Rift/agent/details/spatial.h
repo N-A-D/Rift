@@ -98,7 +98,7 @@ namespace rift {
 
 			// Remove an entity from the spatial partitioning
 			void remove(const rift::Entity& entity) noexcept {
-				assert(contains(entity) && "Cannot an unmanaged entity!");
+				assert(contains(entity) && "Cannot an remove unmanaged entity!");
 				auto cell = entity_lookup_table.at(entity.id().number());
 				cells.at(cell).members.remove(entity.id().index());
 				entity_lookup_table.erase(entity.id().number());
