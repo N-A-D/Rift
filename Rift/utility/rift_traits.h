@@ -5,7 +5,7 @@
 namespace rift {
 	namespace util {
 
-		template <bool ...b> struct static_all_of;
+		template <bool ...values> struct static_all_of;
 
 		template <bool ...tail>
 		struct static_all_of<true, tail...> : static_all_of<tail...> {};
