@@ -3,6 +3,7 @@
 #include <vector>
 #include <memory>
 #include <assert.h>
+#include "utility/non_copyable.h"
 
 namespace rift {
 
@@ -47,7 +48,7 @@ namespace rift {
 	};
 
 	// Manages different system types
-	class SystemManager final {
+	class SystemManager final : rift::util::NonCopyable {
 	public:
 
 		// Creates a new System manager
