@@ -2,7 +2,7 @@
 
 #include <vector>
 #include <memory>
-#include <assert.h>
+#include <cassert>
 #include "utility/non_copyable.h"
 
 namespace rift {
