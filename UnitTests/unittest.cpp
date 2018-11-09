@@ -26,11 +26,11 @@ namespace UnitTests
 		}
 
 		TEST_METHOD(EquivalentComponentSignatures) {
-			Assert::IsTrue(rift::signature_for<Position, Direction>() == rift::signature_for<Direction, Position>());
-			Assert::IsTrue(rift::signature_for<Position, Toggle>() == rift::signature_for<Toggle, Position>());
-			Assert::IsTrue(rift::signature_for<Direction, Toggle>() == rift::signature_for<Toggle, Direction>());
-			Assert::IsTrue(rift::signature_for<Position, Direction, Toggle>() == rift::signature_for<Position, Toggle, Direction>());
-			Assert::IsTrue(rift::signature_for<Position, Direction, Toggle>() == rift::signature_for<Toggle, Direction, Position>());
+			Assert::IsTrue(rift::util::signature_for<Position, Direction>() == rift::util::signature_for<Direction, Position>());
+			Assert::IsTrue(rift::util::signature_for<Position, Toggle>() == rift::util::signature_for<Toggle, Position>());
+			Assert::IsTrue(rift::util::signature_for<Direction, Toggle>() == rift::util::signature_for<Toggle, Direction>());
+			Assert::IsTrue(rift::util::signature_for<Position, Direction, Toggle>() == rift::util::signature_for<Position, Toggle, Direction>());
+			Assert::IsTrue(rift::util::signature_for<Position, Direction, Toggle>() == rift::util::signature_for<Toggle, Direction, Position>());
 		}
 
 	};
@@ -38,7 +38,7 @@ namespace UnitTests
 	TEST_CLASS(Containers) {
 	public:
 		TEST_METHOD(Insertion) {
-			rift::Cache<int> integer_cache;
+			rift::util::Cache<int> integer_cache;
 			
 			auto integer_insert = [&integer_cache](std::size_t index, int x) {
 				Assert::IsFalse(integer_cache.contains(index));
@@ -54,7 +54,7 @@ namespace UnitTests
 
 			auto e = em.create_entity();
 
-			rift::Cache<rift::Entity> entity_cache;
+			rift::util::Cache<rift::Entity> entity_cache;
 
 			auto entity_insert = [&entity_cache](std::size_t index, const rift::Entity& e) {
 				Assert::IsFalse(entity_cache.contains(index));
@@ -70,7 +70,7 @@ namespace UnitTests
 		}
 
 		TEST_METHOD(Search) {
-			rift::Cache<int> integer_cache;
+			rift::util::Cache<int> integer_cache;
 			int x = 3;
 			integer_cache.insert(0, &x);
 
@@ -84,7 +84,7 @@ namespace UnitTests
 			auto a = em.create_entity();
 			auto b = em.create_entity();
 
-			rift::Cache<rift::Entity> entity_cache;
+			rift::util::Cache<rift::Entity> entity_cache;
 			entity_cache.insert(a.id().index(), &a);
 			entity_cache.insert(b.id().index(), &b);
 
@@ -98,14 +98,14 @@ namespace UnitTests
 		}
 
 		TEST_METHOD(Removal) {
-			rift::Cache<int> integer_cache;
+			rift::util::Cache<int> integer_cache;
 			int x = 3;
 			integer_cache.insert(0, &x);
 
 			Assert::IsTrue(integer_cache.contains(0));
 			Assert::IsTrue((*(static_cast<int *>(integer_cache.get(0))) == x));
 			
-			integer_cache.remove(0);
+			integer_cache.erase(0);
 
 			Assert::IsFalse(integer_cache.contains(0));
 
@@ -114,7 +114,7 @@ namespace UnitTests
 			auto a = em.create_entity();
 			auto b = em.create_entity();
 
-			rift::Cache<rift::Entity> entity_cache;
+			rift::util::Cache<rift::Entity> entity_cache;
 			entity_cache.insert(a.id().index(), &a);
 			entity_cache.insert(b.id().index(), &b);
 
@@ -125,8 +125,8 @@ namespace UnitTests
 			Assert::IsTrue(entity_cache.contains(a.id().index()));
 			Assert::IsTrue(entity_cache.contains(b.id().index()));
 
-			entity_cache.remove(a.id().index());
-			entity_cache.remove(b.id().index());
+			entity_cache.erase(a.id().index());
+			entity_cache.erase(b.id().index());
 
 			Assert::IsFalse(entity_cache.contains(a.id().index()));
 			Assert::IsFalse(entity_cache.contains(b.id().index()));
@@ -134,7 +134,7 @@ namespace UnitTests
 		}
 
 		TEST_METHOD(Get) {
-			rift::Cache<int> integer_cache;
+			rift::util::Cache<int> integer_cache;
 			int x = 3;
 			integer_cache.insert(0, &x);
 
@@ -272,7 +272,7 @@ namespace UnitTests
 			// The entity now has a position component
 			e.add<Position>();
 			Assert::IsTrue(e.component_mask() != 0);
-			Assert::IsTrue(e.component_mask() == rift::signature_for<Position>());
+			Assert::IsTrue(e.component_mask() == rift::util::signature_for<Position>());
 			Assert::IsTrue(e.has<Position>());
 		}
 
@@ -323,6 +323,12 @@ namespace UnitTests
 
 	TEST_CLASS(EntityManager) {
 	public:
+
+		TEST_METHOD(EntityManagerNonCopyable) {
+			Assert::IsFalse(std::is_copy_constructible<rift::EntityManager>());
+			Assert::IsFalse(std::is_copy_assignable<rift::EntityManager>());
+		}
+
 		TEST_METHOD(EntityCreation) {
 			rift::EntityManager em;
 			auto e = em.create_entity();
@@ -496,6 +502,11 @@ namespace UnitTests
 	TEST_CLASS(SystemManager) {
 	public:
 
+		TEST_METHOD(SystemManagerNonCopyable) {
+			Assert::IsFalse(std::is_copy_constructible<rift::SystemManager>());
+			Assert::IsFalse(std::is_copy_assignable<rift::SystemManager>());
+		}
+
 		TEST_METHOD(AddSystem) {
 			rift::EntityManager em;
 			rift::SystemManager sm(em);
@@ -651,50 +662,50 @@ namespace UnitTests
 	TEST_CLASS(Geometry) {
 	public:
 		TEST_METHOD(VectorLength) {
-			rift::details::Vec2<float> u(3, 4);
-			Assert::IsTrue(rift::details::length(u) == 5.0f);
+			rift::agent::details::Vec2<float> u(3, 4);
+			Assert::IsTrue(rift::agent::details::length(u) == 5.0f);
 		}
 		
 		TEST_METHOD(VectorLengthSq) {
-			rift::details::Vec2<float> u(3, 4);
-			Assert::IsTrue(rift::details::length_sq(u) == 25.0f);
+			rift::agent::details::Vec2<float> u(3, 4);
+			Assert::IsTrue(rift::agent::details::length_sq(u) == 25.0f);
 		}
 
 		TEST_METHOD(DistanceBetweenVectors) {
-			rift::details::Vec2<float> u(0, 0);
-			rift::details::Vec2<float> v(3, 0);
-			Assert::IsTrue(rift::details::dist_btwn(u, v) == 3.0f);
+			rift::agent::details::Vec2<float> u(0, 0);
+			rift::agent::details::Vec2<float> v(3, 0);
+			Assert::IsTrue(rift::agent::details::dist_btwn(u, v) == 3.0f);
 		}
 
 		TEST_METHOD(DistanceBetweenVectorsSq) {
-			rift::details::Vec2<float> u(0, 0);
-			rift::details::Vec2<float> v(3, 0);
-			Assert::IsTrue(rift::details::dist_btwn_sq(u, v) == 9.0f);
+			rift::agent::details::Vec2<float> u(0, 0);
+			rift::agent::details::Vec2<float> v(3, 0);
+			Assert::IsTrue(rift::agent::details::dist_btwn_sq(u, v) == 9.0f);
 		}
 
 		TEST_METHOD(DotProduct) {
-			rift::details::Vec2<float> u(1, 0);
-			rift::details::Vec2<float> v(0, 1);
-			Assert::IsTrue(rift::details::dot(u, v) == 0.0f);
+			rift::agent::details::Vec2<float> u(1, 0);
+			rift::agent::details::Vec2<float> v(0, 1);
+			Assert::IsTrue(rift::agent::details::dot(u, v) == 0.0f);
 		}
 
 		TEST_METHOD(VectorNormalization) {
-			rift::details::Vec2<float> u(3, 4);
-			Assert::IsTrue(rift::details::length(u) == 5.0f);
-			u = rift::details::norm(u);
-			Assert::IsTrue(rift::details::length(u) == 1.0f);
+			rift::agent::details::Vec2<float> u(3, 4);
+			Assert::IsTrue(rift::agent::details::length(u) == 5.0f);
+			u = rift::agent::details::norm(u);
+			Assert::IsTrue(rift::agent::details::length(u) == 1.0f);
 		}
 
 		TEST_METHOD(VectorTruncation) {
-			rift::details::Vec2<float> u(10, 11);
-			u = rift::details::trunc(u, 5.0f);
-			Assert::IsTrue(rift::details::length(u) == 5.0f);
+			rift::agent::details::Vec2<float> u(10, 11);
+			u = rift::agent::details::trunc(u, 5.0f);
+			Assert::IsTrue(rift::agent::details::length(u) == 5.0f);
 		}
 
 		TEST_METHOD(OrthogonalVector) {
-			rift::details::Vec2<float> u(1, 0);
-			auto v = rift::details::ortho(u);
-			Assert::IsTrue(rift::details::dot(u, v) == 0.0f);
+			rift::agent::details::Vec2<float> u(1, 0);
+			auto v = rift::agent::details::ortho(u);
+			Assert::IsTrue(rift::agent::details::dot(u, v) == 0.0f);
 		}
 	};
 
@@ -702,7 +713,7 @@ namespace UnitTests
 	public:
 		TEST_METHOD(RandomNumberBetweenZeroAndOne) {
 			for (int i = 0; i < 1000; i++) {
-				auto x = rift::details::random<float>();
+				auto x = rift::agent::details::random<float>();
 				Assert::IsTrue(x >= 0.0f && x <= 1.0f);
 			}
 		}
@@ -710,7 +721,7 @@ namespace UnitTests
 		TEST_METHOD(RandomNumberInRange) {
 			float min = 100.0f, max = 3000.0f;
 			for (int i = 0; i < 1000; i++) {
-				auto x = rift::details::random_in_range(min, max);
+				auto x = rift::agent::details::random_in_range(min, max);
 				Assert::IsTrue(min >= 0.0f && x <= max);
 			}
 		}
@@ -721,9 +732,9 @@ namespace UnitTests
 	public:
 
 		TEST_METHOD(AngleBetweenTwoVectors) {
-			rift::details::Vec2<double> u(1, 0);
-			rift::details::Vec2<double> v(0, 1);
-			Assert::IsTrue(rift::details::angle_btwn(u, v) == 90.0);
+			rift::agent::details::Vec2<double> u(1, 0);
+			rift::agent::details::Vec2<double> v(0, 1);
+			Assert::IsTrue(rift::agent::details::angle_btwn(u, v) == 90.0);
 		}
 
 	};
