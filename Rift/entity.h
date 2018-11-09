@@ -56,7 +56,7 @@ namespace rift {
 		// Checks if this entity will be invalid next frame
 		bool pending_invalidation() const noexcept;
 
-		// Signals the EntityManager to destroy this entity and all equivalent entities at the end of this frame
+		// Signals the EntityManager to destroy this entity and all equivalent entities at the end of the current frame
 		void destroy() const noexcept;
 
 		// Fetch the entity's ComponentMask
@@ -339,7 +339,7 @@ namespace rift {
 		auto family = C::family();
 		auto component = C(std::forward<Args>(args)...);
 		auto component_cache = component_cache_for<C>(family);
-		component_cache->remove(index);
+		component_cache->erase(index);
 		component_cache->insert(index, &component);
 	}
 
@@ -353,11 +353,11 @@ namespace rift {
 		for (auto& search_cache : search_caches) {
 			if (search_cache.first.test(family_id) &&
 				(mask & search_cache.first) == search_cache.first) {
-				search_cache.second.remove(index);
+				search_cache.second.erase(index);
 			}
 		}
 
-		component_cache_for<C>(family_id)->remove(index);
+		component_cache_for<C>(family_id)->erase(index);
 		masks[index].reset(family_id);
 	}
 

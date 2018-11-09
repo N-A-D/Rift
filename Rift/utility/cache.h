@@ -18,7 +18,7 @@ namespace rift {
 		virtual std::size_t capacity() const noexcept = 0;
 		virtual bool contains(std::size_t index) const noexcept = 0;
 		virtual void insert(std::size_t index, void* object) = 0;
-		virtual void remove(std::size_t index) = 0;
+		virtual void erase(std::size_t index) = 0;
 		virtual void* get(std::size_t index) = 0;
 
 	};
@@ -64,11 +64,11 @@ namespace rift {
 		//   there is no object assigned to the index, the cache will expand to fit the index
 		void insert(size_type index, void* object) override;
 
-		// Remove an object at the given index
+		// Erase an object at the given index
 		// Note:
 		// - An assertion is made that there exists an object at the given index.
 		//   As a result, multiple removals at the same index are not permitted
-		void remove(size_type index) override;
+		void erase(size_type index) override;
 
 		// Return a generic pointer to the object at the given index
 		// Note:
@@ -106,7 +106,7 @@ namespace rift {
 	}
 
 	template<class T>
-	inline void Cache<T>::remove(size_type index)
+	inline void Cache<T>::erase(size_type index)
 	{
 		assert(contains(index));
 		instances[forward[index]] = instances.back();

@@ -100,7 +100,7 @@ namespace rift {
 			void remove(const rift::Entity& entity) noexcept {
 				assert(contains(entity) && "Cannot an remove unmanaged entity!");
 				auto cell = entity_lookup_table.at(entity.id().number());
-				cells.at(cell).members.remove(entity.id().index());
+				cells.at(cell).members.erase(entity.id().index());
 				entity_lookup_table.erase(entity.id().number());
 			}
 
@@ -112,7 +112,7 @@ namespace rift {
 				auto old_cell = entity_lookup_table.at(entity.id().number());
 				if (new_cell != old_cell) {
 					auto e(entity);
-					cells.at(old_cell).members.remove(entity.id().index());
+					cells.at(old_cell).members.erase(entity.id().index());
 					cells.at(new_cell).members.insert(entity.id().index(), &e);
 					entity_lookup_table.at(entity.id().number()) = new_cell;
 				}

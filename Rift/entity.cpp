@@ -120,7 +120,7 @@ void rift::EntityManager::delete_components_for(const Entity::ID & id) noexcept
 	auto mask = component_mask_for(id);
 	for (std::size_t i = 0; i < mask.size(); i++) {
 		if (mask.test(i)) {
-			component_caches[i]->remove(id.index());
+			component_caches[i]->erase(id.index());
 		}
 	}
 }
@@ -130,7 +130,7 @@ void rift::EntityManager::delete_all_caches_for(const Entity::ID & id) noexcept
 	auto mask = component_mask_for(id);
 	for (auto& search_cache : search_caches) {
 		if ((mask & search_cache.first) == search_cache.first) {
-			search_cache.second.remove(id.index());
+			search_cache.second.erase(id.index());
 		}
 	}
 }
