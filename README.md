@@ -1,2 +1,2 @@
 # Rift
-An entity component system specifically designed for the implementation of steering behaviours
+An entity component system designed around an implementation of steering behaviours
