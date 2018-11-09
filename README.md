@@ -1,2 +1,2 @@
 # Rift
-A small C++11 entity component system
+An entity component system specifically designed for the implementation of steering behaviours
