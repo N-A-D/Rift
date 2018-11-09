@@ -3,6 +3,7 @@
 #include <vector>
 #include <memory>
 #include <cassert>
+#include <type_traits>
 #include "utility/non_copyable.h"
 
 namespace rift {
@@ -145,6 +146,7 @@ namespace rift {
 	template<class S>
 	inline bool SystemManager::has() const noexcept
 	{
+		static_assert(std::is_base_of<BaseSystem, S>::value, "Invalid system type!");
 		if (S::family() >= systems.size())
 			return false;
 		if (systems[S::family()])

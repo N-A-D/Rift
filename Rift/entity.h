@@ -5,6 +5,7 @@
 #include <numeric>
 #include <cassert>
 #include <functional>
+#include <type_traits>
 #include <unordered_map>
 #include "utility/cache.h"
 #include "utility/signature.h"
@@ -258,6 +259,7 @@ namespace rift {
 	template<class C>
 	inline bool Entity::has() const noexcept
 	{
+		static_assert(std::is_base_of<BaseComponent, C>::value, "Invalid component type!");
 		assert(valid() && "Cannot check if an invalid entity has a component!");
 		return mgr->has_component<C>(m_id);
 	}
