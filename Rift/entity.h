@@ -2,11 +2,13 @@
 
 #include <queue>
 #include <memory>
-#include <assert.h>
+#include <numeric>
+#include <cassert>
 #include <functional>
 #include <unordered_map>
 #include "utility/cache.h"
 #include "utility/signature.h"
+#include "utility/non_copyable.h"
 
 namespace rift {
 
@@ -111,15 +113,11 @@ namespace rift {
 
 	// The EntityManager class
 	// Manages the lifecycle of Entity handles
-	class EntityManager final {
+	class EntityManager final : rift::util::NonCopyable {
 		friend class Entity;
 	public:
 
 		EntityManager() = default;
-		// EntityManagers may not be copied as Entity handles store pointers 
-		// to the EntityManager's that created them
-		EntityManager(const EntityManager&) = delete;
-		EntityManager& operator=(const EntityManager&) = delete;
 
 		// Generate a new Entity handle
 		Entity create_entity() noexcept;
@@ -200,7 +198,7 @@ namespace rift {
 
 		// Returns the component pool for component type C
 		template <class C>
-		std::shared_ptr<Cache<C>> component_cache_for(std::size_t id) noexcept;
+		std::shared_ptr<rift::util::Cache<C>> component_cache_for(std::size_t id) noexcept;
 
 		// Delete all components the entity owns
 		void delete_components_for(const Entity::ID& id) noexcept;
@@ -214,7 +212,7 @@ namespace rift {
 	private:
 
 		// Collection of entities to be destroyed next frame
-		Cache<Entity::ID> invalid_ids;
+		rift::util::Cache<Entity::ID> invalid_ids;
 
 		// Collection of free indexes
 		std::queue<std::uint32_t> free_indexes;
@@ -226,10 +224,10 @@ namespace rift {
 		std::vector<std::uint32_t> index_versions;
 
 		// The component caches
-		std::vector<std::shared_ptr<BaseCache>> component_caches;
+		std::vector<std::shared_ptr<rift::util::BaseCache>> component_caches;
 
 		// Entity search caches
-		std::unordered_map<ComponentMask, Cache<Entity>> search_caches;
+		std::unordered_map<ComponentMask, rift::util::Cache<Entity>> search_caches;
 	};
 
 
@@ -275,26 +273,23 @@ namespace rift {
 	template<class First, class ...Rest>
 	inline std::size_t EntityManager::entities_with() const noexcept
 	{
-		auto signature = signature_for<First, Rest...>();
+		auto signature = rift::util::signature_for<First, Rest...>();
 
 		if (contains_search_cache_for(signature)) {
 			return search_caches.at(signature).size();
 		}
 		else {
-			std::size_t count = 0;
-			for (auto& mask : masks) {
-				if ((mask & signature) == signature) {
-					++count;
-				}
-			}
-			return count;
+			return std::accumulate(masks.begin(), masks.end(), std::size_t(0), 
+				[&signature](std::size_t n, ComponentMask mask) {
+				return (mask & signature) == signature ? ++n : n;
+			});
 		}
 	}
 
 	template<class First, class ...Rest>
 	inline void EntityManager::for_each_entity_with(std::function<void(Entity)> f)
 	{
-		auto signature = signature_for<First, Rest...>();
+		auto signature = rift::util::signature_for<First, Rest...>();
 		
 		if (contains_search_cache_for(signature)) {
 			for (auto entity : search_caches.at(signature)) {
@@ -302,7 +297,7 @@ namespace rift {
 			}
 		}
 		else {
-			Cache<Entity> search_cache;
+			rift::util::Cache<Entity> search_cache;
 			for (std::size_t i = 0; i < masks.size(); i++) {
 				if ((masks[i] & signature) == signature) {
 					Entity e(this, Entity::ID(static_cast<std::uint32_t>(i), index_versions[i]));
@@ -374,13 +369,13 @@ namespace rift {
 	}
 
 	template<class C>
-	inline std::shared_ptr<Cache<C>> EntityManager::component_cache_for(std::size_t id) noexcept
+	inline std::shared_ptr<rift::util::Cache<C>> EntityManager::component_cache_for(std::size_t id) noexcept
 	{
 		if (id >= component_caches.size())
 			component_caches.resize(id + 1);
 		if (!component_caches[id])
-			component_caches[id] = std::make_shared<Cache<C>>();
-		return std::static_pointer_cast<Cache<C>>(component_caches[id]);
+			component_caches[id] = std::make_shared<rift::util::Cache<C>>();
+		return std::static_pointer_cast<rift::util::Cache<C>>(component_caches[id]);
 	}
 
 }
