@@ -146,7 +146,7 @@ namespace rift {
 	template<class S>
 	inline bool SystemManager::has() const noexcept
 	{
-		static_assert(std::is_base_of<BaseSystem, S>::value, "Invalid system type!");
+		static_assert(std::is_base_of<BaseSystem, S>::value, "The system type does not inherit from rift::System!");
 		if (S::family() >= systems.size())
 			return false;
 		if (systems[S::family()])

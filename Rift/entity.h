@@ -259,7 +259,7 @@ namespace rift {
 	template<class C>
 	inline bool Entity::has() const noexcept
 	{
-		static_assert(std::is_base_of<BaseComponent, C>::value, "Invalid component type!");
+		static_assert(std::is_base_of<BaseComponent, C>::value, "The component type does not inherit from rift::Component!");
 		assert(valid() && "Cannot check if an invalid entity has a component!");
 		return mgr->has_component<C>(m_id);
 	}
