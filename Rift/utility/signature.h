@@ -12,7 +12,8 @@ namespace rift {
 		//   signature_for<Position, Direction>() == signature_for<Direction, Position>()
 		template <class ...Components>
 		ComponentMask signature_for() noexcept {
-			static_assert(static_all_of<std::is_base_of<BaseComponent, Components>::value...>::value, "Invalid component type(s)!");
+			static_assert(static_all_of<std::is_base_of<BaseComponent, Components>::value...>::value, 
+				"All components must subclass rift::Component!");
 			ComponentMask mask;
 			[](...) {}((mask.set(Components::family()))...);
 			return mask;
