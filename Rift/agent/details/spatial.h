@@ -43,7 +43,7 @@ namespace rift {
 				Cell(int x, int y, int w, int h)
 					: boundary(x, y, w, h) {}
 				Boundary boundary;
-				rift::Cache<rift::Entity> members;
+				rift::util::Cache<rift::Entity> members;
 			};
 
 			CellSpacePartition(std::size_t world_width
