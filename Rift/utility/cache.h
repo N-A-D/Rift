@@ -1,6 +1,8 @@
 #pragma once
 
 #include <vector>
+#include <cassert>
+#include <type_traits>
 
 namespace rift {
 	namespace util {
@@ -35,22 +37,70 @@ namespace rift {
 		class Cache : public BaseCache {
 		public:
 
-			using size_type = std::size_t;
-			using value_type = T;
-			using reference = T & ;
-			using const_reference = const T&;
-			using const_iterator = typename std::vector<T>::const_iterator;
+			// InputIterator type
+			template <class Type>
+			class Iterator final {
+			public:
+				using value_type        = Type;
+				using pointer           = value_type*;
+				using reference         = value_type&;
+				using differece_type    = std::ptrdiff_t;
+				using iterator_category = std::input_iterator_tag;
+				
+				Iterator() : iter(nullptr) {}
+				Iterator(const Iterator&) = default;
+				Iterator& operator=(const Iterator&) = default;
+				explicit Iterator(pointer iter) : iter(iter) {}
 
-			Cache() = default;
+				reference operator*() const noexcept {
+					return *iter;
+				}
+
+				pointer operator->() const noexcept {
+					return iter;
+				}
+
+				Iterator& operator++() {
+					++iter;
+					return *this;
+				}
+
+				Iterator operator++(int) {
+					auto tmp(iter);
+					++iter;
+					return tmp;
+				}
+
+				bool operator==(const Iterator& other) const noexcept { 
+					return iter == other.iter; 
+				}
+
+				bool operator!=(const Iterator& other) const noexcept { 
+					return !(*this == other); 
+				}
+
+			private:
+				pointer iter;
+			};
+
+			using size_type       = std::size_t;
+			using value_type      = T;
+			using reference       = value_type&;
+			using const_reference = const value_type&;
+			using iterator        = Iterator<value_type>;
+			using const_iterator  = Iterator<const value_type>;
+
+			Cache()          = default;
 			virtual ~Cache() = default;
 
-			// Caches are read only
-			const_iterator begin() const { return instances.begin(); }
-			const_iterator end() const { return instances.end(); }
+			iterator       begin() { return iterator(instances.data()); }
+			iterator       end() { return iterator(instances.data() + instances.size()); }
+			const_iterator begin() const { return const_iterator(instances.data()); }
+			const_iterator end() const { return const_iterator(instances.data() + instances.end()); }
 
-			bool empty() const noexcept override { return reverse.empty(); }
-			void clear() noexcept override { instances.clear(); reverse.clear(); }
-			size_type size() const noexcept override { return reverse.size(); }
+			bool empty()         const noexcept override { return reverse.empty(); }
+			void clear()               noexcept override { instances.clear(); reverse.clear(); }
+			size_type size()     const noexcept override { return reverse.size(); }
 			size_type capacity() const noexcept override { return forward.size(); }
 
 			// Check if there exists an object at the given index
