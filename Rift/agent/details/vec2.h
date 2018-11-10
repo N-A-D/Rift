@@ -7,9 +7,10 @@ namespace rift {
 			// 2D space vector for positions & velocities
 			template <class T>
 			struct Vec2 {
-
+				
 				Vec2() : x(0), y(0) {}
 				Vec2(T x, T y) : x(x), y(y) {}
+				Vec2(std::pair<T, T> point) : x(point.first), y(point.second) {}
 
 				Vec2<T>& operator+=(const Vec2<T>& u) noexcept {
 					x += u.x;
