@@ -9,7 +9,7 @@
 #include <unordered_map>
 #include "utility/cache.h"
 #include "utility/signature.h"
-#include "utility/non_copyable.h"
+#include "utility/noncopyable.h"
 
 namespace rift {
 
