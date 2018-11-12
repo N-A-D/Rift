@@ -122,9 +122,9 @@ namespace rift {
 				template <class T>
 				void for_each_neighbour(const Vec2<T>& position, T prox_radius, std::function<void(rift::Entity e)> f) {
 					Boundary prox_box(static_cast<int>(position.x - prox_radius),
-						static_cast<int>(position.y - prox_radius),
-						static_cast<int>(prox_radius),
-						static_cast<int>(prox_radius));
+						              static_cast<int>(position.y - prox_radius),
+						              static_cast<int>(2 * prox_radius),
+						              static_cast<int>(2 * prox_radius));
 
 					for (auto cell : cells) {
 						if (prox_box.intersects(cell.boundary)) {
