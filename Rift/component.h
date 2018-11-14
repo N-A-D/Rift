@@ -23,7 +23,7 @@ namespace rift {
 	// - Derived classes must implement a constructor that initializes all of its member variables
 	// example:
 	// struct PositionComponent : public Component<PositionComponent> {
-	//     PositionComponent() : x(x), y(y) {} // Default ctor
+	//     PositionComponent() : x(0.0), y(0.0) {} // Default ctor
 	//     PositionComponent(double x, double y) : x(x), y(y) {}
 	//     double x, y;
 	// };
