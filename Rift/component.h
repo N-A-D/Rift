@@ -8,7 +8,7 @@ namespace rift {
 	using ComponentFamily = std::size_t;
 
 	// The BaseComponent class
-	// Note: this class should not but subclassed directly as components need to be registered... See the Component class.
+	// Note: this class should not but subclassed directly as components need to be registered. See the Component class below.
 	class BaseComponent {
 	public:
 		virtual ~BaseComponent() = default;

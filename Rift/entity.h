@@ -83,7 +83,7 @@ namespace rift {
 		template <class C>
 		void remove() const noexcept;
 
-		// Checks the entity has a component
+		// Checks if the entity has a component
 		template <class C>
 		bool has() const noexcept;
 
@@ -135,20 +135,26 @@ namespace rift {
 		// Returns the number of entities waiting to be destroyed
 		std::size_t entities_to_destroy() const noexcept;
 
-		// Returns the number of entities with each component type
+		// Returns the number of entities whose component mask includes each component type
 		template <class First, class... Rest>
 		std::size_t entities_with() const noexcept;
 
-		// Applies the function f onto entities that have each component type
+		// Applies the function f onto entities whose component mask includes the given component types
 		// example:
 		// EntityManager em;
 		// ...
-		// em.for_each_entity_with<Position, Direction>(...);
+		// em.for_each_entity_with<Position, Direction, Health>([](rift::Entity entity){ *does something* });
 		template <class First, class... Rest>
 		void for_each_entity_with(std::function<void(Entity)> f);
 
 		// Cleanup the resources for entities that were destroyed last frame
 		void update() noexcept;
+
+		// Create a cache for Entities whose component mask includes the given component types
+		// example:
+		// em.cache_entities_with<Position, Direction, Health>();
+		template <class First, class ...Rest> 
+		void cache_entities_with() noexcept;
 
 	private:
 
@@ -163,7 +169,7 @@ namespace rift {
 		template <class C, class... Args>
 		void add_component(const Entity::ID& id, Args&& ...args) noexcept;
 
-		// Replace the entity's component
+		// Replace the entity's already existing component
 		template <class C, class ...Args>
 		void replace_component(const Entity::ID& id, Args&& ...args) noexcept;
 
@@ -309,6 +315,22 @@ namespace rift {
 			}
 			search_caches.emplace(signature, search_cache);
 		}
+	}
+
+	template<class First, class ...Rest>
+	inline void EntityManager::cache_entities_with() noexcept
+	{
+		auto signature = rift::util::signature_for<First, Rest...>();
+		rift::util::Cache<Entity> search_cache;
+		if (!masks.empty()) {
+			for (std::size_t i = 0; i < masks.size(); i++) {
+				if ((masks[i] & signature) == signature) {
+					Entity e(this, Entity::ID(static_cast<std::uint32_t>(i), index_versions[i]));
+					search_cache.insert(i, &e);
+				}
+			}
+		}
+		search_caches.emplace(signature, search_cache);
 	}
 
 	template<class C, class ...Args>
