@@ -59,7 +59,7 @@ namespace rift {
 		// Checks if this entity will be invalid next frame
 		bool pending_invalidation() const noexcept;
 
-		// Signals the EntityManager to destroy this entity and all equivalent entities at the end of the current frame
+		// Signal the entity's manager to recycle this entity's index
 		void destroy() const noexcept;
 
 		// Fetch the entity's ComponentMask
@@ -139,18 +139,17 @@ namespace rift {
 		template <class First, class... Rest>
 		std::size_t entities_with() const noexcept;
 
-		// Applies the function f onto entities whose component mask includes the given component types
+		// Applies the function f on entities whose component mask includes each component type
 		// example:
 		// EntityManager em;
-		// ...
-		// em.for_each_entity_with<Position, Direction, Health>([](rift::Entity entity){ *does something* });
+		// em.for_each_entity_with<Position, Direction, Health>([](rift::Entity entity){ *do something with the entity* });
 		template <class First, class... Rest>
 		void for_each_entity_with(std::function<void(Entity)> f);
 
 		// Cleanup the resources for entities that were destroyed last frame
 		void update() noexcept;
 
-		// Create a cache for Entities whose component mask includes the given component types
+		// Create a cache for entities whose component mask includes each given component type
 		// example:
 		// em.cache_entities_with<Position, Direction, Health>();
 		template <class First, class ...Rest> 
