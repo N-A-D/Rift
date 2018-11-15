@@ -5,6 +5,8 @@
 namespace rift {
 	namespace util {
 
+		// compile-time version of std::all_of
+
 		template <bool ...values> struct static_all_of;
 
 		template <bool ...tail>
