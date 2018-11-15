@@ -430,7 +430,7 @@ namespace UnitTests
 			Assert::IsTrue(em.entities_with<Toggle>() == 4);
 
 			// Ensure that a-d entities are not pending deletion
-			Assert::IsTrue(!a.pending_invalidation() && !b.pending_invalidation() && !c.pending_invalidation() && !d.pending_invalidation());
+			Assert::IsTrue(!a.pending_invalidation() && !b.pending_invalidation() && !c.pending_invalidation() && !d.pending_invalidation() && !e.pending_invalidation());
 
 			// Destroy every entity with a toggle component
 			DestructionSystem ds;
@@ -443,7 +443,7 @@ namespace UnitTests
 			Assert::IsTrue(em.entities_to_destroy() == 4);
 
 			// Ensure that a-d entities are now pending deletion
-			Assert::IsTrue(a.pending_invalidation() && b.pending_invalidation() && c.pending_invalidation() && d.pending_invalidation());
+			Assert::IsTrue(a.pending_invalidation() && b.pending_invalidation() && c.pending_invalidation() && d.pending_invalidation() && e.pending_invalidation());
 
 			// Update the entity manager to ensure that destruction takes place
 			em.update();
@@ -465,6 +465,14 @@ namespace UnitTests
 
 			// Ensure the number of entities with toggle components is zero
 			Assert::IsTrue(em.entities_with<Toggle>() == 0);
+
+			// Create a new entity and ensure that it was one of the EntityManager's reusable ones
+			auto f = em.create_entity();
+			Assert::IsTrue(em.reusable_entities() == 3);
+
+			// Add a toggle component and ensure that the number of entities with Toggle is now one
+			f.add<Toggle>(true);
+			Assert::IsTrue(em.entities_with<Toggle>() == 1);
 		}
 
 		TEST_METHOD(CountingEntitiesWithComponents) {
