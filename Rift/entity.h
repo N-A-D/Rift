@@ -149,12 +149,6 @@ namespace rift {
 		// Cleanup the resources for entities that were destroyed last frame
 		void update() noexcept;
 
-		// Create a cache for entities whose component mask includes each given component type
-		// example:
-		// em.cache_entities_with<Position, Direction, Health>();
-		template <class First, class ...Rest> 
-		void cache_entities_with() noexcept;
-
 	private:
 
 		/*
@@ -314,22 +308,6 @@ namespace rift {
 			}
 			search_caches.emplace(signature, search_cache);
 		}
-	}
-
-	template<class First, class ...Rest>
-	inline void EntityManager::cache_entities_with() noexcept
-	{
-		auto signature = rift::util::signature_for<First, Rest...>();
-		rift::util::Cache<Entity> search_cache;
-		if (!masks.empty()) {
-			for (std::size_t i = 0; i < masks.size(); i++) {
-				if ((masks[i] & signature) == signature) {
-					Entity e(this, Entity::ID(static_cast<std::uint32_t>(i), index_versions[i]));
-					search_cache.insert(i, &e);
-				}
-			}
-		}
-		search_caches.emplace(signature, search_cache);
 	}
 
 	template<class C, class ...Args>
