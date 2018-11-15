@@ -436,6 +436,9 @@ namespace UnitTests
 			DestructionSystem ds;
 			ds.update(em, 1.0);
 
+			// Ensure that the number of entities with Toggle is four
+			Assert::IsTrue(em.entities_with<Toggle>() == 4);
+
 			// Ensure the number of entities to destroy is now four
 			Assert::IsTrue(em.entities_to_destroy() == 4);
 
@@ -659,6 +662,15 @@ namespace UnitTests
 		}
 	};
 
+	TEST_CLASS(Signal) {
+	public:
+
+		TEST_METHOD(Emission) {
+
+		}
+
+	};
+	
 	TEST_CLASS(Geometry) {
 	public:
 		TEST_METHOD(VectorLength) {
