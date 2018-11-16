@@ -291,22 +291,19 @@ namespace rift {
 	inline void EntityManager::for_each_entity_with(std::function<void(Entity)> f)
 	{
 		auto signature = rift::util::signature_for<First, Rest...>();
-		
-		if (contains_search_cache_for(signature)) {
-			for (auto entity : search_caches.at(signature)) {
-				f(entity);
-			}
-		}
-		else {
+	
+		if (!contains_search_cache_for(signature)) {
 			rift::util::Cache<Entity> search_cache;
 			for (std::size_t i = 0; i < masks.size(); i++) {
 				if ((masks[i] & signature) == signature) {
 					Entity e(this, Entity::ID(static_cast<std::uint32_t>(i), index_versions[i]));
 					search_cache.insert(i, &e);
-					f(e);
 				}
 			}
 			search_caches.emplace(signature, search_cache);
+		}
+		for (auto entity : search_caches.at(signature)) {
+			f(entity);
 		}
 	}
 
