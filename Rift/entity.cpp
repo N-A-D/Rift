@@ -118,10 +118,15 @@ void rift::EntityManager::destroy(const Entity::ID & id) noexcept
 void rift::EntityManager::delete_components_for(const Entity::ID & id) noexcept
 {
 	auto mask = component_mask_for(id);
-	for (std::size_t i = 0; i < mask.size(); i++) {
-		if (mask.test(i)) {
-			component_caches[i]->erase(id.index());
+
+	std::size_t index = 0;
+	auto value = mask.to_ullong();
+	while (value != 0) {
+		value /= 2;
+		if (mask.test(index)) {
+			component_caches[index]->erase(id.index());
 		}
+		++index;
 	}
 }
 
