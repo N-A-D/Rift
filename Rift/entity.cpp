@@ -2,24 +2,19 @@
 
 using namespace rift;
 
-rift::Entity::Entity()
-	: mgr(nullptr), m_id(0, 0)
-{
-}
-
-rift::Entity::Entity(EntityManager * em, Entity::ID id)
-	: mgr(em), m_id(id)
+rift::Entity::Entity() noexcept
+	: manager(nullptr)
 {
 }
 
 Entity::ID rift::Entity::id() const noexcept
 {
-	return m_id;
+	return uid;
 }
 
 bool rift::Entity::valid() const noexcept
 {
-	return mgr && mgr->valid_id(m_id);
+	return manager && manager->valid_id(uid);
 }
 
 rift::Entity::operator bool() const noexcept
@@ -30,19 +25,35 @@ rift::Entity::operator bool() const noexcept
 bool rift::Entity::pending_invalidation() const noexcept
 {
 	assert(valid() && "Cannot check if an invalid entity is waiting for deletion!");
-	return mgr->pending_invalidation(m_id);
+	return manager->pending_invalidation(uid);
 }
 
 void rift::Entity::destroy() const noexcept
 {
 	assert(valid() && "Cannot destroy an invalid entity!");
-	mgr->destroy(m_id);
+	manager->destroy(uid);
 }
 
 rift::ComponentMask rift::Entity::component_mask() const noexcept
 {
 	assert(valid() && "Cannot get the component mask for an invalid entity!");
-	return mgr->component_mask_for(m_id);
+	return manager->component_mask_for(uid);
+}
+
+rift::Entity::Entity(EntityManager * manager, Entity::ID uid) noexcept
+	: manager(manager), uid(uid)
+{
+}
+
+rift::EntityManager::EntityManager() noexcept
+{
+}
+
+rift::EntityManager::EntityManager(std::size_t starting_size) noexcept
+	: masks(starting_size, 0), index_versions(starting_size, 1)
+{
+	for (std::size_t i = 0; i < starting_size; i++)
+		free_indexes.push(static_cast<std::uint32_t>(i));
 }
 
 Entity rift::EntityManager::create_entity() noexcept
@@ -90,6 +101,17 @@ void rift::EntityManager::update() noexcept
 		free_indexes.push(id.index());
 	}
 	invalid_ids.clear();
+}
+
+void rift::EntityManager::clear() noexcept
+{
+	invalid_ids.clear();
+	while (!free_indexes.empty())
+		free_indexes.pop();
+	masks.clear();
+	index_versions.clear();
+	component_caches.clear();
+	entity_caches.clear();
 }
 
 bool rift::EntityManager::valid_id(const Entity::ID & id) const noexcept

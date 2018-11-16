@@ -24,12 +24,12 @@ namespace rift {
 		// The index is valid as long as the version is valid
 		class ID {
 		public:
-			ID() : m_number(0) {}
-			ID(const ID&) = default;
-			ID(std::uint32_t index, std::uint32_t version)
+			ID() noexcept : m_number(0) {}
+			ID(const ID&) noexcept = default;
+			ID(std::uint32_t index, std::uint32_t version) noexcept 
 				: m_number(std::uint64_t(index) | std::uint64_t(version) << 32) {}
 
-			ID& operator=(const ID&) = default;
+			ID& operator=(const ID&) noexcept = default;
 
 			std::uint32_t index() const noexcept { return m_number & 0xFFFFFFFFUL; }
 			std::uint32_t version() const noexcept { return m_number >> 32; }
@@ -44,9 +44,9 @@ namespace rift {
 			std::uint64_t m_number;
 		};
 
-		Entity();
-		Entity(const Entity&) = default;
-		Entity& operator=(const Entity&) = default;
+		Entity() noexcept;
+		Entity(const Entity&) noexcept = default;
+		Entity& operator=(const Entity&) noexcept = default;
 
 		// Fetch the entity's index
 		Entity::ID id() const noexcept;
@@ -93,22 +93,22 @@ namespace rift {
 		template <class C>
 		C &get() const noexcept;
 
-		bool operator<(const Entity& other) const noexcept { return m_id < other.m_id; }
+		bool operator<(const Entity& other) const noexcept { return uid < other.uid; }
 		bool operator>(const Entity& other) const noexcept { return other < *this; }
-		bool operator==(const Entity& other) const noexcept { return mgr == other.mgr && !(*this < other) && !(other < *this); }
+		bool operator==(const Entity& other) const noexcept { return manager == other.manager && !(*this < other) && !(other < *this); }
 		bool operator!=(const Entity& other) const noexcept { return !(*this == other); }
 
 	private:
 		friend class EntityManager;
 
 		// Only EntityManagers are permitted to create valid entity handles
-		Entity(EntityManager *em, Entity::ID id);
+		Entity(EntityManager *manager, Entity::ID uid) noexcept;
 
 		// The manager that created this entity
-		EntityManager* mgr;
+		EntityManager* manager;
 
 		// The entity's index. Only valid while the version is valid
-		Entity::ID m_id;
+		Entity::ID uid;
 
 	};
 
@@ -118,7 +118,8 @@ namespace rift {
 		friend class Entity;
 	public:
 
-		EntityManager() = default;
+		EntityManager() noexcept;
+		EntityManager(std::size_t starting_size) noexcept;
 
 		// Generate a new Entity handle
 		Entity create_entity() noexcept;
@@ -148,6 +149,9 @@ namespace rift {
 
 		// Cleanup the resources for entities that were destroyed last frame
 		void update() noexcept;
+
+		// Clear the manager of all entities and their components
+		void clear() noexcept;
 
 	private:
 
@@ -248,7 +252,7 @@ namespace rift {
 	{
 		assert(valid() && "Cannot add a component to an invalid entity!");
 		assert(!has<C>() && "Adding multiple components of the same type to the same entity is not allowed!");
-		mgr->add_component<C>(m_id, std::forward<Args>(args)...);
+		manager->add_component<C>(uid, std::forward<Args>(args)...);
 	}
 
 	template<class C, class ...Args>
@@ -256,7 +260,7 @@ namespace rift {
 	{
 		assert(valid() && "Cannot replace a component for an invalid entity!");
 		assert(has<C>() && "The entity does own a component of the given type!");
-		mgr->replace_component<C>(m_id, std::forward<Args>(args)...);
+		manager->replace_component<C>(uid, std::forward<Args>(args)...);
 	}
 
 	template<class C>
@@ -264,7 +268,7 @@ namespace rift {
 	{
 		assert(valid() && "Cannot remove a component from an invalid entity!");
 		assert(has<C>() && "The entity does not own a component of the given type!");
-		mgr->remove_component<C>(m_id);
+		manager->remove_component<C>(uid);
 	}
 
 	template<class C>
@@ -272,7 +276,7 @@ namespace rift {
 	{
 		static_assert(std::is_base_of<BaseComponent, C>::value, "The component type does not inherit from rift::Component!");
 		assert(valid() && "Cannot check if an invalid entity has a component!");
-		return mgr->has_component<C>(m_id);
+		return manager->has_component<C>(uid);
 	}
 
 	template<class C>
@@ -280,7 +284,7 @@ namespace rift {
 	{
 		assert(valid() && "Cannot get a compnent for an invalid entity!");
 		assert(has<C>() && "The entity does not have a component of the given type!");
-		return mgr->get_component<C>(m_id);
+		return manager->get_component<C>(uid);
 	}
 
 	template<class First, class ...Rest>
