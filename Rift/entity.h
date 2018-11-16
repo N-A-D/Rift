@@ -24,12 +24,12 @@ namespace rift {
 		// The index is valid as long as the version is valid
 		class ID {
 		public:
-			ID() noexcept : m_number(0) {}
-			ID(const ID&) noexcept = default;
-			ID(std::uint32_t index, std::uint32_t version) noexcept 
+			ID() = default;
+			ID(const ID&) = default;
+			ID(std::uint32_t index, std::uint32_t version) noexcept
 				: m_number(std::uint64_t(index) | std::uint64_t(version) << 32) {}
 
-			ID& operator=(const ID&) noexcept = default;
+			ID& operator=(const ID&) = default;
 
 			std::uint32_t index() const noexcept { return m_number & 0xFFFFFFFFUL; }
 			std::uint32_t version() const noexcept { return m_number >> 32; }
@@ -41,12 +41,14 @@ namespace rift {
 			bool operator!=(const ID& other) const noexcept { return !(*this == other); }
 
 		private:
-			std::uint64_t m_number;
+			std::uint64_t m_number = 0;
 		};
 
-		Entity() noexcept;
-		Entity(const Entity&) noexcept = default;
-		Entity& operator=(const Entity&) noexcept = default;
+		static const ID INVALID_ID;
+
+		Entity() = default;
+		Entity(const Entity&) = default;
+		Entity& operator=(const Entity&) = default;
 
 		// Fetch the entity's index
 		Entity::ID id() const noexcept;
@@ -105,10 +107,10 @@ namespace rift {
 		Entity(EntityManager *manager, Entity::ID uid) noexcept;
 
 		// The manager that created this entity
-		EntityManager* manager;
+		EntityManager* manager = nullptr;
 
 		// The entity's index. Only valid while the version is valid
-		Entity::ID uid;
+		Entity::ID uid = INVALID_ID;
 
 	};
 
@@ -118,7 +120,7 @@ namespace rift {
 		friend class Entity;
 	public:
 
-		EntityManager() noexcept;
+		EntityManager() = default;
 		EntityManager(std::size_t starting_size) noexcept;
 
 		// Generate a new Entity handle

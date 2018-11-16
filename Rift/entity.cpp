@@ -2,10 +2,7 @@
 
 using namespace rift;
 
-rift::Entity::Entity() noexcept
-	: manager(nullptr)
-{
-}
+const Entity::ID Entity::INVALID_ID;
 
 Entity::ID rift::Entity::id() const noexcept
 {
@@ -42,10 +39,6 @@ rift::ComponentMask rift::Entity::component_mask() const noexcept
 
 rift::Entity::Entity(EntityManager * manager, Entity::ID uid) noexcept
 	: manager(manager), uid(uid)
-{
-}
-
-rift::EntityManager::EntityManager() noexcept
 {
 }
 
