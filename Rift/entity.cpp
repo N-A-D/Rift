@@ -128,14 +128,14 @@ void rift::EntityManager::delete_components_for(const Entity::ID & id) noexcept
 void rift::EntityManager::delete_all_caches_for(const Entity::ID & id) noexcept
 {
 	auto mask = component_mask_for(id);
-	for (auto& search_cache : search_caches) {
-		if ((mask & search_cache.first) == search_cache.first) {
-			search_cache.second.erase(id.index());
+	for (auto& entity_cache : entity_caches) {
+		if ((mask & entity_cache.first) == entity_cache.first) {
+			entity_cache.second.erase(id.index());
 		}
 	}
 }
 
-bool rift::EntityManager::contains_search_cache_for(const ComponentMask & signature) const noexcept
+bool rift::EntityManager::contains_entity_cache_for(const ComponentMask & signature) const noexcept
 {
-	return search_caches.find(signature) != search_caches.end();
+	return entity_caches.find(signature) != entity_caches.end();
 }

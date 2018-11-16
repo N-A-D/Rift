@@ -196,18 +196,30 @@ namespace rift {
 		 *
 		 */
 
-		// Returns the component pool for component type C
-		template <class C>
-		std::shared_ptr<rift::util::Cache<C>> component_cache_for(std::size_t id) noexcept;
-
 		// Delete all components the entity owns
 		void delete_components_for(const Entity::ID& id) noexcept;
 
 		// Delete the entity from all search caches it may be in
 		void delete_all_caches_for(const Entity::ID& id) noexcept;
 
+		// Returns the component pool for component type C
+		template <class C>
+		std::shared_ptr<rift::util::Cache<C>> component_cache_for(std::size_t id) noexcept;
+
 		// Checks if a search cache for a given signature exists
-		bool contains_search_cache_for(const ComponentMask& signature) const noexcept;
+		bool contains_entity_cache_for(const ComponentMask& signature) const noexcept;
+	
+		// Creates a cache with all entities with the same component mask
+		void create_entity_cache_for(const ComponentMask& signature) noexcept {
+			rift::util::Cache<Entity> entity_cache;
+			for (std::size_t i = 0; i < masks.size(); i++) {
+				if ((masks[i] & signature) == signature) {
+					Entity e(this, Entity::ID(static_cast<std::uint32_t>(i), index_versions[i]));
+					entity_cache.insert(i, &e);
+				}
+			}
+			entity_caches.emplace(signature, entity_cache);
+		}
 
 	private:
 
@@ -227,7 +239,7 @@ namespace rift {
 		std::vector<std::shared_ptr<rift::util::BaseCache>> component_caches;
 
 		// Entity search caches
-		std::unordered_map<ComponentMask, rift::util::Cache<Entity>> search_caches;
+		std::unordered_map<ComponentMask, rift::util::Cache<Entity>> entity_caches;
 	};
 
 
@@ -276,8 +288,8 @@ namespace rift {
 	{
 		auto signature = rift::util::signature_for<First, Rest...>();
 
-		if (contains_search_cache_for(signature)) {
-			return search_caches.at(signature).size();
+		if (contains_entity_cache_for(signature)) {
+			return entity_caches.at(signature).size();
 		}
 		else {
 			return std::accumulate(masks.begin(), masks.end(), std::size_t(0), 
@@ -292,19 +304,11 @@ namespace rift {
 	{
 		auto signature = rift::util::signature_for<First, Rest...>();
 	
-		if (!contains_search_cache_for(signature)) {
-			rift::util::Cache<Entity> search_cache;
-			for (std::size_t i = 0; i < masks.size(); i++) {
-				if ((masks[i] & signature) == signature) {
-					Entity e(this, Entity::ID(static_cast<std::uint32_t>(i), index_versions[i]));
-					search_cache.insert(i, &e);
-				}
-			}
-			search_caches.emplace(signature, search_cache);
-		}
-		for (auto entity : search_caches.at(signature)) {
+		if (!contains_entity_cache_for(signature)) 
+			create_entity_cache_for(signature);
+		
+		for (auto entity : entity_caches.at(signature)) 
 			f(entity);
-		}
 	}
 
 	template<class C, class ...Args>
@@ -317,10 +321,10 @@ namespace rift {
 		component_cache_for<C>(family_id)->insert(index, &component);
 
 		Entity e(this, id);
-		for (auto& search_cache : search_caches) {
-			if (search_cache.first.test(family_id) &&
-				(mask & search_cache.first) == search_cache.first) {
-				search_cache.second.insert(index, &e);
+		for (auto& entity_cache : entity_caches) {
+			if (entity_cache.first.test(family_id) &&
+				(mask & entity_cache.first) == entity_cache.first) {
+				entity_cache.second.insert(index, &e);
 			}
 		}
 	}
@@ -343,10 +347,10 @@ namespace rift {
 		auto index = id.index();
 		auto mask = masks[index];
 
-		for (auto& search_cache : search_caches) {
-			if (search_cache.first.test(family_id) &&
-				(mask & search_cache.first) == search_cache.first) {
-				search_cache.second.erase(index);
+		for (auto& entity_cache : entity_caches) {
+			if (entity_cache.first.test(family_id) &&
+				(mask & entity_cache.first) == entity_cache.first) {
+				entity_cache.second.erase(index);
 			}
 		}
 
