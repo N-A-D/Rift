@@ -3,7 +3,7 @@
 
 std::size_t rift::BaseSystem::m_family = 0;
 
-rift::SystemManager::SystemManager(rift::EntityManager & entity_manager)
+rift::SystemManager::SystemManager(rift::EntityManager & entity_manager) noexcept
 	: entity_manager(entity_manager)
 {
 }

@@ -3,7 +3,7 @@
 #include <vector>
 #include <memory>
 #include <cassert>
-#include <type_traits>
+#include "utility/rift_traits.h"
 #include "utility/noncopyable.h"
 
 namespace rift {
@@ -53,7 +53,7 @@ namespace rift {
 	public:
 
 		// Creates a new System manager
-		SystemManager(rift::EntityManager& em);
+		SystemManager(rift::EntityManager& em) noexcept;
 
 		// Adds a new managed system
 		// Note: 
@@ -163,6 +163,7 @@ namespace rift {
 	template<class First, class ...Rest>
 	inline void SystemManager::update_systems(double dt)
 	{
+		static_assert(rift::util::static_all_of<std::is_base_of<BaseSystem, First>::value, std::is_base_of<BaseSystem, Rest>::value...>::value, "A system type does not inherit from rift::System!");
 		auto system_list = { (fetch_system<First>()), (fetch_system<Rest>())... };
 		for (auto system : system_list) {
 			system->update(entity_manager, dt);
