@@ -8,7 +8,7 @@ rift::SystemManager::SystemManager(rift::EntityManager & entity_manager) noexcep
 {
 }
 
-void rift::SystemManager::update(double dt)
+void rift::SystemManager::update(double dt) const
 {
 	// Update all valid systems
 	for (auto system : systems) {

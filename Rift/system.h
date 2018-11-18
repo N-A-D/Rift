@@ -19,6 +19,8 @@ namespace rift {
 	public:
 		virtual ~BaseSystem() = default;
 
+		// virtual void configure(EventManager& event_manager) {}
+
 		// Where derived systems implement their logic
 		virtual void update(EntityManager& em, double dt) = 0;
 
@@ -104,7 +106,7 @@ namespace rift {
 		std::shared_ptr<S> get() const noexcept;
 
 		// Updates all systems
-		void update(double dt);
+		void update(double dt) const;
 		
 		// Update an ordered list of managed system types
 		// Note:
@@ -115,7 +117,7 @@ namespace rift {
 		// SystemManager sm(em);
 		// sm.update_systems<Movement, Collision>(dt);
 		template <class First, class... Rest>
-		void update_systems(double dt);
+		void update_systems(double dt) const;
 		
 	private:
 
@@ -161,9 +163,10 @@ namespace rift {
 	}
 
 	template<class First, class ...Rest>
-	inline void SystemManager::update_systems(double dt)
+	inline void SystemManager::update_systems(double dt) const
 	{
-		static_assert(rift::util::static_all_of<std::is_base_of<BaseSystem, First>::value, std::is_base_of<BaseSystem, Rest>::value...>::value, "A system type does not inherit from rift::System!");
+		static_assert(rift::util::static_all_of<std::is_base_of<BaseSystem, First>::value, std::is_base_of<BaseSystem, Rest>::value...>::value
+			         , "All systems must inherit from rift::System!");
 		auto system_list = { (fetch_system<First>()), (fetch_system<Rest>())... };
 		for (auto system : system_list) {
 			system->update(entity_manager, dt);
