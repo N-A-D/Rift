@@ -74,12 +74,12 @@ std::size_t rift::EntityManager::capacity() const noexcept
 	return masks.size();
 }
 
-std::size_t rift::EntityManager::reusable_entities() const noexcept
+std::size_t rift::EntityManager::number_of_reusable_entities() const noexcept
 {
 	return free_indexes.size();
 }
 
-std::size_t rift::EntityManager::entities_to_destroy() const noexcept
+std::size_t rift::EntityManager::number_of_entities_to_destroy() const noexcept
 {
 	return invalid_ids.size();
 }

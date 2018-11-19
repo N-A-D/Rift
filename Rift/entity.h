@@ -133,14 +133,14 @@ namespace rift {
 		std::size_t capacity() const noexcept;
 
 		// Returns the number of entities that can be reused
-		std::size_t reusable_entities() const noexcept;
+		std::size_t number_of_reusable_entities() const noexcept;
 
 		// Returns the number of entities waiting to be destroyed
-		std::size_t entities_to_destroy() const noexcept;
+		std::size_t number_of_entities_to_destroy() const noexcept;
 
 		// Returns the number of entities whose component mask includes each component type
 		template <class First, class... Rest>
-		std::size_t size_with() const noexcept;
+		std::size_t number_of_entities_with() const noexcept;
 
 		// Applies the function f on entities whose component mask includes each component type
 		// example:
@@ -290,7 +290,7 @@ namespace rift {
 	}
 
 	template<class First, class ...Rest>
-	inline std::size_t EntityManager::size_with() const noexcept
+	inline std::size_t EntityManager::number_of_entities_with() const noexcept
 	{
 		auto signature = rift::util::signature_for<First, Rest...>();
 
