@@ -393,7 +393,7 @@ namespace UnitTests
 			// Test system to destroy entities with a toggle component
 			struct DestructionSystem : rift::System<DestructionSystem> {
 				void update(rift::EntityManager &em, double dt) override {
-					em.for_each_entity_with<Toggle>([](rift::Entity e) {
+					em.entities_with<Toggle>([](rift::Entity e) {
 						e.destroy();
 					});
 				}
@@ -427,17 +427,17 @@ namespace UnitTests
 			Assert::IsTrue(em.reusable_entities() == 0);
 
 			// Ensure that the number of entities with Toggle is four
-			Assert::IsTrue(em.entities_with<Toggle>() == 4);
+			Assert::IsTrue(em.size_with<Toggle>() == 4);
 
 			// Ensure that a-d entities are not pending deletion
 			Assert::IsTrue(!a.pending_invalidation() && !b.pending_invalidation() && !c.pending_invalidation() && !d.pending_invalidation() && !e.pending_invalidation());
 
-			// Destroy every entity with a toggle component
+			// Inform the EntityManager to destroy every entity with a toggle component
 			DestructionSystem ds;
 			ds.update(em, 1.0);
 
 			// Ensure that the number of entities with Toggle is four
-			Assert::IsTrue(em.entities_with<Toggle>() == 4);
+			Assert::IsTrue(em.size_with<Toggle>() == 4);
 
 			// Ensure the number of entities to destroy is now four
 			Assert::IsTrue(em.entities_to_destroy() == 4);
@@ -464,7 +464,7 @@ namespace UnitTests
 			Assert::IsTrue(em.reusable_entities() == 4);
 
 			// Ensure the number of entities with toggle components is zero
-			Assert::IsTrue(em.entities_with<Toggle>() == 0);
+			Assert::IsTrue(em.size_with<Toggle>() == 0);
 
 			// Create a new entity and ensure that it was one of the EntityManager's reusable ones
 			auto f = em.create_entity();
@@ -472,7 +472,7 @@ namespace UnitTests
 
 			// Add a toggle component and ensure that the number of entities with Toggle is now one
 			f.add<Toggle>(true);
-			Assert::IsTrue(em.entities_with<Toggle>() == 1);
+			Assert::IsTrue(em.size_with<Toggle>() == 1);
 		}
 
 		TEST_METHOD(CountingEntitiesWithComponents) {
@@ -487,26 +487,26 @@ namespace UnitTests
 			c.add<Toggle>();
 
 			// Ensure that there are three entities with toggle components
-			Assert::IsTrue(em.entities_with<Toggle>() == 3);
+			Assert::IsTrue(em.size_with<Toggle>() == 3);
 
 			ToggleSystem ts;
 			ts.update(em, 1.0);
 
 			// Ensure that there are still three entities with toggle compnents
 			// after the system update
-			Assert::IsTrue(em.entities_with<Toggle>() == 3);
+			Assert::IsTrue(em.size_with<Toggle>() == 3);
 
 			// Let d have a toggle component
 			d.add<Toggle>();
 
 			// Ensure there are four entities with toggle compnents
-			Assert::IsTrue(em.entities_with<Toggle>() == 4);
+			Assert::IsTrue(em.size_with<Toggle>() == 4);
 
 			// Remove the toggle component from b
 			b.remove<Toggle>();
 
 			// Ensure there are only three entities with toggle components
-			Assert::IsTrue(em.entities_with<Toggle>() == 3);
+			Assert::IsTrue(em.size_with<Toggle>() == 3);
 		}
 	};
 	
@@ -570,7 +570,7 @@ namespace UnitTests
 			// Test system to destroy entities with a toggle component
 			struct DestructionSystem : rift::System<DestructionSystem> {
 				void update(rift::EntityManager &em, double dt) override {
-					em.for_each_entity_with<Toggle>([](rift::Entity e) {
+					em.entities_with<Toggle>([](rift::Entity e) {
 						e.destroy();
 					});
 				}
@@ -594,7 +594,7 @@ namespace UnitTests
 			Assert::IsTrue(em.reusable_entities() == 0);
 
 			// Ensure that there are zero entities with toggle components before all systems update
-			Assert::IsTrue(em.entities_with<Toggle>() == 0);
+			Assert::IsTrue(em.size_with<Toggle>() == 0);
 
 			a.add<Toggle>();
 			b.add<Toggle>();
@@ -602,13 +602,13 @@ namespace UnitTests
 			d.add<Toggle>();
 
 			// Ensure that there are four entities with toggle components before all systems update
-			Assert::IsTrue(em.entities_with<Toggle>() == 4);
+			Assert::IsTrue(em.size_with<Toggle>() == 4);
 
 			// Update all systems
 			sm.update(1.0);
 
 			// Ensure there are zero entities with toggle components
-			Assert::IsTrue(em.entities_with<Toggle>() == 0);
+			Assert::IsTrue(em.size_with<Toggle>() == 0);
 
 			// Ensure the number of reusable entities is now four
 			Assert::IsTrue(em.reusable_entities() == 4);
@@ -622,7 +622,7 @@ namespace UnitTests
 			// Test system to destroy entities with a toggle component
 			struct DestructionSystem : rift::System<DestructionSystem> {
 				void update(rift::EntityManager &em, double dt) override {
-					em.for_each_entity_with<Toggle>([](rift::Entity e) {
+					em.entities_with<Toggle>([](rift::Entity e) {
 						e.destroy();
 					});
 				}
@@ -646,7 +646,7 @@ namespace UnitTests
 			Assert::IsTrue(em.reusable_entities() == 0);
 
 			// Ensure that there are zero entities with toggle components before all systems update
-			Assert::IsTrue(em.entities_with<Toggle>() == 0);
+			Assert::IsTrue(em.size_with<Toggle>() == 0);
 
 			a.add<Toggle>();
 			b.add<Toggle>();
@@ -654,13 +654,13 @@ namespace UnitTests
 			d.add<Toggle>();
 
 			// Ensure that there are four entities with toggle components before all systems update
-			Assert::IsTrue(em.entities_with<Toggle>() == 4);
+			Assert::IsTrue(em.size_with<Toggle>() == 4);
 
 			// Update all systems
 			sm.update_systems<DestructionSystem, ToggleSystem>(1.0);
 
 			// Ensure there are zero entities with toggle components
-			Assert::IsTrue(em.entities_with<Toggle>() == 0);
+			Assert::IsTrue(em.size_with<Toggle>() == 0);
 
 			// Ensure the number of reusable entities is now four
 			Assert::IsTrue(em.reusable_entities() == 4);
@@ -668,6 +668,43 @@ namespace UnitTests
 			// Ensure the number of managed entities is zero
 			Assert::IsTrue(em.size() == 0);
 		}
+
+		TEST_METHOD(UpdateSystemsUpdateComponents) {
+			rift::EntityManager entities;
+			auto a = entities.create_entity();
+			auto b = entities.create_entity();
+			auto c = entities.create_entity();
+			auto d = entities.create_entity();
+
+			rift::SystemManager systems(entities);
+
+			systems.add<MovementSystem>();
+
+			a.add<Position>(0, 0);
+			b.add<Position>(0, 0);
+			c.add<Position>(0, 0);
+			d.add<Position>(0, 0);
+
+			a.add<Direction>(1, 0);
+			b.add<Direction>(1, 0);
+			c.add<Direction>(1, 0);
+			d.add<Direction>(1, 0);
+
+			systems.update_systems<MovementSystem>(1.0);
+
+			auto pos = a.get<Position>();
+			Assert::IsTrue(pos.x == 1 && pos.y == 0);
+
+			pos = b.get<Position>();
+			Assert::IsTrue(pos.x == 1 && pos.y == 0);
+
+			pos = c.get<Position>();
+			Assert::IsTrue(pos.x == 1 && pos.y == 0);
+
+			pos = d.get<Position>();
+			Assert::IsTrue(pos.x == 1 && pos.y == 0);
+		}
+
 	};
 
 	TEST_CLASS(Signal) {

@@ -140,14 +140,14 @@ namespace rift {
 
 		// Returns the number of entities whose component mask includes each component type
 		template <class First, class... Rest>
-		std::size_t entities_with() const noexcept;
+		std::size_t size_with() const noexcept;
 
 		// Applies the function f on entities whose component mask includes each component type
 		// example:
 		// EntityManager em;
-		// em.for_each_entity_with<Position, Direction, Health>([](rift::Entity entity){ *do something with the entity* });
+		// em.entities_with<Position, Direction, Health>([](rift::Entity entity){ *do something with the entity* });
 		template <class First, class... Rest>
-		void for_each_entity_with(std::function<void(Entity)> f);
+		void entities_with(std::function<void(Entity)> f);
 
 		// Cleanup the resources for entities that were destroyed last frame
 		void update() noexcept;
@@ -290,7 +290,7 @@ namespace rift {
 	}
 
 	template<class First, class ...Rest>
-	inline std::size_t EntityManager::entities_with() const noexcept
+	inline std::size_t EntityManager::size_with() const noexcept
 	{
 		auto signature = rift::util::signature_for<First, Rest...>();
 
@@ -306,7 +306,7 @@ namespace rift {
 	}
 
 	template<class First, class ...Rest>
-	inline void EntityManager::for_each_entity_with(std::function<void(Entity)> f)
+	inline void EntityManager::entities_with(std::function<void(Entity)> f)
 	{
 		auto signature = rift::util::signature_for<First, Rest...>();
 	
