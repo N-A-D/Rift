@@ -164,7 +164,7 @@ namespace rift {
 		 *
 		 */
 		
-		// Enable the component type C in the entity's component mask
+		// Include the compnoent into the entity's component mask
 		template <class C, class... Args>
 		void add_component(const Entity::ID& id, Args&& ...args) noexcept;
 
@@ -172,11 +172,11 @@ namespace rift {
 		template <class C, class ...Args>
 		void replace_component(const Entity::ID& id, Args&& ...args) noexcept;
 
-		// Disable the component type C in the entity's component mask
+		// Remove the component from the entity's component mask
 		template <class C>
 		void remove_component(const Entity::ID& id) noexcept;
 
-		// Check if the component type C is enabled in the entity's component mask
+		// Check if the component is a part of the entity's component mask
 		template <class C>
 		bool has_component(const Entity::ID& id) noexcept;
 
@@ -190,10 +190,10 @@ namespace rift {
 		// Checks if the entity is pending deletion
 		bool pending_invalidation(const Entity::ID& id) const noexcept;
 
-		// Check the validity of the entity
+		// Checks the validity of the entity
 		bool valid_id(const Entity::ID& id) const noexcept;
 
-		// Prep all entities with the same Entity::ID for invalidation
+		// Queue the id for recycling
 		void destroy(const Entity::ID& id) noexcept;
 
 		/*
@@ -202,30 +202,21 @@ namespace rift {
 		 *
 		 */
 
-		// Delete all components the entity owns
+		// Delete all components that belong to the entity
 		void delete_components_for(const Entity::ID& id) noexcept;
 
-		// Delete the entity from all search caches it may be in
+		// Remove the entity from any entity caches
 		void delete_all_caches_for(const Entity::ID& id) noexcept;
 
 		// Returns the component pool for component type C
 		template <class C>
 		std::shared_ptr<rift::util::Cache<C>> component_cache_for(std::size_t id) noexcept;
 
-		// Checks if a search cache for a given signature exists
+		// Checks if a cache of entities exists for the given signature
 		bool contains_entity_cache_for(const ComponentMask& signature) const noexcept;
 	
-		// Creates a cache with all entities with the same component mask
-		void create_entity_cache_for(const ComponentMask& signature) noexcept {
-			rift::util::Cache<Entity> entity_cache;
-			for (std::size_t i = 0; i < masks.size(); i++) {
-				if ((masks[i] & signature) == signature) {
-					Entity e(this, Entity::ID(static_cast<std::uint32_t>(i), index_versions[i]));
-					entity_cache.insert(i, &e);
-				}
-			}
-			entity_caches.emplace(signature, entity_cache);
-		}
+		// Caches all entities whose component mask matches the given signature
+		void create_entity_cache_for(const ComponentMask& signature) noexcept;
 
 	private:
 

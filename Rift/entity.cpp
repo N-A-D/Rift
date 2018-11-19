@@ -159,3 +159,15 @@ bool rift::EntityManager::contains_entity_cache_for(const ComponentMask & signat
 {
 	return entity_caches.find(signature) != entity_caches.end();
 }
+
+void rift::EntityManager::create_entity_cache_for(const ComponentMask & signature) noexcept
+{
+	rift::util::Cache<Entity> entity_cache;
+	for (std::size_t i = 0; i < masks.size(); i++) {
+		if ((masks[i] & signature) == signature) {
+			Entity e(this, Entity::ID(static_cast<std::uint32_t>(i), index_versions[i]));
+			entity_cache.insert(i, &e);
+		}
+	}
+	entity_caches.emplace(signature, entity_cache);
+}
