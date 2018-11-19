@@ -229,7 +229,7 @@ namespace rift {
 
 	private:
 
-		// Collection of entities to be destroyed next frame
+		// Collection of Entity::IDs to recycle in the current frame
 		rift::util::Cache<Entity::ID> invalid_ids;
 
 		// Collection of free indexes
