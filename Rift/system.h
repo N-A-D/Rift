@@ -165,10 +165,10 @@ namespace rift {
 	template<class First, class ...Rest>
 	inline void SystemManager::update_systems(double dt) const
 	{
-		static_assert(rift::util::static_all_of<std::is_base_of<BaseSystem, First>::value, std::is_base_of<BaseSystem, Rest>::value...>::value
+		static_assert(rift::util::static_all_of<std::is_base_of<BaseSystem, First>::value
+			         , std::is_base_of<BaseSystem, Rest>::value...>::value
 			         , "All systems must inherit from rift::System!");
-		auto system_list = { (fetch_system<First>()), (fetch_system<Rest>())... };
-		for (auto system : system_list) {
+		for (auto system : { (fetch_system<First>()), (fetch_system<Rest>())... }) {
 			system->update(entity_manager, dt);
 		}
 		entity_manager.update();
