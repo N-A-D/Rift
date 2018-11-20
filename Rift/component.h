@@ -16,6 +16,8 @@ namespace rift {
 		static ComponentFamily m_family;
 	};
 
+	class EntityManager;
+
 	// The Component class
 	// Classes that are meant to be components must inherit from this class for registration as a 'component'
 	// Note: 
@@ -31,6 +33,9 @@ namespace rift {
 	class Component : public BaseComponent {
 	public:
 		virtual ~Component() = default;
+	private:
+		friend class EntityManager;
+
 		// Returns the Component type id
 		static ComponentFamily family() noexcept {
 			assert(m_family < config::MAX_COMPONENT_TYPES && "The maximum number of components has been reached!");
