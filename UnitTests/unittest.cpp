@@ -14,27 +14,6 @@ using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
 namespace UnitTests
 {		
-	TEST_CLASS(Components)
-	{
-	public:
-		
-		TEST_METHOD(ComponentFamilies)
-		{
-			Assert::IsTrue(Position::family() != Direction::family());
-			Assert::IsTrue(Position::family() != Toggle::family());
-			Assert::IsTrue(Direction::family() != Toggle::family());
-		}
-
-		TEST_METHOD(EquivalentComponentSignatures) {
-			Assert::IsTrue(rift::util::signature_for<Position, Direction>() == rift::util::signature_for<Direction, Position>());
-			Assert::IsTrue(rift::util::signature_for<Position, Toggle>() == rift::util::signature_for<Toggle, Position>());
-			Assert::IsTrue(rift::util::signature_for<Direction, Toggle>() == rift::util::signature_for<Toggle, Direction>());
-			Assert::IsTrue(rift::util::signature_for<Position, Direction, Toggle>() == rift::util::signature_for<Position, Toggle, Direction>());
-			Assert::IsTrue(rift::util::signature_for<Position, Direction, Toggle>() == rift::util::signature_for<Toggle, Direction, Position>());
-		}
-
-	};
-
 	TEST_CLASS(Containers) {
 	public:
 		TEST_METHOD(Insertion) {
@@ -272,7 +251,6 @@ namespace UnitTests
 			// The entity now has a position component
 			e.add<Position>();
 			Assert::IsTrue(e.component_mask() != 0);
-			Assert::IsTrue(e.component_mask() == rift::util::signature_for<Position>());
 			Assert::IsTrue(e.has<Position>());
 		}
 
@@ -359,8 +337,8 @@ namespace UnitTests
 			// The capacity and the number of managed entities should be the same
 			// h and g should now be pending deletion
 			g.destroy();
-			Assert::IsTrue(em.entities_to_destroy() == 1);
-			Assert::IsTrue(em.reusable_entities() == 0);
+			Assert::IsTrue(em.number_of_entities_to_destroy() == 1);
+			Assert::IsTrue(em.number_of_reusable_entities() == 0);
 			Assert::IsTrue(em.size() == 3);
 			Assert::IsTrue(em.capacity() == em.size());
 			Assert::IsTrue(g.pending_invalidation() && h.pending_invalidation());
@@ -369,8 +347,8 @@ namespace UnitTests
 			// affect the true number of entities to destroy
 			for (int i = 0; i < 10; i++) {
 				g.destroy();
-				Assert::IsTrue(em.entities_to_destroy() == 1);
-				Assert::IsTrue(em.reusable_entities() == 0);
+				Assert::IsTrue(em.number_of_entities_to_destroy() == 1);
+				Assert::IsTrue(em.number_of_reusable_entities() == 0);
 				Assert::IsTrue(em.size() == 3);
 				Assert::IsTrue(em.capacity() == em.size());
 				Assert::IsTrue(g.pending_invalidation() && h.pending_invalidation());
@@ -379,12 +357,12 @@ namespace UnitTests
 			// Update the manager and ensure that the number of reusable entities
 			// is now one and the number of entities to destroy is now zero
 			em.update();
-			Assert::IsTrue(em.entities_to_destroy() == 0);
-			Assert::IsTrue(em.reusable_entities() == 1);
+			Assert::IsTrue(em.number_of_entities_to_destroy() == 0);
+			Assert::IsTrue(em.number_of_reusable_entities() == 1);
 			Assert::IsTrue(em.size() == 2);
 			// The number of managed entities + the number of reusable entities should be equal
 			// to the manager's capacity
-			Assert::IsTrue(em.capacity() == (em.size() + em.reusable_entities()));
+			Assert::IsTrue(em.capacity() == (em.size() + em.number_of_reusable_entities()));
 			// Ensure that g and h are now invalid
 			Assert::IsTrue(!g && !h);
 		}
@@ -421,13 +399,13 @@ namespace UnitTests
 			Assert::IsTrue(em.capacity() == 4);
 
 			// Ensure that the number of entities to destroy is zero 
-			Assert::IsTrue(em.entities_to_destroy() == 0);
+			Assert::IsTrue(em.number_of_entities_to_destroy() == 0);
 
 			// Ensure that the number of reusable slots is zero
-			Assert::IsTrue(em.reusable_entities() == 0);
+			Assert::IsTrue(em.number_of_reusable_entities() == 0);
 
 			// Ensure that the number of entities with Toggle is four
-			Assert::IsTrue(em.size_with<Toggle>() == 4);
+			Assert::IsTrue(em.number_of_entities_with<Toggle>() == 4);
 
 			// Ensure that a-d entities are not pending deletion
 			Assert::IsTrue(!a.pending_invalidation() && !b.pending_invalidation() && !c.pending_invalidation() && !d.pending_invalidation() && !e.pending_invalidation());
@@ -437,10 +415,10 @@ namespace UnitTests
 			ds.update(em, 1.0);
 
 			// Ensure that the number of entities with Toggle is four
-			Assert::IsTrue(em.size_with<Toggle>() == 4);
+			Assert::IsTrue(em.number_of_entities_with<Toggle>() == 4);
 
 			// Ensure the number of entities to destroy is now four
-			Assert::IsTrue(em.entities_to_destroy() == 4);
+			Assert::IsTrue(em.number_of_entities_to_destroy() == 4);
 
 			// Ensure that a-d entities are now pending deletion
 			Assert::IsTrue(a.pending_invalidation() && b.pending_invalidation() && c.pending_invalidation() && d.pending_invalidation() && e.pending_invalidation());
@@ -458,21 +436,21 @@ namespace UnitTests
 			Assert::IsTrue(em.capacity() == 4);
 
 			// Ensure that the number of entities to destroy is back to zero
-			Assert::IsTrue(em.entities_to_destroy() == 0);
+			Assert::IsTrue(em.number_of_entities_to_destroy() == 0);
 
 			// Ensure the number of reusable entities is now 4
-			Assert::IsTrue(em.reusable_entities() == 4);
+			Assert::IsTrue(em.number_of_reusable_entities() == 4);
 
 			// Ensure the number of entities with toggle components is zero
-			Assert::IsTrue(em.size_with<Toggle>() == 0);
+			Assert::IsTrue(em.number_of_entities_with<Toggle>() == 0);
 
 			// Create a new entity and ensure that it was one of the EntityManager's reusable ones
 			auto f = em.create_entity();
-			Assert::IsTrue(em.reusable_entities() == 3);
+			Assert::IsTrue(em.number_of_reusable_entities() == 3);
 
 			// Add a toggle component and ensure that the number of entities with Toggle is now one
 			f.add<Toggle>(true);
-			Assert::IsTrue(em.size_with<Toggle>() == 1);
+			Assert::IsTrue(em.number_of_entities_with<Toggle>() == 1);
 		}
 
 		TEST_METHOD(CountingEntitiesWithComponents) {
@@ -487,26 +465,26 @@ namespace UnitTests
 			c.add<Toggle>();
 
 			// Ensure that there are three entities with toggle components
-			Assert::IsTrue(em.size_with<Toggle>() == 3);
+			Assert::IsTrue(em.number_of_entities_with<Toggle>() == 3);
 
 			ToggleSystem ts;
 			ts.update(em, 1.0);
 
 			// Ensure that there are still three entities with toggle compnents
 			// after the system update
-			Assert::IsTrue(em.size_with<Toggle>() == 3);
+			Assert::IsTrue(em.number_of_entities_with<Toggle>() == 3);
 
 			// Let d have a toggle component
 			d.add<Toggle>();
 
 			// Ensure there are four entities with toggle compnents
-			Assert::IsTrue(em.size_with<Toggle>() == 4);
+			Assert::IsTrue(em.number_of_entities_with<Toggle>() == 4);
 
 			// Remove the toggle component from b
 			b.remove<Toggle>();
 
 			// Ensure there are only three entities with toggle components
-			Assert::IsTrue(em.size_with<Toggle>() == 3);
+			Assert::IsTrue(em.number_of_entities_with<Toggle>() == 3);
 		}
 	};
 	
@@ -591,10 +569,10 @@ namespace UnitTests
 			Assert::IsTrue(em.size() == 4);
 
 			// Ensure the number of reusable entities is zero
-			Assert::IsTrue(em.reusable_entities() == 0);
+			Assert::IsTrue(em.number_of_reusable_entities() == 0);
 
 			// Ensure that there are zero entities with toggle components before all systems update
-			Assert::IsTrue(em.size_with<Toggle>() == 0);
+			Assert::IsTrue(em.number_of_entities_with<Toggle>() == 0);
 
 			a.add<Toggle>();
 			b.add<Toggle>();
@@ -602,16 +580,16 @@ namespace UnitTests
 			d.add<Toggle>();
 
 			// Ensure that there are four entities with toggle components before all systems update
-			Assert::IsTrue(em.size_with<Toggle>() == 4);
+			Assert::IsTrue(em.number_of_entities_with<Toggle>() == 4);
 
 			// Update all systems
 			sm.update(1.0);
 
 			// Ensure there are zero entities with toggle components
-			Assert::IsTrue(em.size_with<Toggle>() == 0);
+			Assert::IsTrue(em.number_of_entities_with<Toggle>() == 0);
 
 			// Ensure the number of reusable entities is now four
-			Assert::IsTrue(em.reusable_entities() == 4);
+			Assert::IsTrue(em.number_of_reusable_entities() == 4);
 
 			// Ensure the number of managed entities is zero
 			Assert::IsTrue(em.size() == 0);
@@ -643,10 +621,10 @@ namespace UnitTests
 			Assert::IsTrue(em.size() == 4);
 
 			// Ensure the number of reusable entities is zero
-			Assert::IsTrue(em.reusable_entities() == 0);
+			Assert::IsTrue(em.number_of_reusable_entities() == 0);
 
 			// Ensure that there are zero entities with toggle components before all systems update
-			Assert::IsTrue(em.size_with<Toggle>() == 0);
+			Assert::IsTrue(em.number_of_entities_with<Toggle>() == 0);
 
 			a.add<Toggle>();
 			b.add<Toggle>();
@@ -654,16 +632,16 @@ namespace UnitTests
 			d.add<Toggle>();
 
 			// Ensure that there are four entities with toggle components before all systems update
-			Assert::IsTrue(em.size_with<Toggle>() == 4);
+			Assert::IsTrue(em.number_of_entities_with<Toggle>() == 4);
 
 			// Update all systems
 			sm.update_systems<DestructionSystem, ToggleSystem>(1.0);
 
 			// Ensure there are zero entities with toggle components
-			Assert::IsTrue(em.size_with<Toggle>() == 0);
+			Assert::IsTrue(em.number_of_entities_with<Toggle>() == 0);
 
 			// Ensure the number of reusable entities is now four
-			Assert::IsTrue(em.reusable_entities() == 4);
+			Assert::IsTrue(em.number_of_reusable_entities() == 4);
 
 			// Ensure the number of managed entities is zero
 			Assert::IsTrue(em.size() == 0);
