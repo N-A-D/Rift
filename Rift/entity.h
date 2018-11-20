@@ -5,10 +5,10 @@
 #include <numeric>
 #include <cassert>
 #include <functional>
-#include <type_traits>
+#include "component.h"
 #include <unordered_map>
 #include "utility/cache.h"
-#include "utility/signature.h"
+#include "utility/rift_traits.h"
 #include "utility/noncopyable.h"
 
 namespace rift {
@@ -202,6 +202,15 @@ namespace rift {
 		 *
 		 */
 
+
+		 // Given a template parameter pack of Component types, this function returns the ComponentMask for those types
+		 // example: ComponentMask mask = signature_for<Position, Direction>();
+		 // Note:
+		 // - Ordering of the types does not matter, the function will still return the same component mask. That is, if
+		 //   classes A and B are any two subclasses of rift::Component, signature_for<A, B>() == signature_for<B, A>()
+		template <class ...Components>
+		static ComponentMask signature_for() noexcept;
+			
 		// Delete all components that belong to the entity
 		void delete_components_for(const Entity::ID& id) noexcept;
 
@@ -283,7 +292,7 @@ namespace rift {
 	template<class First, class ...Rest>
 	inline std::size_t EntityManager::number_of_entities_with() const noexcept
 	{
-		auto signature = rift::util::signature_for<First, Rest...>();
+		auto signature = signature_for<First, Rest...>();
 
 		if (contains_entity_cache_for(signature)) {
 			return entity_caches.at(signature).size();
@@ -299,7 +308,7 @@ namespace rift {
 	template<class First, class ...Rest>
 	inline void EntityManager::entities_with(std::function<void(Entity)> f)
 	{
-		auto signature = rift::util::signature_for<First, Rest...>();
+		auto signature = signature_for<First, Rest...>();
 	
 		if (!contains_entity_cache_for(signature)) 
 			create_entity_cache_for(signature);
@@ -365,6 +374,16 @@ namespace rift {
 	inline C & EntityManager::get_component(const Entity::ID & id) noexcept
 	{
 		return *(static_cast<C *>(component_cache_for<C>(C::family())->get(id.index())));
+	}
+
+	template<class ...Components>
+	inline ComponentMask EntityManager::signature_for() noexcept
+	{
+		static_assert(rift::util::static_all_of<std::is_base_of<BaseComponent, Components>::value...>::value,
+			"Not all components inherit from rift::Component!");
+		ComponentMask mask;
+		[](...) {}((mask.set(Components::family()))...);
+		return mask;
 	}
 
 	template<class C>
