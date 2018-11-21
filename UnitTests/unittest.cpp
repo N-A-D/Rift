@@ -371,7 +371,7 @@ namespace UnitTests
 			// Test system to destroy entities with a toggle component
 			struct DestructionSystem : rift::System<DestructionSystem> {
 				void update(rift::EntityManager &em, double dt) override {
-					em.entities_with<Toggle>([](rift::Entity e) {
+					em.for_entities_with<Toggle>([](rift::Entity e) {
 						e.destroy();
 					});
 				}
@@ -548,7 +548,7 @@ namespace UnitTests
 			// Test system to destroy entities with a toggle component
 			struct DestructionSystem : rift::System<DestructionSystem> {
 				void update(rift::EntityManager &em, double dt) override {
-					em.entities_with<Toggle>([](rift::Entity e) {
+					em.for_entities_with<Toggle>([](rift::Entity e) {
 						e.destroy();
 					});
 				}
@@ -600,7 +600,7 @@ namespace UnitTests
 			// Test system to destroy entities with a toggle component
 			struct DestructionSystem : rift::System<DestructionSystem> {
 				void update(rift::EntityManager &em, double dt) override {
-					em.entities_with<Toggle>([](rift::Entity e) {
+					em.for_entities_with<Toggle>([](rift::Entity e) {
 						e.destroy();
 					});
 				}
