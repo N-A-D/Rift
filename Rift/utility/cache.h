@@ -6,6 +6,7 @@
 
 namespace rift {
 	namespace util {
+
 		// The BaseCache class
 		// An interface that specifies what 'cache' objects should be able to do
 		class BaseCache {
@@ -20,6 +21,7 @@ namespace rift {
 			virtual std::size_t capacity() const noexcept = 0;
 			virtual bool contains(std::size_t index) const noexcept = 0;
 			virtual void insert(std::size_t index, void* object) = 0;
+			virtual void replace(std::size_t index, void* object) = 0;
 			virtual void erase(std::size_t index) = 0;
 			virtual void* get(std::size_t index) = 0;
 
@@ -47,10 +49,10 @@ namespace rift {
 				using differece_type    = std::ptrdiff_t;
 				using iterator_category = std::input_iterator_tag;
 				
-				Iterator() : iter(nullptr) {}
+				Iterator() = default;
 				Iterator(const Iterator&) = default;
 				Iterator& operator=(const Iterator&) = default;
-				explicit Iterator(pointer iter) : iter(iter) {}
+				explicit Iterator(pointer iter) noexcept : iter(iter) {}
 
 				reference operator*() const noexcept {
 					return *iter;
@@ -60,12 +62,12 @@ namespace rift {
 					return iter;
 				}
 
-				Iterator& operator++() {
+				Iterator& operator++() noexcept {
 					++iter;
 					return *this;
 				}
 
-				Iterator operator++(int) {
+				Iterator operator++(int) noexcept {
 					auto tmp(iter);
 					++iter;
 					return tmp;
@@ -80,7 +82,7 @@ namespace rift {
 				}
 
 			private:
-				pointer iter;
+				pointer iter = nullptr;
 			};
 
 			using size_type       = std::size_t;
@@ -93,12 +95,12 @@ namespace rift {
 			Cache()          = default;
 			virtual ~Cache() = default;
 
-			iterator       begin() { return iterator(instances.data()); }
-			iterator       end() { return iterator(instances.data() + instances.size()); }
-			const_iterator begin() const { return const_iterator(instances.data()); }
-			const_iterator end() const { return const_iterator(instances.data() + instances.size()); }
+			iterator       begin()       noexcept { return iterator(instances.data()); }
+			iterator       end()         noexcept { return iterator(instances.data() + instances.size()); }
+			const_iterator begin() const noexcept { return const_iterator(instances.data()); }
+			const_iterator end()   const noexcept { return const_iterator(instances.data() + instances.size()); }
 
-			bool empty()         const noexcept override { return reverse.empty(); }
+			bool empty()         const noexcept override { return forward.empty(); }
 			void clear()               noexcept override { instances.clear(); reverse.clear(); }
 			size_type size()     const noexcept override { return reverse.size(); }
 			size_type capacity() const noexcept override { return forward.size(); }
@@ -114,6 +116,11 @@ namespace rift {
 			//   there is no object assigned to the index, the cache will expand to fit the index
 			void insert(size_type index, void* object) override;
 
+			// Replace an object at the given index
+			// Note:
+			// - An assertion is made that there already exists an object at the given index
+			void replace(size_type index, void* object) override;
+
 			// Erase an object at the given index
 			// Note:
 			// - An assertion is made that there exists an object at the given index.
@@ -126,10 +133,13 @@ namespace rift {
 			void* get(size_type index) override;
 
 		private:
+
 			// The collection of object instances
 			std::vector<T> instances;
+
 			// Collection of indexes to instance objects
 			std::vector<size_type> forward;
+
 			// Collection of active indexes in forward
 			std::vector<size_type> reverse;
 		};
@@ -151,8 +161,15 @@ namespace rift {
 			if (index >= forward.size())
 				forward.resize(index + 1);
 			forward[index] = reverse.size();
-			instances.push_back(*(static_cast<T *>(object)));
+			instances.push_back(*(static_cast<T*>(object)));
 			reverse.push_back(index);
+		}
+
+		template<class T>
+		inline void Cache<T>::replace(size_type index, void * object)
+		{
+			assert(contains(index));
+			instances[forward[index]] = *(static_cast<T*>(object));
 		}
 
 		template<class T>

@@ -202,7 +202,6 @@ namespace rift {
 		 *
 		 */
 
-
 		 // Given a template parameter pack of Component types, this function returns the ComponentMask for those types
 		 // example: ComponentMask mask = signature_for<Position, Direction>();
 		 // Note:
@@ -338,12 +337,8 @@ namespace rift {
 	template<class C, class ...Args>
 	inline void EntityManager::replace_component(const Entity::ID & id, Args && ...args) noexcept
 	{
-		auto index = id.index();
-		auto family = C::family();
 		auto component = C(std::forward<Args>(args)...);
-		auto component_cache = component_cache_for<C>(family);
-		component_cache->erase(index);
-		component_cache->insert(index, &component);
+		component_cache_for<C>(C::family())->replace(id.index(), &component);
 	}
 
 	template<class C>
