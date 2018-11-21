@@ -165,6 +165,8 @@ namespace rift {
 		 */
 		
 		// Include the compnoent into the entity's component mask
+		// Note:
+		// - Creates a component cache for type C if it doesn't already exist
 		template <class C, class... Args>
 		void add_component(const Entity::ID& id, Args&& ...args) noexcept;
 
@@ -173,6 +175,8 @@ namespace rift {
 		void replace_component(const Entity::ID& id, Args&& ...args) noexcept;
 
 		// Remove the component from the entity's component mask
+		// Note:
+		// - Assumes there exists a component cache for the component type
 		template <class C>
 		void remove_component(const Entity::ID& id) noexcept;
 
@@ -215,10 +219,6 @@ namespace rift {
 
 		// Remove the entity from any entity caches
 		void delete_all_caches_for(const Entity::ID& id) noexcept;
-
-		// Returns the component pool for component type C
-		template <class C>
-		std::shared_ptr<rift::util::Cache<C>> component_cache_for(std::size_t id) noexcept;
 
 		// Checks if a cache of entities exists for the given signature
 		bool contains_entity_cache_for(const ComponentMask& signature) const noexcept;
@@ -323,7 +323,14 @@ namespace rift {
 		auto index = id.index();
 		auto mask = masks[index].set(family_id);
 		auto component = C(std::forward<Args>(args)...);
-		component_cache_for<C>(family_id)->insert(index, &component);
+
+		// Create the component cache if it doesn't exist
+		if (family_id >= component_caches.size())
+			component_caches.resize(family_id + 1);
+		if (!component_caches[family_id])
+			component_caches[family_id] = std::make_shared<rift::util::Cache<C>>();
+
+		component_caches[family_id]->insert(index, &component);
 
 		Entity e(this, id);
 		for (auto& entity_cache : entity_caches) {
@@ -338,7 +345,7 @@ namespace rift {
 	inline void EntityManager::replace_component(const Entity::ID & id, Args && ...args) noexcept
 	{
 		auto component = C(std::forward<Args>(args)...);
-		component_cache_for<C>(C::family())->replace(id.index(), &component);
+		component_caches[C::family()]->replace(id.index(), &component);
 	}
 
 	template<class C>
@@ -355,7 +362,7 @@ namespace rift {
 			}
 		}
 
-		component_cache_for<C>(family_id)->erase(index);
+		component_caches[family_id]->erase(index);
 		masks[index].reset(family_id);
 	}
 
@@ -368,7 +375,7 @@ namespace rift {
 	template<class C>
 	inline C & EntityManager::get_component(const Entity::ID & id) noexcept
 	{
-		return *(static_cast<C *>(component_cache_for<C>(C::family())->get(id.index())));
+		return *(static_cast<C*>(component_caches[C::family()]->get(id.index())));
 	}
 
 	template<class ...Components>
@@ -379,16 +386,6 @@ namespace rift {
 		ComponentMask mask;
 		[](...) {}((mask.set(Components::family()))...);
 		return mask;
-	}
-
-	template<class C>
-	inline std::shared_ptr<rift::util::Cache<C>> EntityManager::component_cache_for(std::size_t id) noexcept
-	{
-		if (id >= component_caches.size())
-			component_caches.resize(id + 1);
-		if (!component_caches[id])
-			component_caches[id] = std::make_shared<rift::util::Cache<C>>();
-		return std::static_pointer_cast<rift::util::Cache<C>>(component_caches[id]);
 	}
 
 }
