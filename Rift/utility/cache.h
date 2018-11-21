@@ -96,7 +96,7 @@ namespace rift {
 			iterator       begin() { return iterator(instances.data()); }
 			iterator       end() { return iterator(instances.data() + instances.size()); }
 			const_iterator begin() const { return const_iterator(instances.data()); }
-			const_iterator end() const { return const_iterator(instances.data() + instances.end()); }
+			const_iterator end() const { return const_iterator(instances.data() + instances.size()); }
 
 			bool empty()         const noexcept override { return reverse.empty(); }
 			void clear()               noexcept override { instances.clear(); reverse.clear(); }
