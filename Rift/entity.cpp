@@ -42,15 +42,10 @@ rift::Entity::Entity(EntityManager * manager, Entity::ID uid) noexcept
 {
 }
 
-rift::EntityManager::EntityManager() noexcept
-	: component_caches(config::MAX_COMPONENT_TYPES, nullptr)
+rift::EntityManager::EntityManager(std::size_t initial_size) noexcept
+	: masks(initial_size, 0), index_versions(initial_size, 1)
 {
-}
-
-rift::EntityManager::EntityManager(std::size_t starting_size) noexcept
-	: masks(starting_size, 0), index_versions(starting_size, 1), component_caches(config::MAX_COMPONENT_TYPES, nullptr)
-{
-	for (std::size_t i = 0; i < starting_size; i++)
+	for (std::size_t i = 0; i < initial_size; i++)
 		free_indexes.push(static_cast<std::uint32_t>(i));
 }
 

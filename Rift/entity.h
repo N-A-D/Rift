@@ -120,8 +120,8 @@ namespace rift {
 		friend class Entity;
 	public:
 
-		EntityManager() noexcept;
-		EntityManager(std::size_t starting_size) noexcept;
+		EntityManager() = default;
+		EntityManager(std::size_t initial_size) noexcept;
 
 		// Generate a new Entity handle
 		Entity create_entity() noexcept;
@@ -322,11 +322,14 @@ namespace rift {
 		auto family_id = C::family();
 		auto index = id.index();
 		auto mask = masks[index].set(family_id);
-		auto component = C(std::forward<Args>(args)...);
-
+		
+		// Create a component cache of type C if it doesn't exist
+		if (family_id >= component_caches.size())
+			component_caches.resize(family_id + 1);
 		if (!component_caches[family_id])
 			component_caches[family_id] = std::make_shared<rift::util::Cache<C>>();
 
+		auto component = C(std::forward<Args>(args)...);
 		component_caches[family_id]->insert(index, &component);
 
 		Entity e(this, id);
