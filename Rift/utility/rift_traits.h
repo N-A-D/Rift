@@ -18,8 +18,9 @@ namespace rift {
 		template <> struct static_all_of<> : std::true_type {};
 
 		// Wrapper type to support lamba to std::function conversion
+		// Taken from: https://stackoverflow.com/questions/13358672/how-to-convert-a-lambda-to-an-stdfunction-using-templates
 		template <class T>
-		struct identity {
+		struct Identity {
 			using type = T;
 		};
 

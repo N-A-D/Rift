@@ -147,7 +147,7 @@ namespace rift {
 		// EntityManager em;
 		// em.for_entities_with<Position, Direction>([](rift::Entity entity, Position& p, Direction& d){ *do something with the entity and its components* });
 		template <class First, class... Rest>
-		void for_entities_with(typename rift::util::identity<std::function<void(Entity, First& first, Rest&... rest)>>::type f);
+		void for_entities_with(typename rift::util::Identity<std::function<void(Entity, First& first, Rest&... rest)>>::type f);
 
 		// Cleanup the resources for entities that were destroyed last frame
 		void update() noexcept;
@@ -305,7 +305,7 @@ namespace rift {
 	}
 
 	template<class First, class ...Rest>
-	inline void EntityManager::for_entities_with(typename rift::util::identity<std::function<void(Entity, First& first, Rest&... rest)>>::type f)
+	inline void EntityManager::for_entities_with(typename rift::util::Identity<std::function<void(Entity, First& first, Rest&... rest)>>::type f)
 	{
 		auto signature = signature_for<First, Rest...>();
 
