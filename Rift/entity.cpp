@@ -42,13 +42,6 @@ rift::Entity::Entity(EntityManager * manager, Entity::ID uid) noexcept
 {
 }
 
-rift::EntityManager::EntityManager(std::size_t initial_size) noexcept
-	: masks(initial_size, 0), index_versions(initial_size, 1)
-{
-	for (std::size_t i = 0; i < initial_size; i++)
-		free_indexes.push(static_cast<std::uint32_t>(i));
-}
-
 Entity rift::EntityManager::create_entity() noexcept
 {
 	if (free_indexes.empty()) {

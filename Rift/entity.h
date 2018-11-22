@@ -121,7 +121,6 @@ namespace rift {
 	public:
 
 		EntityManager() = default;
-		EntityManager(std::size_t initial_size) noexcept;
 
 		// Generate a new Entity handle
 		Entity create_entity() noexcept;
