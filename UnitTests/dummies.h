@@ -23,9 +23,8 @@ struct Toggle : public rift::Component<Toggle> {
 struct ToggleSystem : public rift::System<ToggleSystem> {
 
 	void update(rift::EntityManager& em, double dt) noexcept override {
-		em.for_entities_with<Toggle>([](rift::Entity e) {
-			auto& t = e.get<Toggle>();
-			t.on = true;
+		em.for_entities_with<Toggle>([](rift::Entity e, Toggle& toggle) {
+			toggle.on = true;
 		});
 	}
 };
@@ -34,11 +33,9 @@ struct MovementSystem : public rift::System<MovementSystem> {
 	MovementSystem() {}
 
 	void update(rift::EntityManager& em, double dt) noexcept override {
-		em.for_entities_with<Position, Direction>([dt](rift::Entity e) {
-			Position &p = e.get<Position>();
-			Direction& d = e.get<Direction>();
-			p.x += d.x * dt;
-			p.y += d.y * dt;
+		em.for_entities_with<Position, Direction>([dt](rift::Entity e, Position& position, Direction& direction) {
+			position.x += direction.x * dt;
+			position.y += direction.y * dt;
 		});
 	}
 };

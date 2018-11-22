@@ -145,9 +145,9 @@ namespace rift {
 		// Applies the function f on entities whose component mask includes each component type
 		// example:
 		// EntityManager em;
-		// em.for_entities_with<Position, Direction, Health>([](rift::Entity entity){ *do something with the entity* });
+		// em.for_entities_with<Position, Direction>([](rift::Entity entity, Position& p, Direction& d){ *do something with the entity and its components* });
 		template <class First, class... Rest>
-		void for_entities_with(std::function<void(Entity)> f);
+		void for_entities_with(typename rift::util::identity<std::function<void(Entity, First& first, Rest&... rest)>>::type f);
 
 		// Cleanup the resources for entities that were destroyed last frame
 		void update() noexcept;
@@ -305,15 +305,15 @@ namespace rift {
 	}
 
 	template<class First, class ...Rest>
-	inline void EntityManager::for_entities_with(std::function<void(Entity)> f)
+	inline void EntityManager::for_entities_with(typename rift::util::identity<std::function<void(Entity, First& first, Rest&... rest)>>::type f)
 	{
 		auto signature = signature_for<First, Rest...>();
-	
-		if (!contains_entity_cache_for(signature)) 
+
+		if (!contains_entity_cache_for(signature))
 			create_entity_cache_for(signature);
-		
-		for (auto entity : entity_caches.at(signature)) 
-			f(entity);
+
+		for (auto entity : entity_caches.at(signature))
+			f(entity, entity.get<First>(), entity.get<Rest>()...);
 	}
 
 	template<class C, class ...Args>

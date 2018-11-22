@@ -371,7 +371,7 @@ namespace UnitTests
 			// Test system to destroy entities with a toggle component
 			struct DestructionSystem : rift::System<DestructionSystem> {
 				void update(rift::EntityManager &em, double dt) override {
-					em.for_entities_with<Toggle>([](rift::Entity e) {
+					em.for_entities_with<Toggle>([](rift::Entity e, Toggle& toggle) {
 						e.destroy();
 					});
 				}
@@ -548,7 +548,7 @@ namespace UnitTests
 			// Test system to destroy entities with a toggle component
 			struct DestructionSystem : rift::System<DestructionSystem> {
 				void update(rift::EntityManager &em, double dt) override {
-					em.for_entities_with<Toggle>([](rift::Entity e) {
+					em.for_entities_with<Toggle>([](rift::Entity e, Toggle& toggle) {
 						e.destroy();
 					});
 				}
@@ -600,7 +600,7 @@ namespace UnitTests
 			// Test system to destroy entities with a toggle component
 			struct DestructionSystem : rift::System<DestructionSystem> {
 				void update(rift::EntityManager &em, double dt) override {
-					em.for_entities_with<Toggle>([](rift::Entity e) {
+					em.for_entities_with<Toggle>([](rift::Entity e, Toggle& toggle) {
 						e.destroy();
 					});
 				}
@@ -635,7 +635,7 @@ namespace UnitTests
 			Assert::IsTrue(em.number_of_entities_with<Toggle>() == 4);
 
 			// Update all systems
-			sm.update_systems<DestructionSystem, ToggleSystem>(1.0);
+			sm.ordered_update<DestructionSystem, ToggleSystem>(1.0);
 
 			// Ensure there are zero entities with toggle components
 			Assert::IsTrue(em.number_of_entities_with<Toggle>() == 0);
@@ -668,7 +668,7 @@ namespace UnitTests
 			c.add<Direction>(1, 0);
 			d.add<Direction>(1, 0);
 
-			systems.update_systems<MovementSystem>(1.0);
+			systems.ordered_update<MovementSystem>(1.0);
 
 			auto pos = a.get<Position>();
 			Assert::IsTrue(pos.x == 1 && pos.y == 0);
@@ -681,6 +681,27 @@ namespace UnitTests
 
 			pos = d.get<Position>();
 			Assert::IsTrue(pos.x == 1 && pos.y == 0);
+
+			systems.add<ToggleSystem>();
+
+			a.add<Toggle>();
+			b.add<Toggle>();
+			c.add<Toggle>();
+			d.add<Toggle>();
+
+			systems.ordered_update<ToggleSystem>(1.0);
+
+			auto toggle = a.get<Toggle>();
+			Assert::IsTrue(toggle.on);
+
+			toggle = b.get<Toggle>();
+			Assert::IsTrue(toggle.on);
+
+			toggle = c.get<Toggle>();
+			Assert::IsTrue(toggle.on);
+
+			toggle = d.get<Toggle>();
+			Assert::IsTrue(toggle.on);
 		}
 
 	};
