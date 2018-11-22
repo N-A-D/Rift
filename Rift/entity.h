@@ -313,7 +313,7 @@ namespace rift {
 			create_entity_cache_for(signature);
 
 		for (auto entity : entity_caches.at(signature))
-			f(entity, entity.get<First>(), entity.get<Rest>()...);
+			f(entity, get_component<First>(entity.id()), get_component<Rest>(entity.id())...);
 	}
 
 	template<class C, class ...Args>
