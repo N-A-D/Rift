@@ -17,5 +17,11 @@ namespace rift {
 
 		template <> struct static_all_of<> : std::true_type {};
 
+		// Wrapper type to support lamba to std::function conversion
+		template <class T>
+		struct identity {
+			using type = T;
+		};
+
 	}
 }
