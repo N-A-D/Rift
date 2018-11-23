@@ -55,19 +55,23 @@ namespace rift {
 				explicit Iterator(pointer iter) noexcept : iter(iter) {}
 
 				reference operator*() const noexcept {
+					assert(iter && "Invalid iterator dereference!");
 					return *iter;
 				}
 
 				pointer operator->() const noexcept {
+					assert(iter && "Invalid iterator pointer to member!");
 					return iter;
 				}
 
 				Iterator& operator++() noexcept {
+					assert(iter && "Invalid iterator increment!");
 					++iter;
 					return *this;
 				}
 
 				Iterator operator++(int) noexcept {
+					assert(iter && "Invalid iterator increment!");
 					auto tmp(iter);
 					++iter;
 					return tmp;
