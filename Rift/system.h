@@ -115,9 +115,9 @@ namespace rift {
 		// EntityManager em;
 		// ...
 		// SystemManager sm(em);
-		// sm.update_systems<Movement, Collision>(dt);
+		// sm.ordered_update<Movement, Collision>(dt);
 		template <class First, class... Rest>
-		void update_systems(double dt) const;
+		void ordered_update(double dt) const;
 		
 	private:
 
@@ -163,7 +163,7 @@ namespace rift {
 	}
 
 	template<class First, class ...Rest>
-	inline void SystemManager::update_systems(double dt) const
+	inline void SystemManager::ordered_update(double dt) const
 	{
 		static_assert(rift::util::static_all_of<std::is_base_of<BaseSystem, First>::value
 			         , std::is_base_of<BaseSystem, Rest>::value...>::value
