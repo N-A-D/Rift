@@ -5,7 +5,7 @@
 #include <type_traits>
 
 namespace rift {
-	namespace util {
+	namespace impl {
 
 		// The BaseCache class
 		// An interface that specifies what 'cache' objects should be able to do

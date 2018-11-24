@@ -3,7 +3,7 @@
 #include <type_traits>
 
 namespace rift {
-	namespace util {
+	namespace impl {
 
 		// compile-time version of std::all_of
 
