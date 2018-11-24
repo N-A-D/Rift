@@ -6,7 +6,7 @@
 #include <functional>
 #include <unordered_map>
 #include "../../entity.h"
-#include "../../utility/cache.h"
+#include "../../internal/cache.h"
 
 namespace rift {
 	namespace agent {
@@ -43,7 +43,7 @@ namespace rift {
 					Cell(int x, int y, int w, int h)
 						: boundary(x, y, w, h) {}
 					Boundary boundary;
-					rift::util::Cache<rift::Entity> members;
+					rift::impl::Cache<rift::Entity> members;
 				};
 
 				CellSpacePartition(std::size_t world_width

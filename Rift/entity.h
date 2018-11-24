@@ -7,9 +7,9 @@
 #include <functional>
 #include "component.h"
 #include <unordered_map>
-#include "utility/cache.h"
-#include "utility/rift_traits.h"
-#include "utility/noncopyable.h"
+#include "internal/cache.h"
+#include "internal/rift_traits.h"
+#include "internal/noncopyable.h"
 
 namespace rift {
 
@@ -116,7 +116,7 @@ namespace rift {
 
 	// The EntityManager class
 	// Manages the lifecycle of Entity handles
-	class EntityManager final : rift::util::NonCopyable {
+	class EntityManager final : rift::impl::NonCopyable {
 		friend class Entity;
 	public:
 
@@ -146,7 +146,7 @@ namespace rift {
 		// EntityManager em;
 		// em.for_entities_with<Position, Direction>([](rift::Entity entity, Position& p, Direction& d){ *do something with the entity and its components* });
 		template <class First, class... Rest>
-		void for_entities_with(typename rift::util::Identity<std::function<void(Entity, First& first, Rest&... rest)>>::type f);
+		void for_entities_with(typename rift::impl::Identity<std::function<void(Entity, First& first, Rest&... rest)>>::type f);
 
 		// Cleanup the resources for entities that were destroyed last frame
 		void update() noexcept;
@@ -228,7 +228,7 @@ namespace rift {
 	private:
 
 		// Collection of Entity::IDs to recycle in the current frame
-		rift::util::Cache<Entity::ID> invalid_ids;
+		rift::impl::Cache<Entity::ID> invalid_ids;
 
 		// Collection of free indexes
 		std::queue<std::uint32_t> free_indexes;
@@ -240,10 +240,10 @@ namespace rift {
 		std::vector<std::uint32_t> index_versions;
 
 		// The component caches
-		std::vector<std::shared_ptr<rift::util::BaseCache>> component_caches;
+		std::vector<std::shared_ptr<rift::impl::BaseCache>> component_caches;
 
 		// Entity search caches
-		std::unordered_map<ComponentMask, rift::util::Cache<Entity>> entity_caches;
+		std::unordered_map<ComponentMask, rift::impl::Cache<Entity>> entity_caches;
 	};
 
 
@@ -304,7 +304,7 @@ namespace rift {
 	}
 
 	template<class First, class ...Rest>
-	inline void EntityManager::for_entities_with(typename rift::util::Identity<std::function<void(Entity, First& first, Rest&... rest)>>::type f)
+	inline void EntityManager::for_entities_with(typename rift::impl::Identity<std::function<void(Entity, First& first, Rest&... rest)>>::type f)
 	{
 		auto signature = signature_for<First, Rest...>();
 
@@ -326,7 +326,7 @@ namespace rift {
 		if (family_id >= component_caches.size())
 			component_caches.resize(family_id + 1);
 		if (!component_caches[family_id])
-			component_caches[family_id] = std::make_shared<rift::util::Cache<C>>();
+			component_caches[family_id] = std::make_shared<rift::impl::Cache<C>>();
 
 		auto component = C(std::forward<Args>(args)...);
 		component_caches[family_id]->insert(index, &component);
@@ -380,7 +380,7 @@ namespace rift {
 	template<class ...Components>
 	inline ComponentMask EntityManager::signature_for() noexcept
 	{
-		static_assert(rift::util::static_all_of<std::is_base_of<BaseComponent, Components>::value...>::value,
+		static_assert(rift::impl::static_all_of<std::is_base_of<BaseComponent, Components>::value...>::value,
 			"Not all components inherit from rift::Component!");
 		ComponentMask mask;
 		[](...) {}((mask.set(Components::family()))...);

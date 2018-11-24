@@ -17,7 +17,7 @@ namespace UnitTests
 	TEST_CLASS(Containers) {
 	public:
 		TEST_METHOD(Insertion) {
-			rift::util::Cache<int> integer_cache;
+			rift::impl::Cache<int> integer_cache;
 			
 			auto integer_insert = [&integer_cache](std::size_t index, int x) {
 				Assert::IsFalse(integer_cache.contains(index));
@@ -33,7 +33,7 @@ namespace UnitTests
 
 			auto e = em.create_entity();
 
-			rift::util::Cache<rift::Entity> entity_cache;
+			rift::impl::Cache<rift::Entity> entity_cache;
 
 			auto entity_insert = [&entity_cache](std::size_t index, const rift::Entity& e) {
 				Assert::IsFalse(entity_cache.contains(index));
@@ -49,7 +49,7 @@ namespace UnitTests
 		}
 
 		TEST_METHOD(Search) {
-			rift::util::Cache<int> integer_cache;
+			rift::impl::Cache<int> integer_cache;
 			int x = 3;
 			integer_cache.insert(0, &x);
 
@@ -63,7 +63,7 @@ namespace UnitTests
 			auto a = em.create_entity();
 			auto b = em.create_entity();
 
-			rift::util::Cache<rift::Entity> entity_cache;
+			rift::impl::Cache<rift::Entity> entity_cache;
 			entity_cache.insert(a.id().index(), &a);
 			entity_cache.insert(b.id().index(), &b);
 
@@ -77,7 +77,7 @@ namespace UnitTests
 		}
 
 		TEST_METHOD(Removal) {
-			rift::util::Cache<int> integer_cache;
+			rift::impl::Cache<int> integer_cache;
 			int x = 3;
 			integer_cache.insert(0, &x);
 
@@ -93,7 +93,7 @@ namespace UnitTests
 			auto a = em.create_entity();
 			auto b = em.create_entity();
 
-			rift::util::Cache<rift::Entity> entity_cache;
+			rift::impl::Cache<rift::Entity> entity_cache;
 			entity_cache.insert(a.id().index(), &a);
 			entity_cache.insert(b.id().index(), &b);
 
@@ -113,7 +113,7 @@ namespace UnitTests
 		}
 
 		TEST_METHOD(Get) {
-			rift::util::Cache<int> integer_cache;
+			rift::impl::Cache<int> integer_cache;
 			int x = 3;
 			integer_cache.insert(0, &x);
 

@@ -3,8 +3,8 @@
 #include <vector>
 #include <memory>
 #include <cassert>
-#include "utility/rift_traits.h"
-#include "utility/noncopyable.h"
+#include "internal/rift_traits.h"
+#include "internal/noncopyable.h"
 
 namespace rift {
 
@@ -15,7 +15,7 @@ namespace rift {
 	// BaseSystem class
 	// Defines the means for which all systems implement their logic
 	// Note: this class should not be subclassed directly as systems need to be registered. See the System class below 
-	class BaseSystem : rift::util::NonCopyable {
+	class BaseSystem : rift::impl::NonCopyable {
 	public:
 		virtual ~BaseSystem() = default;
 
@@ -51,7 +51,7 @@ namespace rift {
 	};
 
 	// Manages different system types
-	class SystemManager final : rift::util::NonCopyable {
+	class SystemManager final : rift::impl::NonCopyable {
 	public:
 
 		// Creates a new System manager
@@ -165,7 +165,7 @@ namespace rift {
 	template<class First, class ...Rest>
 	inline void SystemManager::ordered_update(double dt) const
 	{
-		static_assert(rift::util::static_all_of<std::is_base_of<BaseSystem, First>::value
+		static_assert(rift::impl::static_all_of<std::is_base_of<BaseSystem, First>::value
 			         , std::is_base_of<BaseSystem, Rest>::value...>::value
 			         , "All systems must inherit from rift::System!");
 		for (auto system : { (fetch_system<First>()), (fetch_system<Rest>())... }) {

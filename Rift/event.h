@@ -1,14 +1,16 @@
 #pragma once
 
+#include <vector>
 #include <cstddef>
+#include "internal/signal.h"
+#include "internal/noncopyable.h"
 
 namespace rift {
 
 	using EventFamily = std::size_t;
 
-	// The BaseEvent class
-	// Note:
-	// Note: this class should not but subclassed directly as events need to be 'registered' see the Event class below
+	// The BaseComponent class
+	// Note: this class should not but subclassed directly as events need to be registered. See the Event class below.
 	class BaseEvent {
 	public:
 
@@ -40,9 +42,27 @@ namespace rift {
 
 	};
 
-	class EventManager final {
+	class BaseSubscriber {
 	public:
 	private:
+	};
+
+	template <class Derived>
+	class Subscriber : public BaseSubscriber {
+	public:
+	};
+
+	class EventManager final : rift::impl::NonCopyable {
+
+		template <class Receiver, class EventType>
+		struct EventCallback {};
+
+	public:
+
+
+
+	private:
+		
 	};
 
 }
