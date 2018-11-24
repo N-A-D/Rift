@@ -102,10 +102,10 @@ namespace rift {
 			const_iterator begin() const noexcept { return const_iterator(instances.data()); }
 			const_iterator end()   const noexcept { return const_iterator(instances.data() + instances.size()); }
 
-			bool empty()         const noexcept override { return forward.empty(); }
+			bool empty()         const noexcept override { return instances.empty(); }
 			void clear()               noexcept override { instances.clear(); reverse.clear(); }
-			size_type size()     const noexcept override { return reverse.size(); }
-			size_type capacity() const noexcept override { return forward.size(); }
+			size_type size()     const noexcept override { return instances.size(); }
+			size_type capacity() const noexcept override { return forward.capacity(); }
 
 			// Check if there exists an object at the given index
 			bool contains(size_type index) const noexcept override;
