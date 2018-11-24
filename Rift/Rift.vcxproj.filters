@@ -18,17 +18,14 @@
     <Filter Include="Source Files\Entity">
       <UniqueIdentifier>{aa00cdb0-57f1-4bd9-83a1-f9ff5ef15651}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Utility">
-      <UniqueIdentifier>{a5547dd3-eb53-4236-adc6-be83ad77ab8e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Config">
       <UniqueIdentifier>{aa217697-4904-4bf8-9c01-9ba5d5023a45}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\Agent\Details">
       <UniqueIdentifier>{c936a5cf-f9b4-431a-b148-82d2f4a145bc}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Utility">
-      <UniqueIdentifier>{d106e951-e2a3-4f19-86cd-d3914b862cce}</UniqueIdentifier>
+    <Filter Include="Header Files\Internal">
+      <UniqueIdentifier>{a5547dd3-eb53-4236-adc6-be83ad77ab8e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -47,17 +44,11 @@
     <ClInclude Include="system.h">
       <Filter>Header Files\Entity</Filter>
     </ClInclude>
-    <ClInclude Include="utility\cache.h">
-      <Filter>Header Files\Utility</Filter>
-    </ClInclude>
-    <ClInclude Include="utility\event.h">
-      <Filter>Header Files\Utility</Filter>
-    </ClInclude>
-    <ClInclude Include="utility\signature.h">
-      <Filter>Header Files\Utility</Filter>
-    </ClInclude>
     <ClInclude Include="config\config.h">
       <Filter>Header Files\Config</Filter>
+    </ClInclude>
+    <ClInclude Include="event.h">
+      <Filter>Header Files\Entity</Filter>
     </ClInclude>
     <ClInclude Include="agent\details\geom.h">
       <Filter>Header Files\Agent\Details</Filter>
@@ -68,17 +59,32 @@
     <ClInclude Include="agent\details\pov.h">
       <Filter>Header Files\Agent\Details</Filter>
     </ClInclude>
+    <ClInclude Include="agent\details\rand.h">
+      <Filter>Header Files\Agent\Details</Filter>
+    </ClInclude>
+    <ClInclude Include="agent\details\spatial.h">
+      <Filter>Header Files\Agent\Details</Filter>
+    </ClInclude>
     <ClInclude Include="agent\details\trig.h">
       <Filter>Header Files\Agent\Details</Filter>
     </ClInclude>
     <ClInclude Include="agent\details\vec2.h">
       <Filter>Header Files\Agent\Details</Filter>
     </ClInclude>
-    <ClInclude Include="agent\details\spatial.h">
-      <Filter>Header Files\Agent\Details</Filter>
+    <ClInclude Include="internal\cache.h">
+      <Filter>Header Files\Internal</Filter>
     </ClInclude>
-    <ClInclude Include="agent\details\rand.h">
-      <Filter>Header Files\Agent\Details</Filter>
+    <ClInclude Include="internal\noncopyable.h">
+      <Filter>Header Files\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\receiver.h">
+      <Filter>Header Files\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\rift_traits.h">
+      <Filter>Header Files\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\signal.h">
+      <Filter>Header Files\Internal</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -91,8 +97,8 @@
     <ClCompile Include="system.cpp">
       <Filter>Source Files\Entity</Filter>
     </ClCompile>
-    <ClCompile Include="utility\event.cpp">
-      <Filter>Source Files\Utility</Filter>
+    <ClCompile Include="event.cpp">
+      <Filter>Source Files\Entity</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

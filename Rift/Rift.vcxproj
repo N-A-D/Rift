@@ -111,6 +111,7 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -144,17 +145,20 @@
     <ClInclude Include="component.h" />
     <ClInclude Include="config\config.h" />
     <ClInclude Include="entity.h" />
+    <ClInclude Include="event.h" />
+    <ClInclude Include="internal\cache.h" />
+    <ClInclude Include="internal\noncopyable.h" />
+    <ClInclude Include="internal\receiver.h" />
+    <ClInclude Include="internal\rift_traits.h" />
+    <ClInclude Include="internal\signal.h" />
     <ClInclude Include="rift.h" />
     <ClInclude Include="system.h" />
-    <ClInclude Include="utility\cache.h" />
-    <ClInclude Include="utility\event.h" />
-    <ClInclude Include="utility\signature.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="component.cpp" />
     <ClCompile Include="entity.cpp" />
+    <ClCompile Include="event.cpp" />
     <ClCompile Include="system.cpp" />
-    <ClCompile Include="utility\event.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
