@@ -91,8 +91,6 @@ namespace rift {
 
 			using size_type       = std::size_t;
 			using value_type      = T;
-			using reference       = value_type&;
-			using const_reference = const value_type&;
 			using iterator        = Iterator<value_type>;
 			using const_iterator  = Iterator<const value_type>;
 
@@ -173,7 +171,7 @@ namespace rift {
 		inline void Cache<T>::replace(size_type index, void * object)
 		{
 			assert(contains(index));
-			instances[forward[index]] = *(static_cast<T*>(object));
+			instances[forward[index]] = *(static_cast<value_type*>(object));
 		}
 
 		template<class T>
