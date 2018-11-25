@@ -148,7 +148,6 @@
     <ClInclude Include="event.h" />
     <ClInclude Include="internal\cache.h" />
     <ClInclude Include="internal\noncopyable.h" />
-    <ClInclude Include="internal\receiver.h" />
     <ClInclude Include="internal\rift_traits.h" />
     <ClInclude Include="internal\signal.h" />
     <ClInclude Include="rift.h" />

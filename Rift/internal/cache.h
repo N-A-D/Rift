@@ -163,7 +163,7 @@ namespace rift {
 			if (index >= forward.size())
 				forward.resize(index + 1);
 			forward[index] = reverse.size();
-			instances.push_back(*(static_cast<T*>(object)));
+			instances.push_back(*(static_cast<value_type*>(object)));
 			reverse.push_back(index);
 		}
 

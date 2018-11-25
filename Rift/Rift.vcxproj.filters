@@ -77,9 +77,6 @@
     <ClInclude Include="internal\noncopyable.h">
       <Filter>Header Files\Internal</Filter>
     </ClInclude>
-    <ClInclude Include="internal\receiver.h">
-      <Filter>Header Files\Internal</Filter>
-    </ClInclude>
     <ClInclude Include="internal\rift_traits.h">
       <Filter>Header Files\Internal</Filter>
     </ClInclude>
