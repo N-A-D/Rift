@@ -453,6 +453,78 @@ namespace UnitTests
 			Assert::IsTrue(em.number_of_entities_with<Toggle>() == 1);
 		}
 
+		TEST_METHOD(SimulatedUsage) {
+			rift::EntityManager em;
+			{
+				for (int i = 0; i < 100; i++)
+					em.create_entity();
+
+				Assert::IsTrue(em.size() == 100);
+			}
+			{
+				em.clear();
+
+				Assert::IsTrue(em.size() == 0);
+
+				std::vector<rift::Entity> entities;
+				for (int i = 0; i < 100; i++)
+					entities.push_back(em.create_entity());
+
+				for (std::size_t i = 0; i < entities.size(); i++)
+				{
+					entities[i].add<Position>(10.0f, 10.0f);
+					entities[i].add<Direction>(10.0f, 10.0f);
+					if (i % 2 == 0) {
+						entities[i].add<Toggle>();
+					}
+				}
+
+				Assert::IsTrue(em.number_of_entities_with<Position, Direction>() == 100);
+				Assert::IsTrue(em.number_of_entities_with<Toggle>() == 50);
+
+			}
+			{
+				for (auto i = 0; i < 100; i++) {
+					em.for_entities_with<Position, Direction>([](rift::Entity e, Position& pos, Direction& dir) {
+						pos.x += dir.x;
+						pos.y += dir.y;
+					});
+				}
+			}
+			{
+				em.for_entities_with<Position>([](rift::Entity e, Position& pos) {
+					if (e.has<Toggle>())
+						e.remove<Toggle>();
+				});
+
+				Assert::IsTrue(em.number_of_entities_with<Toggle>() == 0);
+			}
+			{
+
+				em.for_entities_with<Direction>([](rift::Entity e, Direction& dir) {
+					e.add<Toggle>();
+				});
+				Assert::IsTrue(em.number_of_entities_with<Toggle>() == 100);
+			}
+			{
+				em.for_entities_with<Position, Direction, Toggle>([](rift::Entity e, Position& p, Direction& d, Toggle& t) {
+					e.destroy();
+				});
+
+				Assert::IsTrue(em.number_of_entities_with<Position>() == 100);
+				Assert::IsTrue(em.number_of_entities_with<Direction>() == 100);
+				Assert::IsTrue(em.number_of_entities_with<Toggle>() == 100);
+				Assert::IsTrue(em.number_of_entities_to_destroy() == 100);
+
+				em.update();
+
+				Assert::IsTrue(em.number_of_reusable_entities() == 100);
+				Assert::IsTrue(em.number_of_entities_with<Position>() == 0);
+				Assert::IsTrue(em.number_of_entities_with<Direction>() == 0);
+				Assert::IsTrue(em.number_of_entities_with<Toggle>() == 0);
+			}
+		}
+
 		TEST_METHOD(CountingEntitiesWithComponents) {
 			rift::EntityManager em;
 			auto a = em.create_entity();
