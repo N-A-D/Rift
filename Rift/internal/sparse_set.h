@@ -65,9 +65,6 @@ namespace rift {
 			};
 
 			using value_type      = std::size_t;
-			using reference       = value_type&;
-			using const_reference = const value_type&;
-			using pointer         = value_type*;
 			using size_type       = std::vector<value_type>::size_type;
 			using iterator        = Iterator<value_type>;
 			using const_iterator  = Iterator<const value_type>;
