@@ -21,20 +21,20 @@ rift::Entity::operator bool() const noexcept
 
 bool rift::Entity::pending_invalidation() const noexcept
 {
-	assert(valid() && "Cannot check if an invalid entity is waiting for deletion!");
-	return manager->pending_invalidation(uid);
+	assert(valid() && "Cannot check if an invalid entity is waiting to be invalidated!");
+	return manager->pending_invalidation(uid.index());
 }
 
 void rift::Entity::destroy() const noexcept
 {
-	assert(valid() && "Cannot destroy an invalid entity!");
-	manager->destroy(uid);
+	assert(valid() && "Cannot destroy and invalid entity!");
+	manager->destroy(uid.index());
 }
 
 rift::ComponentMask rift::Entity::component_mask() const noexcept
 {
 	assert(valid() && "Cannot get the component mask for an invalid entity!");
-	return manager->component_mask_for(uid);
+	return manager->component_mask_for(uid.index());
 }
 
 rift::Entity::Entity(EntityManager * manager, Entity::ID uid) noexcept
@@ -44,123 +44,104 @@ rift::Entity::Entity(EntityManager * manager, Entity::ID uid) noexcept
 
 Entity rift::EntityManager::create_entity() noexcept
 {
-	if (free_indexes.empty()) {
-		auto index = masks.size();
+	std::uint32_t index, version;
+	if (free_indices.empty()) {
+		index = static_cast<std::uint32_t>(masks.size());
+		version = 1;
 		masks.push_back(0);
-		index_versions.push_back(1);
-		return Entity(this, Entity::ID(static_cast<std::uint32_t>(index), index_versions.back()));
+		index_versions.push_back(version);
 	}
 	else {
-		auto index = free_indexes.front();
-		free_indexes.pop();
-		return Entity(this, Entity::ID(index, index_versions[index]));
+		index = free_indices.front();
+		version = index_versions[index];
+		free_indices.pop();
 	}
+	return Entity(this, Entity::ID(index, version));
 }
 
 std::size_t rift::EntityManager::size() const noexcept
 {
-	return masks.size() - free_indexes.size();
+	return masks.size() - free_indices.size();
 }
 
 std::size_t rift::EntityManager::capacity() const noexcept
 {
-	return masks.size();
+	return masks.capacity();
 }
 
 std::size_t rift::EntityManager::number_of_reusable_entities() const noexcept
 {
-	return free_indexes.size();
+	return free_indices.size();
 }
 
 std::size_t rift::EntityManager::number_of_entities_to_destroy() const noexcept
 {
-	return invalid_ids.size();
+	return invalid_indices.size();
 }
 
 void rift::EntityManager::update() noexcept
 {
-	for (auto id : invalid_ids) {
-		delete_components_for(id);
-		delete_all_caches_for(id);
-		masks[id.index()].reset();
-		index_versions[id.index()]++;
-		free_indexes.push(id.index());
+	for (auto index : invalid_indices) {
+		erase_all_index_caches_for(index);
+		masks[index].reset();
+		index_versions[index]++;
+		free_indices.push(index);
 	}
-	invalid_ids.clear();
+	invalid_indices.clear();
 }
 
 void rift::EntityManager::clear() noexcept
 {
-	invalid_ids.clear();
-	while (!free_indexes.empty())
-		free_indexes.pop();
+	invalid_indices.clear();
+	while (!free_indices.empty())
+		free_indices.pop();
 	masks.clear();
 	index_versions.clear();
 	component_caches.clear();
-	entity_caches.clear();
+	index_caches.clear();
+}
+
+ComponentMask rift::EntityManager::component_mask_for(std::uint32_t index) const noexcept
+{
+	return masks[index];
+}
+
+bool rift::EntityManager::pending_invalidation(std::uint32_t index) const noexcept
+{
+	return invalid_indices.contains(index);
 }
 
 bool rift::EntityManager::valid_id(const Entity::ID & id) const noexcept
 {
-	return index_versions[id.index()] == id.version();
+	return id.index() < masks.size() && index_versions[id.index()] == id.version();
 }
 
-ComponentMask rift::EntityManager::component_mask_for(const Entity::ID & id) const noexcept
+void rift::EntityManager::destroy(std::uint32_t index) noexcept
 {
-	return masks[id.index()];
+	if (!invalid_indices.contains(index))
+		invalid_indices.insert(index);
 }
 
-bool rift::EntityManager::pending_invalidation(const Entity::ID & id) const noexcept
+void rift::EntityManager::erase_all_index_caches_for(std::uint32_t index)
 {
-	return invalid_ids.contains(id.index());
-}
-
-void rift::EntityManager::destroy(const Entity::ID & id) noexcept
-{
-	if (!invalid_ids.contains(id.index())) {
-		auto idx(id);
-		invalid_ids.insert(id.index(), &idx);
+	auto mask = component_mask_for(index);
+	for (auto& index_cache : index_caches) {
+		if ((mask & index_cache.first) == index_cache.first)
+			index_cache.second.erase(index);
 	}
 }
 
-void rift::EntityManager::delete_components_for(const Entity::ID & id) noexcept
+bool rift::EntityManager::contains_index_cache_for(const ComponentMask & sig) const
 {
-	auto mask = component_mask_for(id);
-
-	std::size_t index = 0;
-	auto value = mask.to_ullong();
-	while (value != 0) {
-		value /= 2;
-		if (mask.test(index)) {
-			component_caches[index]->erase(id.index());
-		}
-		++index;
-	}
+	return index_caches.find(sig) != index_caches.end();
 }
 
-void rift::EntityManager::delete_all_caches_for(const Entity::ID & id) noexcept
+void rift::EntityManager::create_index_cache_for(const ComponentMask & sig)
 {
-	auto mask = component_mask_for(id);
-	for (auto& entity_cache : entity_caches) {
-		if ((mask & entity_cache.first) == entity_cache.first) {
-			entity_cache.second.erase(id.index());
-		}
+	rift::impl::SparseSet indices;
+	for (std::uint32_t i = 0; i < masks.size(); i++) {
+		if ((masks[i] & sig) == sig)
+			indices.insert(i);
 	}
-}
-
-bool rift::EntityManager::contains_entity_cache_for(const ComponentMask & signature) const noexcept
-{
-	return entity_caches.find(signature) != entity_caches.end();
-}
-
-void rift::EntityManager::create_entity_cache_for(const ComponentMask & signature) noexcept
-{
-	rift::impl::Cache<Entity> entity_cache;
-	for (std::size_t i = 0; i < masks.size(); i++) {
-		if ((masks[i] & signature) == signature) {
-			Entity e(this, Entity::ID(static_cast<std::uint32_t>(i), index_versions[i]));
-			entity_cache.insert(i, &e);
-		}
-	}
-	entity_caches.emplace(signature, entity_cache);
+	index_caches.emplace(sig, indices);
 }
