@@ -1,9 +1,8 @@
 #pragma once
 
 #include <vector>
-#include <cassert>
 #include <cstddef>
-#include <type_traits>
+#include <stdexcept>
 
 namespace rift {
 	namespace impl {
@@ -28,22 +27,27 @@ namespace rift {
 				explicit Iterator(pointer pos) : it(pos) {}
 
 				reference operator*() const { 
-					assert(it); return *it; 
+					if (!it)
+						throw std::runtime_error("Invalid iterator dereference!");
+					return *it; 
 				}
 
 				pointer operator->() const { 
-					assert(it); 
+					if (!it)
+						throw std::runtime_error("Invalid iterator to member!");
 					return it; 
 				}
 
 				Iterator& operator++() {
-					assert(it);
+					if (!it)
+						throw std::runtime_error("Invalid iterator increment!");
 					++it;
 					return *this;
 				}
 
 				Iterator operator++(int) {
-					assert(it);
+					if (!it)
+						throw std::runtime_error("Invalid iterator increment!");
 					auto tmp(it);
 					return *this;
 				}
@@ -72,16 +76,16 @@ namespace rift {
 			SparseSet(const SparseSet&) = default;
 			SparseSet& operator=(const SparseSet&) = default;
 
+			// iterators:
+			iterator       begin() noexcept;
+			iterator       end() noexcept;
+			const_iterator begin() const noexcept;
+			const_iterator end() const noexcept;
+
 			// capacity:
-			bool empty() const noexcept;
+			bool      empty() const noexcept;
 			size_type size() const noexcept;
 			size_type max_size() const noexcept;
-
-			// iterators:
-			iterator begin();
-			iterator end();
-			const_iterator begin() const;
-			const_iterator end() const;
 
 			// modifiers:
 			void insert(value_type v);
