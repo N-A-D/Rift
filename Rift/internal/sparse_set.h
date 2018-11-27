@@ -49,7 +49,8 @@ namespace rift {
 					if (!it)
 						throw std::runtime_error("Invalid iterator increment!");
 					auto tmp(it);
-					return *this;
+					++it;
+					return tmp;
 				}
 
 				bool operator==(const Iterator& other) const noexcept {
