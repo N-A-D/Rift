@@ -223,7 +223,7 @@ namespace rift {
 		
 	private:
 
-		// Collection of indices to invalidate for the next frame
+		// Collection of indices to invalidate before the next frame
 		rift::impl::SparseSet invalid_indices;
 
 		// Queue of indices to reuse
@@ -295,7 +295,7 @@ namespace rift {
 	}
 
 	template<class First, class ...Rest>
-	inline void EntityManager::for_entities_with(typename rift::impl::Identity<std::function<void(Entity, First&first, Rest&...rest)>>::type f)
+	inline void EntityManager::for_entities_with(typename rift::impl::Identity<std::function<void(Entity, First& first, Rest&...rest)>>::type f)
 	{
 		auto sig = signature_for<First, Rest...>();
 		if (!contains_index_cache_for(sig))
