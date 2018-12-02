@@ -212,6 +212,12 @@ namespace rift {
 		template <class ...Components>
 		static ComponentMask signature_for() noexcept;
 		
+		// Accommodates a new component
+		// Note:
+		// - Creates a new cache for type C if there does not exist one already
+		template <class C, class ...Args>
+		void accommodate_component(std::uint32_t index, std::size_t family_id, Args&& ...args) noexcept;
+
 		// Remove the index from any search caches
 		void erase_all_index_caches_for(std::uint32_t index);
 
@@ -310,11 +316,8 @@ namespace rift {
 		auto family_id = C::family();
 		auto mask = masks[index].set(family_id);
 
-		if (family_id >= component_caches.size())
-			component_caches.resize(family_id + 1);
-		if (!component_caches[family_id])
-			component_caches[family_id] = std::make_shared<rift::impl::Cache<C>>();
-		component_caches[family_id]->insert(index, C(std::forward<Args>(args)...));
+		// insert the component into the appropriate cache in the appropriate location
+		accommodate_component<C>(index, family_id, std::forward<Args>(args)...);
 
 		for (auto& index_cache : index_caches) {
 			if (index_cache.first.test(family_id) && (mask & index_cache.first) == index_cache.first)
@@ -362,6 +365,16 @@ namespace rift {
 		ComponentMask mask;
 		[](...) {}((mask.set(Components::family()))...);
 		return mask;
+	}
+
+	template<class C, class ...Args>
+	inline void EntityManager::accommodate_component(std::uint32_t index, std::size_t family_id, Args&& ...args) noexcept
+	{
+		if (family_id >= component_caches.size())
+			component_caches.resize(family_id + 1);
+		if (!component_caches[family_id])
+			component_caches[family_id] = std::make_shared<rift::impl::Cache<C>>();
+		component_caches[family_id]->insert(index, C(std::forward<Args>(args)...));
 	}
 
 }
