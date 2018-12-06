@@ -8,6 +8,7 @@
 #include <unordered_map>
 #include "internal/cache.h"
 #include "internal/sparse_set.h"
+#include "internal/rift_traits.h"
 #include "internal/noncopyable.h"
 
 namespace rift {

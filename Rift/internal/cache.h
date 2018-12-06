@@ -2,7 +2,7 @@
 
 #include <vector>
 #include <cassert>
-#include "rift_traits.h"
+#include <type_traits>
 #include "../component.h"
 
 namespace rift {
@@ -24,22 +24,26 @@ namespace rift {
 		public:
 
 			// Inserts a component into the cache
-			void insert(std::size_t n, const BaseComponent& cmp) override;
+			inline void insert(std::size_t n, const BaseComponent& cmp) override;
 
 			// Fetches the component at index n from cache
-			BaseComponent& at(std::size_t n) override;
-
-			// Expands the size of the cache to n
-			void expand(std::size_t n) override;
+			inline BaseComponent& at(std::size_t n) override;
 
 		private:
+
+			// Checks if the index is within the cache size
+			inline bool has_space_for(std::size_t index);
+
+			// Expands the size of the cache to n
+			inline void expand(std::size_t n) override;
+
 			std::vector<C> components;
 		};
 
 		template<class C>
 		inline void Cache<C>::insert(std::size_t n, const BaseComponent & cmp)
 		{
-			if (n >= components.size())
+			if (!has_space_for(n))
 				expand(n);
 			components[n] = static_cast<const C&>(cmp);
 		}
@@ -49,6 +53,12 @@ namespace rift {
 		{
 			assert(n < components.size());
 			return components[n];
+		}
+
+		template<class C>
+		inline bool Cache<C>::has_space_for(std::size_t index)
+		{
+			return index < components.size();
 		}
 
 		template<class C>
