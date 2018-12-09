@@ -105,7 +105,7 @@ namespace rift {
 		// Example:
 		// EntityManager em;
 		// SystemManager sm(em);
-		// sm.ordered_update<Movement, Collision>(dt);
+		// sm.typed_update<Movement, Collision>(dt);
 		template <class First, class... Rest>
 		void typed_update(double dt) const;
 		
