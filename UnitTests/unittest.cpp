@@ -10,7 +10,28 @@ namespace UnitTests
 	
 	TEST_CLASS(SparseSet) {
 	public:
+		TEST_METHOD(Sort) {
+			rift::impl::SparseSet integers;
+			integers.insert(10);
+			integers.insert(1);
+			integers.insert(5);
+			integers.insert(4);
+			
+			integers.sort();
 
+			std::size_t i = 1;
+
+			for (auto integer : integers) {
+				Assert::IsTrue(i <= integer);
+				i = integer;
+			}
+
+			Assert::IsTrue(integers.contains(1));
+			Assert::IsTrue(integers.contains(4));
+			Assert::IsTrue(integers.contains(5));
+			Assert::IsTrue(integers.contains(10));
+
+		}
 	};
 
 	TEST_CLASS(Entities) {
