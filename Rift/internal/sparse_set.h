@@ -95,8 +95,14 @@ namespace rift {
 			void sort();
 
 		private:
+			
+			// The number of integers in the set
 			size_type n = 0;
+
+			// The compact collection of integers
 			std::vector<value_type> dense;
+
+			// The collection of integers present in the set
 			std::vector<value_type> sparse;
 		};
 
