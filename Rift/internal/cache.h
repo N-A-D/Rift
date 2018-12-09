@@ -10,9 +10,12 @@ namespace rift {
 
 		struct BaseCache {
 			virtual ~BaseCache() = default;
-			
+		
 			virtual void insert(std::size_t n, const BaseComponent& cmp) = 0;
 			virtual BaseComponent& at(std::size_t n) = 0;
+
+		protected:
+
 			virtual void expand(std::size_t n) = 0;
 
 		};
