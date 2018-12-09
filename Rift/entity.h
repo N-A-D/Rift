@@ -109,7 +109,7 @@ namespace rift {
 		// The manager that created this entity
 		EntityManager* manager = nullptr;
 
-		// The entity's index. Only valid while the version is valid
+		// The entity's unique id
 		Entity::ID uid = INVALID_ID;
 
 	};
@@ -148,7 +148,7 @@ namespace rift {
 		template <class First, class... Rest>
 		void for_entities_with(typename rift::impl::identity<std::function<void(Entity, First& first, Rest&... rest)>>::type f);
 
-		// Cleanup the resources for entities that were destroyed last frame
+		// Cleanup the resources for entities that were destroyed the current frame
 		void update() noexcept;
 
 		// Clear the manager of all entities and their components
