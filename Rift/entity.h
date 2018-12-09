@@ -146,7 +146,7 @@ namespace rift {
 		// EntityManager em;
 		// em.for_entities_with<Position, Direction>([](rift::Entity entity, Position& p, Direction& d){ *do something with the entity and its components* });
 		template <class First, class... Rest>
-		void for_entities_with(typename rift::impl::Identity<std::function<void(Entity, First& first, Rest&... rest)>>::type f);
+		void for_entities_with(typename rift::impl::identity<std::function<void(Entity, First& first, Rest&... rest)>>::type f);
 
 		// Cleanup the resources for entities that were destroyed last frame
 		void update() noexcept;
@@ -302,7 +302,7 @@ namespace rift {
 	}
 
 	template<class First, class ...Rest>
-	inline void EntityManager::for_entities_with(typename rift::impl::Identity<std::function<void(Entity, First& first, Rest&...rest)>>::type f)
+	inline void EntityManager::for_entities_with(typename rift::impl::identity<std::function<void(Entity, First& first, Rest&...rest)>>::type f)
 	{
 		auto sig = signature_for<First, Rest...>();
 		if (!contains_index_cache_for(sig))
@@ -361,7 +361,7 @@ namespace rift {
 	template<class ...Components>
 	inline ComponentMask EntityManager::signature_for() noexcept
 	{
-		static_assert(rift::impl::static_all_of<std::is_base_of<BaseComponent, Components>::value...>::value,
+		static_assert(rift::impl::all_of<std::is_base_of<BaseComponent, Components>::value...>::value,
 			"Not all components inherit from rift::Component!");
 		ComponentMask mask;
 		[](...) {}((mask.set(Components::family()))...);
