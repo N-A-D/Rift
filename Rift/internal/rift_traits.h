@@ -19,10 +19,7 @@ namespace rift {
 
 		// Wrapper type to support lamba to std::function conversion
 		// Taken from: https://stackoverflow.com/questions/13358672/how-to-convert-a-lambda-to-an-stdfunction-using-templates
-		template <class T>
-		struct Identity {
-			using type = T;
-		};
+		template <class T> struct Identity { using type = T; };
 
 	}
 }
