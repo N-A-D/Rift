@@ -19,8 +19,6 @@ namespace rift {
 	public:
 		virtual ~BaseSystem() = default;
 
-		// virtual void configure(EventManager& event_manager) {}
-
 		// Where derived systems implement their logic
 		virtual void update(EntityManager& em, double dt) = 0;
 
@@ -34,14 +32,13 @@ namespace rift {
 	// Classes that are meant to be systems must inherit from this class for registration as a 'system'
 	// example:
 	// class MovementSystem : public System<MovementSystem> {}
-	//
 	template <class Derived>
 	class System : public BaseSystem {
 	public:
 		virtual ~System() = default;
-
 	private:
 		friend class SystemManager;
+
 		// Returns the System type id
 		// Used only by the system manager
 		static SystemFamily family() noexcept {
@@ -62,20 +59,16 @@ namespace rift {
 		// - Asserts the system type is not already managed
 		// Example:
 		// EntityManager em;
-		// ...
 		// SystemManager sm(em);
 		// sm.add<MovementSystem>();
 		template <class S, class... Args>
 		void add(Args&& ...args) noexcept;
 
 		// Removes a managed system if any
-		//
 		// Note:
 		// - Asserts the system type is managed
-		//
 		// Example:
 		// EntityManager em;
-		// ...
 		// SystemManager sm(em);
 		// sm.remove<MovementSystem>();
 		template <class S>
@@ -85,7 +78,6 @@ namespace rift {
 		//
 		// Example:
 		// EntityManager em;
-		// ...
 		// SystemManager sm(em);
 		// sm.add<MovementSystem>();
 		// bool has = sm.has<MovementSystem>();
@@ -97,7 +89,6 @@ namespace rift {
 		// - Asserts the system type is managed
 		// Example:
 		// EntityManager em;
-		// ...
 		// SystemManager sm(em);
 		// sm.add<MovementSystem>();
 		// std::shared_ptr<MovementSystem> ms = sm.get<MovementSystem>();
@@ -108,16 +99,15 @@ namespace rift {
 		// Updates all systems
 		void update(double dt) const;
 		
-		// Update an ordered list of managed system types
+		// Update a list of managed system types
 		// Note:
 		// - Asserts that each system type is managed
 		// Example:
 		// EntityManager em;
-		// ...
 		// SystemManager sm(em);
 		// sm.ordered_update<Movement, Collision>(dt);
 		template <class First, class... Rest>
-		void ordered_update(double dt) const;
+		void typed_update(double dt) const;
 		
 	private:
 
@@ -163,7 +153,7 @@ namespace rift {
 	}
 
 	template<class First, class ...Rest>
-	inline void SystemManager::ordered_update(double dt) const
+	inline void SystemManager::typed_update(double dt) const
 	{
 		static_assert(rift::impl::static_all_of<std::is_base_of<BaseSystem, First>::value
 			         , std::is_base_of<BaseSystem, Rest>::value...>::value
