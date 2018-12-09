@@ -134,29 +134,20 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="agent\agent.h" />
-    <ClInclude Include="agent\details\geom.h" />
-    <ClInclude Include="agent\details\mat2x2.h" />
-    <ClInclude Include="agent\details\pov.h" />
-    <ClInclude Include="agent\details\rand.h" />
-    <ClInclude Include="agent\details\spatial.h" />
-    <ClInclude Include="agent\details\trig.h" />
-    <ClInclude Include="agent\details\vec2.h" />
     <ClInclude Include="component.h" />
     <ClInclude Include="config\config.h" />
     <ClInclude Include="entity.h" />
-    <ClInclude Include="event.h" />
     <ClInclude Include="internal\cache.h" />
     <ClInclude Include="internal\noncopyable.h" />
     <ClInclude Include="internal\rift_traits.h" />
-    <ClInclude Include="internal\signal.h" />
-    <ClInclude Include="rift.h" />
+    <ClInclude Include="internal\sparse_set.h" />
+    <ClInclude Include="rift_ecs.h" />
     <ClInclude Include="system.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="component.cpp" />
     <ClCompile Include="entity.cpp" />
-    <ClCompile Include="event.cpp" />
+    <ClCompile Include="internal\sparse_set.cpp" />
     <ClCompile Include="system.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

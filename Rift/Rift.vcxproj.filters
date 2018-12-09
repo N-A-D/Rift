@@ -9,9 +9,6 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
-    <Filter Include="Header Files\Agent">
-      <UniqueIdentifier>{e6dc8ade-526b-4e13-8f91-6d953309d402}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Entity">
       <UniqueIdentifier>{3d16a6e1-5d79-44e9-8aa1-43b93f07661e}</UniqueIdentifier>
     </Filter>
@@ -21,24 +18,18 @@
     <Filter Include="Header Files\Config">
       <UniqueIdentifier>{aa217697-4904-4bf8-9c01-9ba5d5023a45}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Agent\Details">
-      <UniqueIdentifier>{c936a5cf-f9b4-431a-b148-82d2f4a145bc}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Internal">
       <UniqueIdentifier>{a5547dd3-eb53-4236-adc6-be83ad77ab8e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Internal">
+      <UniqueIdentifier>{c2ffa0f7-5378-4775-a433-2d53d14abdfa}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="agent\agent.h">
-      <Filter>Header Files\Agent</Filter>
-    </ClInclude>
     <ClInclude Include="component.h">
       <Filter>Header Files\Entity</Filter>
     </ClInclude>
     <ClInclude Include="entity.h">
-      <Filter>Header Files\Entity</Filter>
-    </ClInclude>
-    <ClInclude Include="rift.h">
       <Filter>Header Files\Entity</Filter>
     </ClInclude>
     <ClInclude Include="system.h">
@@ -46,30 +37,6 @@
     </ClInclude>
     <ClInclude Include="config\config.h">
       <Filter>Header Files\Config</Filter>
-    </ClInclude>
-    <ClInclude Include="event.h">
-      <Filter>Header Files\Entity</Filter>
-    </ClInclude>
-    <ClInclude Include="agent\details\geom.h">
-      <Filter>Header Files\Agent\Details</Filter>
-    </ClInclude>
-    <ClInclude Include="agent\details\mat2x2.h">
-      <Filter>Header Files\Agent\Details</Filter>
-    </ClInclude>
-    <ClInclude Include="agent\details\pov.h">
-      <Filter>Header Files\Agent\Details</Filter>
-    </ClInclude>
-    <ClInclude Include="agent\details\rand.h">
-      <Filter>Header Files\Agent\Details</Filter>
-    </ClInclude>
-    <ClInclude Include="agent\details\spatial.h">
-      <Filter>Header Files\Agent\Details</Filter>
-    </ClInclude>
-    <ClInclude Include="agent\details\trig.h">
-      <Filter>Header Files\Agent\Details</Filter>
-    </ClInclude>
-    <ClInclude Include="agent\details\vec2.h">
-      <Filter>Header Files\Agent\Details</Filter>
     </ClInclude>
     <ClInclude Include="internal\cache.h">
       <Filter>Header Files\Internal</Filter>
@@ -80,8 +47,11 @@
     <ClInclude Include="internal\rift_traits.h">
       <Filter>Header Files\Internal</Filter>
     </ClInclude>
-    <ClInclude Include="internal\signal.h">
+    <ClInclude Include="internal\sparse_set.h">
       <Filter>Header Files\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="rift_ecs.h">
+      <Filter>Header Files\Entity</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -94,8 +64,8 @@
     <ClCompile Include="system.cpp">
       <Filter>Source Files\Entity</Filter>
     </ClCompile>
-    <ClCompile Include="event.cpp">
-      <Filter>Source Files\Entity</Filter>
+    <ClCompile Include="internal\sparse_set.cpp">
+      <Filter>Source Files\Internal</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
