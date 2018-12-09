@@ -148,7 +148,7 @@ namespace rift {
 		template <class First, class... Rest>
 		void for_entities_with(typename rift::impl::identity<std::function<void(Entity, First& first, Rest&... rest)>>::type f);
 
-		// Cleanup the resources for entities that were destroyed the current frame
+		// Cleanup the resources for every entity that was destroyed in the current frame
 		void update() noexcept;
 
 		// Clear the manager of all entities and their components
