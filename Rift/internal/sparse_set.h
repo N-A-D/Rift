@@ -67,16 +67,13 @@ namespace rift {
 
 			using value_type      = std::size_t;
 			using size_type       = std::vector<value_type>::size_type;
-			using iterator        = Iterator<value_type>;
 			using const_iterator  = Iterator<const value_type>;
 
 			SparseSet() = default;
 			SparseSet(const SparseSet&) = default;
 			SparseSet& operator=(const SparseSet&) = default;
 
-			// iterators:
-			iterator       begin() noexcept;
-			iterator       end() noexcept;
+			// iterator:
 			const_iterator begin() const noexcept;
 			const_iterator end() const noexcept;
 
