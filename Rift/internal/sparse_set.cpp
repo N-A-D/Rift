@@ -57,6 +57,11 @@ void rift::impl::SparseSet::clear() noexcept
 	n = 0;
 }
 
+rift::impl::SparseSet::const_pointer rift::impl::SparseSet::data() const noexcept
+{
+	return dense.data();
+}
+
 bool rift::impl::SparseSet::contains(value_type v) const noexcept
 {
 	if (v >= sparse.size()) return false;

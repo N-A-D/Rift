@@ -66,6 +66,7 @@ namespace rift {
 			};
 
 			using value_type      = std::size_t;
+			using const_pointer   = const value_type * ;
 			using size_type       = std::vector<value_type>::size_type;
 			using const_iterator  = Iterator<const value_type>;
 
@@ -87,6 +88,9 @@ namespace rift {
 			void insert(value_type v);
 			void erase(value_type v);
 			void clear() noexcept;
+
+			// data access:
+			const_pointer data() const noexcept;
 
 			// operations:
 			bool contains(value_type v) const noexcept;
