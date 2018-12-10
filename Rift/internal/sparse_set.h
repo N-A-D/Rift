@@ -8,7 +8,7 @@ namespace rift {
 	namespace impl {
 
 		// Sparse integer set for storing indices compactly
-		class SparseSet {
+		class SparseSet final {
 		public:
 
 			template <class T>
@@ -81,6 +81,7 @@ namespace rift {
 			bool      empty() const noexcept;
 			size_type size() const noexcept;
 			size_type max_size() const noexcept;
+			size_type capacity() const noexcept;
 
 			// modifiers:
 			void insert(value_type v);

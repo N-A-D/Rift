@@ -17,6 +17,11 @@ rift::impl::SparseSet::size_type rift::impl::SparseSet::max_size() const noexcep
 	return sparse.max_size();
 }
 
+rift::impl::SparseSet::size_type rift::impl::SparseSet::capacity() const noexcept
+{
+	return sparse.capacity();
+}
+
 rift::impl::SparseSet::const_iterator rift::impl::SparseSet::begin() const noexcept
 {
 	return const_iterator(dense.data());
