@@ -14,9 +14,6 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTests", "UnitTests\UnitTests.vcxproj", "{3CB9AF9A-18C8-4F58-80FA-24B500B57160}"
 EndProject
 Global
-	GlobalSection(Performance) = preSolution
-		HasPerformanceSessions = true
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
 		Debug|x86 = Debug|x86
@@ -46,6 +43,7 @@ Global
 		{3CB9AF9A-18C8-4F58-80FA-24B500B57160}.Debug|x86.Build.0 = Debug|Win32
 		{3CB9AF9A-18C8-4F58-80FA-24B500B57160}.Release|x64.ActiveCfg = Release|x64
 		{3CB9AF9A-18C8-4F58-80FA-24B500B57160}.Release|x86.ActiveCfg = Release|Win32
+		{3CB9AF9A-18C8-4F58-80FA-24B500B57160}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -55,5 +53,8 @@ Global
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B033D0DA-8285-40B0-8098-A7A7788557DC}
+	EndGlobalSection
+	GlobalSection(Performance) = preSolution
+		HasPerformanceSessions = true
 	EndGlobalSection
 EndGlobal
