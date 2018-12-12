@@ -115,7 +115,7 @@ namespace rift {
 	};
 
 	// The EntityManager class
-	// Manages the lifecycle of Entities and their components
+	// Manages the lifecycle of entities and their components
 	class EntityManager final : rift::impl::NonCopyable {
 		friend class Entity;
 	public:
