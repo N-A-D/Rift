@@ -8,18 +8,22 @@
 namespace rift {
 	namespace impl {
 
+		// The BaseCache class
+		// Provides the interface that all component caches must implement
 		struct BaseCache {
 			virtual ~BaseCache() = default;
 		
-			virtual void insert(std::size_t n, const BaseComponent& cmp) = 0;
-			virtual BaseComponent& at(std::size_t n) = 0;
-
-		protected:
-
-			virtual void expand(std::size_t n) = 0;
+			virtual void insert(std::size_t index, const BaseComponent& cmp) = 0;
+			virtual BaseComponent& at(std::size_t index) = 0;
 
 		};
 		
+		// The Cache class
+		// Provides very simple storage medium for a single component type
+		// Note:
+		// - Admittedly this class has the potential to be very wasteful in terms 
+		//   of memory usage as not all entities will have the every component type.
+		//   However, it is very simple and requires next to no maintenance.
 		template <class C>
 		class Cache : public BaseCache {
 			static_assert(std::is_base_of_v<BaseComponent, C>
@@ -27,35 +31,36 @@ namespace rift {
 		public:
 
 			// Inserts a component into the cache
-			inline void insert(std::size_t n, const BaseComponent& cmp) override;
+			inline void insert(std::size_t index, const BaseComponent& cmp) override;
 
 			// Fetches the component at index n from cache
-			inline BaseComponent& at(std::size_t n) override;
+			inline BaseComponent& at(std::size_t index) override;
 
 		private:
 
 			// Checks if the index is within the cache size
 			inline bool has_space_for(std::size_t index);
 
-			// Expands the size of the cache to n
-			inline void expand(std::size_t n) override;
+			// Expands the size of the cache to fix n components
+			inline void expand(std::size_t n);
 
+			// The block of components
 			std::vector<C> components;
 		};
 
 		template<class C>
-		inline void Cache<C>::insert(std::size_t n, const BaseComponent & cmp)
+		inline void Cache<C>::insert(std::size_t index, const BaseComponent & cmp)
 		{
-			if (!has_space_for(n))
-				expand(n);
-			components[n] = static_cast<const C&>(cmp);
+			if (!has_space_for(index))
+				expand(index);
+			components[index] = static_cast<const C&>(cmp);
 		}
 
 		template<class C>
-		inline BaseComponent & Cache<C>::at(std::size_t n)
+		inline BaseComponent & Cache<C>::at(std::size_t index)
 		{
-			assert(n < components.size());
-			return components[n];
+			assert(index < components.size());
+			return components[index];
 		}
 
 		template<class C>
