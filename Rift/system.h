@@ -138,7 +138,7 @@ namespace rift {
 	template<class S>
 	inline bool SystemManager::has() const noexcept
 	{
-		static_assert(std::is_base_of<BaseSystem, S>::value, "The system type does not inherit from rift::System!");
+		static_assert(std::is_base_of_v<BaseSystem, S>, "The system type does not inherit from rift::System!");
 		if (S::family() >= systems.size())
 			return false;
 		if (systems[S::family()])
@@ -155,8 +155,8 @@ namespace rift {
 	template<class First, class ...Rest>
 	inline void SystemManager::typed_update(double dt) const
 	{
-		static_assert(rift::impl::all_of<std::is_base_of<BaseSystem, First>::value
-			         , std::is_base_of<BaseSystem, Rest>::value...>::value
+		static_assert(rift::impl::all_of<std::is_base_of_v<BaseSystem, First>
+			         , std::is_base_of_v<BaseSystem, Rest>...>::value
 			         , "All systems must inherit from rift::System!");
 		for (auto system : { (fetch_system<First>()), (fetch_system<Rest>())... }) {
 			system->update(entity_manager, dt);
