@@ -15,5 +15,8 @@ namespace rift {
 		// Taken from: https://stackoverflow.com/questions/13358672/how-to-convert-a-lambda-to-an-stdfunction-using-templates
 		template <class T> struct identity { using type = T; };
 
+		template <class T>
+		using identity_t = typename identity<T>::type;
+
 	}
 }
