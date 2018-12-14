@@ -19,20 +19,20 @@ namespace rift {
 		};
 		
 		// The Cache class
-		// Provides very simple storage medium for a single component type
+		// Provides a very simple storage medium for a single component type
 		// Note:
-		// - Potentially wasteful in terms of memory usage; Not every entity
-		//   owns every component.
+		// - Potentially wasteful with memory if many entities do not own a component
+		//   in the cache
 		template <class C>
 		class Cache : public BaseCache {
 			static_assert(std::is_base_of_v<BaseComponent, C>
 				, "The component type does not inherit from rift::Component");
 		public:
 
-			// Inserts a component into the cache
+			// Insert a component at the given index
 			inline void insert(std::size_t index, const BaseComponent& cmp) override;
 
-			// Fetches the component at index n from cache
+			// Fetch the component at the given index
 			inline BaseComponent& at(std::size_t index) override;
 
 		private:
