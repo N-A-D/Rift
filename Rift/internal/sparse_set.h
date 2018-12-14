@@ -75,7 +75,7 @@ namespace rift {
 			SparseSet(const SparseSet&) = default;
 			SparseSet& operator=(const SparseSet&) = default;
 
-			// iterator:
+			// iterators:
 			const_iterator begin() const noexcept;
 			const_iterator end() const noexcept;
 
