@@ -29,7 +29,7 @@ rift::impl::SparseSet::const_iterator rift::impl::SparseSet::begin() const noexc
 
 rift::impl::SparseSet::const_iterator rift::impl::SparseSet::end() const noexcept
 {
-	return const_iterator(dense.data() + n);
+	return const_iterator(dense.data() + size());
 }
 
 void rift::impl::SparseSet::insert(value_type v)
