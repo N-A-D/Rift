@@ -208,7 +208,7 @@ namespace rift {
 		 // Given a template parameter pack of Component types, this function returns the ComponentMask for those types
 		 // example: ComponentMask mask = signature_for<Position, Direction>();
 		 // Note:
-		 // - Ordering of the types does not matter, the function will still return the same component mask. That is, if
+		 // - The order of the types does not matter, the function will still return the same component mask. That is, if
 		 //   classes A and B are any two subclasses of rift::Component, signature_for<A, B>() == signature_for<B, A>()
 		template <class ...Components>
 		static ComponentMask signature_for() noexcept;
