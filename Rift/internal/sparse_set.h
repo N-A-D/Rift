@@ -7,7 +7,8 @@
 namespace rift {
 	namespace impl {
 
-		// Sparse integer set for storing indices compactly
+		// The SparseSet class
+		// Compact set of integers
 		class SparseSet final {
 		public:
 
