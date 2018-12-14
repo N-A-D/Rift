@@ -72,6 +72,6 @@ bool rift::impl::SparseSet::contains(value_type v) const noexcept
 void rift::impl::SparseSet::sort()
 {
 	std::sort(dense.begin(), dense.begin() + n);
-	for (size_type i = 0; i < n; i++)
+	for (value_type i = 0; i < n; i++)
 		sparse[dense[i]] = i;
 }

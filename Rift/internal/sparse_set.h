@@ -65,7 +65,7 @@ namespace rift {
 				pointer it = nullptr;
 			};
 
-			using value_type      = std::size_t;
+			using value_type      = std::uint32_t;
 			using const_pointer   = const value_type * ;
 			using size_type       = std::vector<value_type>::size_type;
 			using const_iterator  = Iterator<const value_type>;
@@ -99,12 +99,12 @@ namespace rift {
 		private:
 			
 			// The number of integers in the set
-			size_type n = 0;
+			value_type n = 0;
 
-			// The compact collection of integers
+			// Collection of integers
 			std::vector<value_type> dense;
 
-			// The collection of integers present in the set
+			// Collection of integers present in the set
 			std::vector<value_type> sparse;
 		};
 
