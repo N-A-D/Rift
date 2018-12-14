@@ -21,9 +21,8 @@ namespace rift {
 		// The Cache class
 		// Provides very simple storage medium for a single component type
 		// Note:
-		// - Admittedly this class has the potential to be very wasteful in terms 
-		//   of memory usage as not all entities will have the every component type.
-		//   However, it is very simple and requires next to no maintenance.
+		// - Potentially wasteful in terms of memory usage; Not every entity
+		//   owns every component.
 		template <class C>
 		class Cache : public BaseCache {
 			static_assert(std::is_base_of_v<BaseComponent, C>
