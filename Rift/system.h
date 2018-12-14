@@ -97,7 +97,7 @@ namespace rift {
 		std::shared_ptr<S> get() const noexcept;
 
 		// Updates all systems
-		void update(double dt) const;
+		void update(double dt) const noexcept;
 		
 		// Update a list of managed system types
 		// Note:
@@ -107,7 +107,7 @@ namespace rift {
 		// SystemManager sm(em);
 		// sm.typed_update<Movement, Collision>(dt);
 		template <class First, class... Rest>
-		void typed_update(double dt) const;
+		void typed_update(double dt) const noexcept;
 		
 	private:
 
@@ -153,7 +153,7 @@ namespace rift {
 	}
 
 	template<class First, class ...Rest>
-	inline void SystemManager::typed_update(double dt) const
+	inline void SystemManager::typed_update(double dt) const noexcept
 	{
 		static_assert(rift::impl::all_of<std::is_base_of_v<BaseSystem, First>
 			         , std::is_base_of_v<BaseSystem, Rest>...>::value
