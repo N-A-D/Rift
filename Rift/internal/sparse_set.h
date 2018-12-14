@@ -25,7 +25,7 @@ namespace rift {
 				Iterator() = default;
 				Iterator(const Iterator&) = default;
 				Iterator& operator=(const Iterator&) = default;
-				explicit Iterator(pointer pos) : it(pos) {}
+				explicit Iterator(pointer pos) noexcept : it(pos) {}
 
 				reference operator*() const { 
 					if (!it)
