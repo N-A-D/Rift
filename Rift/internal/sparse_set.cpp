@@ -24,12 +24,12 @@ rift::impl::SparseSet::size_type rift::impl::SparseSet::capacity() const noexcep
 
 rift::impl::SparseSet::const_iterator rift::impl::SparseSet::begin() const noexcept
 {
-	return const_iterator(dense.data());
+	return const_iterator(data());
 }
 
 rift::impl::SparseSet::const_iterator rift::impl::SparseSet::end() const noexcept
 {
-	return const_iterator(dense.data() + size());
+	return const_iterator(data() + size());
 }
 
 void rift::impl::SparseSet::insert(value_type v)
