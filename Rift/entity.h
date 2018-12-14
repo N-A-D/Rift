@@ -163,7 +163,7 @@ namespace rift {
 		 *
 		 */
 		
-		// Include the compnoent into the entity's component mask
+		// Include the component into the entity's component mask
 		// Note:
 		// - Creates a component cache for type C if it doesn't already exist
 		template <class C, class... Args>
