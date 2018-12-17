@@ -157,7 +157,7 @@ namespace rift {
 		static_assert(rift::impl::all_of_v<std::is_base_of_v<BaseSystem, First>
 			         , std::is_base_of_v<BaseSystem, Rest>...>
 			         , "All systems must inherit from rift::System!");
-		for (auto system : { (fetch_system<First>()), (fetch_system<Rest>())... }) {
+		for (auto system : { fetch_system<First>(), fetch_system<Rest>()... }) {
 			system->update(entity_manager, dt);
 		}
 		entity_manager.update();
