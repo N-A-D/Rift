@@ -91,8 +91,7 @@ namespace rift {
 		// EntityManager em;
 		// SystemManager sm(em);
 		// sm.add<MovementSystem>();
-		// std::shared_ptr<MovementSystem> ms = sm.get<MovementSystem>();
-		// if (ms) {}
+		// if (sm.get<MovementSystem>()) {...}
 		template <class S>
 		std::shared_ptr<S> get() const noexcept;
 
@@ -155,8 +154,8 @@ namespace rift {
 	template<class First, class ...Rest>
 	inline void SystemManager::typed_update(double dt) const noexcept
 	{
-		static_assert(rift::impl::all_of<std::is_base_of_v<BaseSystem, First>
-			         , std::is_base_of_v<BaseSystem, Rest>...>::value
+		static_assert(rift::impl::all_of_v<std::is_base_of_v<BaseSystem, First>
+			         , std::is_base_of_v<BaseSystem, Rest>...>
 			         , "All systems must inherit from rift::System!");
 		for (auto system : { (fetch_system<First>()), (fetch_system<Rest>())... }) {
 			system->update(entity_manager, dt);

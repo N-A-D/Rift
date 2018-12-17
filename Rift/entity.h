@@ -361,7 +361,7 @@ namespace rift {
 	template<class ...Components>
 	inline ComponentMask EntityManager::signature_for() noexcept
 	{
-		static_assert(rift::impl::all_of<std::is_base_of_v<BaseComponent, Components>...>::value,
+		static_assert(rift::impl::all_of_v<std::is_base_of_v<BaseComponent, Components>...>,
 			"Not all components inherit from rift::Component!");
 		ComponentMask mask;
 		[](...) {}((mask.set(Components::family()))...);
