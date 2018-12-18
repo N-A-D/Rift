@@ -38,7 +38,7 @@ entity.add<Position>(100.0f, 25.0f);
 
 ## Systems
 In Rift, Systems are what define the behaviour of different entities.
-Every system must inherit from `rift::System` in order to be considered a *system*. Moreover, every system must implement the `rift::BaseSystem::update(rift::EntityManager&, double)` member. This function serves as point from which entity behaviour is carried out. 
+Every system must inherit from `rift::System` in order to be considered a *System*. Moreover, every system must implement the `rift::BaseSystem::update(rift::EntityManager&, double)` member. This function serves as the point from which entity behaviour is carried out. 
 
 Systems submit functions to an entity manager which then carries out that function on every entity that matches the system's search criteria. 
 For example, suppose there were two components *Position* and *Direction*, then a system's submitted query could look like the following:
