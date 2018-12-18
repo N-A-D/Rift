@@ -22,7 +22,7 @@ namespace rift {
 		// - Potentially wasteful with memory if many entities do not own a component
 		//   in the cache
 		template <class C>
-		class Cache : public BaseCache {
+		class Cache final : public BaseCache {
 			static_assert(std::is_base_of_v<BaseComponent, C>
 				, "The component type does not inherit from rift::Component");
 		public:
