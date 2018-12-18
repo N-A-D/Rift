@@ -102,10 +102,10 @@ namespace rift {
 			// The number of integers in the set
 			value_type n = 0;
 
-			// Collection of integers in the set
+			// Collection of nonnegative integers in the set
 			std::vector<value_type> dense;
 
-			// Collection of nonnegative integers
+			// Collection of all nonnegative integers
 			std::vector<value_type> sparse;
 		};
 
