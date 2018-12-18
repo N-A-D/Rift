@@ -156,13 +156,9 @@ namespace rift {
 
 	private:
 
-		/*
-		 *
-		 * The following are internal functions that an Entity interfaces with.
-		 * In all cases an entity is asserts it is valid before using any of them.
-		 *
-		 */
-		
+		// The following are internal functions that an Entity interfaces with.
+		// Every entity ensures that its Entity::ID is valid before invoking any of them.
+
 		// Include the component into the entity's component mask
 		// Note:
 		// - Creates a component cache for type C if it doesn't already exist
@@ -199,17 +195,13 @@ namespace rift {
 		// Queue the id for recycling
 		void destroy(std::uint32_t index) noexcept;
 
-		/*
-		 *
-		 * The following are internal functions that the entity manager only uses
-		 *
-		 */
+		// The following are internal functions that the entity manager only uses
 
-		 // Given a template parameter pack of Component types, this function returns the ComponentMask for those types
-		 // example: ComponentMask mask = signature_for<Position, Direction>();
-		 // Note:
-		 // - The order of the types does not matter, the function will still return the same component mask. That is, if
-		 //   classes A and B are any two subclasses of rift::Component, signature_for<A, B>() == signature_for<B, A>()
+		// Given a template parameter pack of Component types, this function returns the ComponentMask for those types
+		// example: ComponentMask mask = signature_for<Position, Direction>();
+		// Note:
+		// - The order of the types does not matter, the function will still return the same component mask. That is, if
+		//   classes A and B are any two subclasses of rift::Component, signature_for<A, B>() == signature_for<B, A>()
 		template <class ...Components>
 		static ComponentMask signature_for() noexcept;
 		
