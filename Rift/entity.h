@@ -150,8 +150,7 @@ namespace rift {
 
 		// Cleanup the resources for every entity that was destroyed in the current frame
 		// Note:
-		// - Must be called at the end of every frame in order for entities that called
-		//  destroy are actually destroyed.
+		// - This function must be called at the end of every frame to recycle destroyed entities
 		void update() noexcept;
 
 		// Clear the manager of all entities and their components
