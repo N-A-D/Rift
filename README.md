@@ -1,12 +1,14 @@
 # What is an Entity Component System?
-An entity component system is a framework for decoupling data and logic. The framework separates resposibilities into three parts: entities, components, and systems. Entities use groups of components to describe some object in the world, where each component is a logicless collection of data that describes some smaller idea. Systems carry out behaviour on every entity whose desciptions matches the one it is searching for. By separating roles in this way, an entity can change the way it behaves at runtime by adding/removing components as it sees fit. 
+An entity component system is a framework for decoupling data and logic. The framework separates resposibilities into three parts: entities, components, and systems. Entities group together components in order to describe some object in the world, where each component is itself a logicless collection of data that describes some smaller idea. Systems deliver entity behaviours based on the components an entity has. Hence, an entity can change the way it behaves in the world by simply adding/removing components as it sees fit.
 
 For more information about entity component systems and component based design in general, check out these links:  
 [Wikipedia](https://en.wikipedia.org/wiki/Entity%E2%80%93component%E2%80%93system)  
 [Game Programming Patterns](http://gameprogrammingpatterns.com/component.html)
 
 # Library overview
-Rift is an Entity Component System library written in C++ 14. It offers fast runtime speed by caching entities based on system search criteria. The framework operates in a similar way to that of a database. Entities are primary keys into a table (transposed) of components, where each row of the table is different component type. Systems submit queries to the component table to obtain entities (column indices) that match their search criteria (component types). 
+Rift is an Entity Component System library written in C++ 14. It offers fast runtime speed by caching entities based on system search criteria. The framework operates in a similar way to that of a database. Entities are keys (column indices) into a transposed table of components, where each row of the table is different component type. Systems query for entities and submit functions that will operate on each of them and their components, much like in database processing. A form of indexing is used to speed up the search for entities that match a system's search criteria. 
+
+For information about the data structure used for index caching see this [link](https://www.geeksforgeeks.org/sparse-set/)
 
 ## Entities
 As mentioned earlier, entities are essentially column indices into a component type table. As such, `rift::Entity` is a convenience class for a `std::uint64_t` index. The index is composed of two parts: a version and the actual index. The version is necessary in order to reuse indices in the table. 
@@ -38,9 +40,9 @@ entity.add<Position>(100.0f, 25.0f);
 
 ## Systems
 In Rift, Systems are what define the behaviour of different entities.
-Every system must inherit from `rift::System` in order to be considered a *System*. Moreover, every system must implement the `rift::BaseSystem::update(rift::EntityManager&, double)` member. This function serves as the point from which entity behaviour is carried out. 
+Every system must inherit from `rift::System` in order for the type to be considered a *System*. Moreover, every system must implement the `rift::BaseSystem::update(rift::EntityManager&, double)` member. This function serves as the point from which entity behaviour is carried out. 
 
-Systems submit functions to an entity manager which then carries out that function on every entity that matches the system's search criteria. 
+Systems submit functions to an entity manager which is then carried out on every entity that matches the system's search criteria. 
 For example, suppose there were two components *Position* and *Direction*, then a system's submitted query could look like the following:
 ```cpp
 entity_manager.for_entities_with<Position, Direction>([](rift::Entity entity, Position& pos, Direction& dir){
@@ -48,4 +50,7 @@ entity_manager.for_entities_with<Position, Direction>([](rift::Entity entity, Po
     pos.y += dir.y;
 });
 ```
+With regards to intersystem communication, Rift does not include any form of messaging system. It is up to the user to implement such a system in the case that systems need to communicate with each other. 
 
+# Additional notes:
+The framework is strictly single-threaded as it is. However, there is plan to include multithreading support using a fork-join model. 
