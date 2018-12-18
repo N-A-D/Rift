@@ -49,7 +49,7 @@ namespace rift {
 				Iterator operator++(int) {
 					if (!it)
 						throw std::runtime_error("Invalid iterator increment!");
-					auto tmp(it);
+					Iterator<value_type> tmp(it);
 					++it;
 					return tmp;
 				}
