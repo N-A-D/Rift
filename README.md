@@ -6,7 +6,9 @@ For more information about entity component systems and component based design i
 [Game Programming Patterns](http://gameprogrammingpatterns.com/component.html)
 
 # Library overview
-Rift is an Entity Component System library written in C++ 14. It offers fast runtime speed by caching entities based on system search criteria. The framework operates in a similar way to that of a database. Entities are primary keys into a table (transposed) of components, where each row of the table is different component type. Systems submit functions to the table based on their search queries. These functions are then applied over every entity that match the given search criteria.
+Rift is an Entity Component System library written in C++ 14. It offers fast runtime speed by caching entities based on system search criteria. The framework operates in a similar way to that of a database. Entities are keys (column indices) into a transposed table of components, where each row of the table is different component type. Systems query for entities and submit functions that will operate on each of them and their components, much like in database processing. A form of indexing is used to speed up the search for entities that match a system's search criteria. 
+
+For information about the data structure used for index caching see this [link](https://www.geeksforgeeks.org/sparse-set/)
 
 ## Entities
 As mentioned earlier, entities are essentially column indices into a component type table. As such, `rift::Entity` is a convenience class for a `std::uint64_t` index. The index is composed of two parts: a version and the actual index. The version is necessary in order to reuse indices in the table. 
