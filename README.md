@@ -50,7 +50,7 @@ entity_manager.for_entities_with<Position, Direction>([](rift::Entity entity, Po
     pos.y += dir.y;
 });
 ```
-With regards to intersystem communication, Rift does not include any form of messaging system. It is up to the user to implement such a system in the case their systems need to communicate with each other. 
+With regards to intersystem communication, Rift does not include any form of messaging system. It is up to the user to implement such a system in the case that systems need to communicate with each other. 
 
 # Additional notes:
 The framework is strictly single-threaded as it is. However, there is plan to include multithreading support using a fork-join model. 
