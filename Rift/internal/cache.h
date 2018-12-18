@@ -12,10 +12,8 @@ namespace rift {
 		// Provides the interface that all component caches must implement
 		struct BaseCache {
 			virtual ~BaseCache() = default;
-		
 			virtual void insert(std::size_t index, const BaseComponent& cmp) = 0;
 			virtual BaseComponent& at(std::size_t index) = 0;
-
 		};
 		
 		// The Cache class
