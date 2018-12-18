@@ -213,11 +213,6 @@ namespace UnitTests
 	TEST_CLASS(EntityManager) {
 	public:
 
-		TEST_METHOD(EntityManagerNonCopyable) {
-			Assert::IsFalse(std::is_copy_constructible<rift::EntityManager>());
-			Assert::IsFalse(std::is_copy_assignable<rift::EntityManager>());
-		}
-
 		TEST_METHOD(EntityCreation) {
 			rift::EntityManager em;
 			auto e = em.create_entity();
@@ -367,20 +362,21 @@ namespace UnitTests
 		TEST_METHOD(SimulatedUsage) {
 			rift::EntityManager em;
 			{
+				// Creating 100 entities
 				for (int i = 0; i < 100; i++)
 					em.create_entity();
-
 				Assert::IsTrue(em.size() == 100);
 			}
 			{
+				
+				// Clearing a manager of its entities
 				em.clear();
-
 				Assert::IsTrue(em.size() == 0);
 
+				// Creating 100 entities and adding components
 				std::vector<rift::Entity> entities;
 				for (int i = 0; i < 100; i++)
 					entities.push_back(em.create_entity());
-
 				for (std::size_t i = 0; i < entities.size(); i++)
 				{
 					entities[i].add<Position>(10.0f, 10.0f);
@@ -389,12 +385,11 @@ namespace UnitTests
 						entities[i].add<Toggle>();
 					}
 				}
-
 				Assert::IsTrue(em.number_of_entities_with<Position, Direction>() == 100);
 				Assert::IsTrue(em.number_of_entities_with<Toggle>() == 50);
-
 			}
 			{
+				// 100 iterations over entities with a component mask 
 				for (auto i = 0; i < 100; i++) {
 					em.for_entities_with<Position, Direction>([](rift::Entity e, Position& pos, Direction& dir) {
 						pos.x += dir.x;
@@ -403,21 +398,22 @@ namespace UnitTests
 				}
 			}
 			{
+				// Removing toggle components from every entity with a position component
 				em.for_entities_with<Position>([](rift::Entity e, Position& pos) {
 					if (e.has<Toggle>())
 						e.remove<Toggle>();
 				});
-
 				Assert::IsTrue(em.number_of_entities_with<Toggle>() == 0);
 			}
 			{
-
+				// Adding toggle components to every entity with a Direction component
 				em.for_entities_with<Direction>([](rift::Entity e, Direction& dir) {
 					e.add<Toggle>();
 				});
 				Assert::IsTrue(em.number_of_entities_with<Toggle>() == 100);
 			}
 			{
+				// Destroying all entities with position, direction, and toggle
 				em.for_entities_with<Position, Direction, Toggle>([](rift::Entity e, Position& p, Direction& d, Toggle& t) {
 					e.destroy();
 				});
