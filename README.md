@@ -3,7 +3,7 @@ The Entity Component System is a design pattern that separates state and behavio
 
 Entity Component Systems are broken up into three parts:
 1. Entities:   Objects whose state is defined by its components.
-1. Components: Blocks of data that individually descibe some aspect of an entity.
+1. Components: Blocks of data that individually describe some aspect of an entity.
 1. Systems:    Operations that transform an entity's state.
 
 For more information about entity component systems and component based design in general, check out these links:  
