@@ -6,9 +6,9 @@ Entity Component Systems are broken up into three parts:
 1. Components: Blocks of data that individually describe some aspect of an entity.
 1. Systems:    Operators that transform entity states en masse.
 
-For more information about entity component systems and component based design in general, check out these links:  
-[Wikipedia](https://en.wikipedia.org/wiki/Entity%E2%80%93component%E2%80%93system)  
-[Game Programming Patterns](http://gameprogrammingpatterns.com/component.html)
+For more information about entity component systems and data oriented design, check out these links:  
+[Entity Component Systems](https://en.wikipedia.org/wiki/Entity%E2%80%93component%E2%80%93system)   
+[Data Oriented Design](https://en.wikipedia.org/wiki/Data-oriented_design)   
 
 # Library overview
 Rift is an Entity Component System library written in C++ 14. It offers fast runtime speed by caching entities based on system search criteria. The framework operates in a similar way to that of a database. Entities are keys (column indices) into a transposed table of components, where each row of the table is different component type. Systems query for entities and submit functions that will operate on each of them and their components, much like in database processing. A form of indexing is used to speed up the search for entities that match a system's search criteria. 
