@@ -1,7 +1,7 @@
 # What is an Entity Component System?
 The Entity Component System is a design pattern that separates state and behaviour. It is based on the idea that applications are fundamentally transforming structured data. In such a system, a entity is a collection of data against which transformations are applied. 
 
-Entity Component Systems is broken up into three parts:
+Entity Component Systems are broken up into three parts:
 1. Entities:   Objects whose state is defined by its components.
 1. Components: Blocks of data that individually descibe some aspect of an entity.
 1. Systems:    Operations that transform an entity's state.
