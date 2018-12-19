@@ -188,7 +188,7 @@ namespace rift {
 		// Fetches the ComponentMask for an entity.
 		ComponentMask component_mask_for(std::uint32_t index) const noexcept;
 
-		// Checks if an entity will be recycled .
+		// Checks if an entity will be recycled.
 		bool pending_invalidation(std::uint32_t index) const noexcept;
 
 		// Checks if an entity is valid.
@@ -214,7 +214,7 @@ namespace rift {
 		template <class C, class ...Args>
 		void accommodate_component(std::uint32_t index, std::size_t family_id, Args&& ...args) noexcept;
 		
-		// Removes an index from any index caches.
+		// Removes an index from all index caches.
 		void erase_all_index_caches_for(std::uint32_t index);
 
 		// Checks if the manager is caching indices for the given signature.
