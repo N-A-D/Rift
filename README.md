@@ -16,7 +16,7 @@ https://github.com/junkdog/artemis-odb/wiki/Introduction-to-Entity-Systems
 Rift is an Entity Component System written in C++ 14. It offers very fast iteration speeds by grouping entities based on system search criterias. Entities are keys (column indices) into a transposed table of components, where each row of the table is a different component type. Systems query for entities using a list of component types and submit functions that transform those entities and their components. The idea to speed up entity search by grouping entities based on their components is related to indexing in relational databases. The library makes use of sparse integer sets to compactly store indices to speed up search. For more information about sparse integer sets https://programmingpraxis.com/2012/03/09/sparse-sets/
 
 ## Entities
-As mentioned earlier, entities are essentially column indices into a component type table. As such, `rift::Entity` is a proxy class for a `std::uint64_t` index. The index is composed of two parts: a 32 bit version and a 32 bit index. The 32 bit version distinguishes between stale and valid entities that have the same index. it is necessary as the 32 bit index maps an *entity* to its components.
+As mentioned earlier, entities are essentially column indices into a component type table. As such, `rift::Entity` is a proxy class for a `std::uint64_t` index. The index is composed of two parts: a 32 bit version and a 32 bit index. The 32 bit version distinguishes between stale and valid entities that have the same index. It is necessary as the 32 bit index maps an *entity* to its components.
 
 Entities in Rift cannot be created directly, they must be created using a `rift::EntityManager`. This is to avoid errors related to invalid entities.
 
