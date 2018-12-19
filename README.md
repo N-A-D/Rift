@@ -1,5 +1,5 @@
 # What is an Entity Component System?
-The Entity Component System is a design pattern that separates state and behaviour. It is based on the idea that applications are fundamentally transforming structured data. In such a system, a entity is a collection of data against which transformations are applied. 
+The Entity Component System is a design pattern that separates state and behaviour. It is based on the idea that applications are fundamentally transforming structured data. In such a system, an entity is a collection of data against which transformations are applied. 
 
 Entity Component Systems are broken up into three parts:
 1. Entities:   Objects whose state is defined by its components.
@@ -32,7 +32,7 @@ In Rift, Components are meant to be *Plain Old Data* types. Component types are 
 For instance, the following is an example of a *Position* component:
 ```cpp
 struct Position : public rift::Component<Position> {
-  Position() = default;
+  Position() : x(0.0f), y(0.0f) {}
   Position(float x, float y) : x(x), y(y) {}
   float x, y;
 };
