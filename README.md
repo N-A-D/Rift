@@ -27,7 +27,7 @@ rift::Entity entity = manager.create_entity();
 ```
 
 ## Components 
-In Rift, Components are meant to be *Plain Old Data* types. Component types are required to subclass `rift::Component` in order for the type to be considered a *Component*. Moreover, all components must include a default constructor as well as a constructor that initializes all of its POD types. 
+In Rift, Components are *Plain Old Data* types. Component types are required to subclass `rift::Component` in order for the type to be considered a *Component*. Moreover, all components must include a default constructor as well as a constructor that initializes all of its POD member variables. 
 
 For instance, the following is an example of a *Position* component:
 ```cpp
@@ -58,4 +58,4 @@ entity_manager.for_entities_with<Position, Direction>([](rift::Entity entity, Po
 With regards to intersystem communication, Rift does not include any form of messaging system. It is up to the user to implement such a system in the case that systems need to communicate with each other. 
 
 # Additional notes:
-The framework is strictly single-threaded. However, there is plan to include multithreading support using a fork-join model within systems. 
+The framework is strictly single-threaded. However, there is plan to include multithreading support within each system using the fork-join model.
