@@ -87,7 +87,9 @@ namespace rift {
 
 			// modifiers:
 			void insert(value_type v);
+			void insert(std::initializer_list<value_type> integers);
 			void erase(value_type v);
+			void erase(std::initializer_list<value_type> integers);
 			void clear() noexcept;
 
 			// data access:
@@ -95,11 +97,12 @@ namespace rift {
 
 			// operations:
 			bool contains(value_type v) const noexcept;
+			bool contains(std::initializer_list<value_type> integers) const noexcept;
 			void sort();
 
 		private:
 			
-			// The number of integers in the set
+			// The number of nonnegative integers in the set
 			value_type n = 0;
 
 			// Collection of nonnegative integers in the set (indices of the sparse vector)
