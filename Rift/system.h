@@ -12,9 +12,11 @@ namespace rift {
 
 	class EntityManager;
 
-	// BaseSystem class
-	// Defines the means for which all systems implement their logic
-	// Note: this class should not be subclassed directly as systems need to be registered. See the System class below 
+	// The BaseSystem class
+	// Defines the means for which all systems implement their logic.
+	// Note:
+	// - This class should not be subclassed directly as systems need to be registered. 
+	//   See the System class below. 
 	class BaseSystem : rift::impl::NonCopyable {
 	public:
 		virtual ~BaseSystem() = default;
@@ -29,8 +31,8 @@ namespace rift {
 	class SystemManager;
 
 	// The System class
-	// Classes that are meant to be systems must inherit from this class for registration as a 'system'
-	// example:
+	// Classes that are meant to be systems must inherit from this class for registration as a system.
+	// Example:
 	// class MovementSystem : public System<MovementSystem> {}
 	template <class Derived>
 	class System : public BaseSystem {
@@ -39,24 +41,24 @@ namespace rift {
 	private:
 		friend class SystemManager;
 
-		// Returns the System type id
-		// Used only by the system manager
+		// Returns a System type id
 		static SystemFamily family() noexcept {
 			static SystemFamily system_family = m_family++;
 			return system_family;
 		}
 	};
-
+	
+	// The SystemManager class
 	// Manages different system types
 	class SystemManager final : rift::impl::NonCopyable {
 	public:
 
-		// Creates a new System manager
+		// Creates a new System manager.
 		SystemManager(rift::EntityManager& em) noexcept;
 
-		// Adds a new managed system
+		// Adds a new managed system.
 		// Note: 
-		// - Asserts the system type is not already managed
+		// - Asserts the system type is not already managed.
 		// Example:
 		// EntityManager em;
 		// SystemManager sm(em);
@@ -64,9 +66,9 @@ namespace rift {
 		template <class S, class... Args>
 		void add(Args&& ...args) noexcept;
 
-		// Removes a managed system if any
+		// Removes a managed system if any.
 		// Note:
-		// - Asserts the system type is managed
+		// - Asserts the system type is managed.
 		// Example:
 		// EntityManager em;
 		// SystemManager sm(em);
@@ -74,8 +76,7 @@ namespace rift {
 		template <class S>
 		void remove() noexcept;
 
-		// Checks if the manager has a system S
-		//
+		// Checks if the manager has a managed system.
 		// Example:
 		// EntityManager em;
 		// SystemManager sm(em);
@@ -84,9 +85,9 @@ namespace rift {
 		template <class S>
 		bool has() const noexcept;
 
-		// Retrieves the system of type S if any
+		// Retrieves the system of type S if any.
 		// Note:
-		// - Asserts the system type is managed
+		// - Asserts the system type is managed.
 		// Example:
 		// EntityManager em;
 		// SystemManager sm(em);
@@ -95,12 +96,12 @@ namespace rift {
 		template <class S>
 		std::shared_ptr<S> get() const noexcept;
 
-		// Updates all systems
+		// Updates all systems.
 		void update(double dt) const noexcept;
 		
-		// Update a list of managed system types
+		// Updates a list of managed system types.
 		// Note:
-		// - Asserts that each system type is managed
+		// - Asserts that each system type is managed.
 		// Example:
 		// EntityManager em;
 		// SystemManager sm(em);
@@ -110,7 +111,7 @@ namespace rift {
 		
 	private:
 
-		// Fetch a generic pointer to a specific system
+		// Fetches a generic pointer to a specific system.
 		template <class S>
 		std::shared_ptr<BaseSystem> fetch_system() const noexcept;
 
@@ -121,7 +122,7 @@ namespace rift {
 	template<class S, class ...Args>
 	inline void SystemManager::add(Args && ...args) noexcept
 	{
-		assert(!has<S>() && "Cannot manager more than one system of a given type!");
+		assert(!has<S>() && "Cannot manage more than one system of a given type!");
 		if (S::family() >= systems.size())
 			systems.resize(S::family() + 1);
 		systems[S::family()] = std::make_shared<S>(std::forward<Args>(args)...);
@@ -137,7 +138,7 @@ namespace rift {
 	template<class S>
 	inline bool SystemManager::has() const noexcept
 	{
-		static_assert(std::is_base_of_v<BaseSystem, S>, "The system type does not inherit from rift::System!");
+		static_assert(std::is_base_of_v<BaseSystem, S>, "All systems must inherit from rift::System!");
 		if (S::family() >= systems.size())
 			return false;
 		if (systems[S::family()])
@@ -166,7 +167,7 @@ namespace rift {
 	template<class S>
 	inline std::shared_ptr<BaseSystem> SystemManager::fetch_system() const noexcept
 	{
-		assert(has<S>() && "Cannot update an unmanaged system type!");
+		assert(has<S>() && "Cannot fetch an unmanaged system type!");
 		return systems.at(S::family());
 	}
 }

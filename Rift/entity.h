@@ -16,12 +16,12 @@ namespace rift {
 	class EntityManager;
 
 	// The Entity class
-	// a convenience class for an index
+	// A proxy class for an index to a set of components.
 	class Entity final {
 	public:
 
-		// An Entity::ID is a versionable index
-		// The index is valid as long as the version is valid
+		// The Entity::ID class
+		// A versionable index.
 		class ID {
 		public:
 			ID() = default;
@@ -50,48 +50,48 @@ namespace rift {
 		Entity(const Entity&) = default;
 		Entity& operator=(const Entity&) = default;
 
-		// Fetch the entity's index
+		// Fetches the entity's id.
 		Entity::ID id() const noexcept;
 
-		// Checks if the entity's index is valid
+		// Checks if the entity is valid.
 		bool valid() const noexcept;
 
 		operator bool() const noexcept;
 
-		// Checks if this entity will be invalid next frame
+		// Checks if this entity will be invalid next frame.
 		bool pending_invalidation() const noexcept;
 
-		// Signal the entity's manager to recycle this entity's index
+		// Signals the entity's manager to recycle it.
 		void destroy() const noexcept;
 
-		// Fetch the entity's ComponentMask
+		// Fetches the entity's ComponentMask.
 		rift::ComponentMask component_mask() const noexcept;
 
-		// Adds a component to the entity
+		// Adds a component to the entity.
 		// Note: 
-		// - Asserts the entity does not own a component of type C
+		// - Asserts the entity does not own an instance of the component type.
 		template <class C, class ...Args>
 		void add(Args&& ...args) const noexcept;
 
-		// Replaces the entity's component
+		// Replaces the entity's existing component.
 		// Note:
-		// - Asserts the entity owns a component of type C
+		// - Asserts the entity owns an instance of the component type.
 		template <class C, class ...Args>
 		void replace(Args&& ...args) const noexcept;
 
-		// Removes a component from the entity
+		// Removes the entity's component.
 		// Note: 
-		// - Asserts the entity owns a component of type C
+		// - Asserts the entity owns an instance of the component type.
 		template <class C>
 		void remove() const noexcept;
 
-		// Checks if the entity has a component
+		// Checks if the entity has a component.
 		template <class C>
 		bool has() const noexcept;
 
-		// Fetch the component for the entity
+		// Fetches the entity's component.
 		// Note: 
-		// - Asserts the entity owns a component of type C
+		// - Asserts the entity owns an instance of the component type.
 		template <class C>
 		C &get() const noexcept;
 
@@ -103,143 +103,144 @@ namespace rift {
 	private:
 		friend class EntityManager;
 
-		// Only EntityManagers are permitted to create valid entity handles
+		// Only EntityManagers are permitted to create valid entities.
 		Entity(EntityManager *manager, Entity::ID uid) noexcept;
 
-		// The manager that created this entity
+		// The manager that created this entity.
 		EntityManager* manager = nullptr;
 
-		// The entity's unique id
+		// The entity's unique id.
 		Entity::ID uid = INVALID_ID;
 
 	};
 
 	// The EntityManager class
-	// Manages the lifecycle of entities and their components
+	// Manages the lifecycle of entities
 	class EntityManager final : rift::impl::NonCopyable {
 		friend class Entity;
 	public:
 
 		EntityManager() = default;
 
-		// Generate a new Entity handle
+		// Creates a new Entity.
 		Entity create_entity() noexcept;
 
-		// Returns the number of managed entities
+		// Returns the number of managed entities.
 		std::size_t size() const noexcept;
 
-		// Returns the capacity (number of managed entities + those that can reused)
+		// Returns the capacity (number of managed entities + those that can reused).
 		std::size_t capacity() const noexcept;
 
 		// Returns the number of entities that can be reused
 		std::size_t number_of_reusable_entities() const noexcept;
 
-		// Returns the number of entities waiting to be destroyed
+		// Returns the number of entities waiting to be destroyed.
 		std::size_t number_of_entities_to_destroy() const noexcept;
 
-		// Returns the number of entities whose component mask includes each component type
+		// Returns the number of entities whose component mask includes each component type.
 		template <class First, class... Rest>
 		std::size_t number_of_entities_with() const noexcept;
 
-		// Applies the function f on entities whose component mask includes each component type
-		// example:
+		// Applies the function f on every entity whose component mask includes each component type.
+		// Example:
 		// EntityManager em;
 		// em.for_entities_with<Position, Direction>([](rift::Entity entity, Position& p, Direction& d){ *do something with the entity and its components* });
 		template <class First, class... Rest>
 		void for_entities_with(typename rift::impl::identity_t<std::function<void(Entity, First& first, Rest&... rest)>> f);
 
-		// Cleanup the resources for every entity that was destroyed in the current frame
+		// Recycles destroyed entities.
 		// Note:
-		// - This function must be called at the end of every frame to recycle destroyed entities
+		// - This function must be called at the end of every frame to recycle destroyed entities.
 		void update() noexcept;
 
-		// Clear the manager of all entities and their components
+		// Clears the manager of all entities.
 		void clear() noexcept;
 
 	private:
 
-		// The following are internal functions that an Entity interfaces with.
+		// The following are internal functions that every entity interface with.
 		// Every entity ensures that its Entity::ID is valid before invoking any of them.
 
-		// Include the component into the entity's component mask
+		// Adds a component to an entity.
 		// Note:
-		// - Creates a component cache for type C if it doesn't already exist
+		// - Creates a cache for the component type if it does not exist.
 		template <class C, class... Args>
 		void add_component(std::uint32_t index, Args&& ...args) noexcept;
 
-		// Replace the entity's already existing component
+		// Replaces an entity's already existing component.
 		template <class C, class ...Args>
 		void replace_component(std::uint32_t index, Args&& ...args) noexcept;
 
-		// Remove the component from the entity's component mask
+		// Removes a component from an entity.
 		// Note:
-		// - Assumes there exists a component cache for the component type
+		// - Assumes the existence of cache for the component type.
 		template <class C>
 		void remove_component(std::uint32_t index) noexcept;
 
-		// Check if the component is a part of the entity's component mask
+		// Checks if an entity has a component.
 		template <class C>
 		bool has_component(std::uint32_t index) noexcept;
 
-		// Fetch the component for the entity
+		// Fetches a component for an entity.
 		template <class C>
 		C &get_component(std::uint32_t index) noexcept;
 
-		// Fetch the ComponentMask for the entity
+		// Fetches the ComponentMask for an entity.
 		ComponentMask component_mask_for(std::uint32_t index) const noexcept;
 
-		// Checks if the entity is pending deletion
+		// Checks if an entity will be recycled .
 		bool pending_invalidation(std::uint32_t index) const noexcept;
 
-		// Checks the validity of the entity
+		// Checks if an entity is valid.
 		bool valid_id(const Entity::ID& id) const noexcept;
 
-		// Queue the id for recycling
+		// Queue the id for recycling.
 		void destroy(std::uint32_t index) noexcept;
 
-		// The following are internal functions that the entity manager only uses
+		// The following are internal functions that the entity manager only uses.
 
 		// Given a template parameter pack of Component types, this function returns the ComponentMask for those types
-		// example: ComponentMask mask = signature_for<Position, Direction>();
 		// Note:
 		// - The order of the types does not matter, the function will still return the same component mask. That is, if
-		//   classes A and B are any two subclasses of rift::Component, signature_for<A, B>() == signature_for<B, A>()
+		//   classes A and B are any two subclasses of rift::Component, signature_for<A, B>() == signature_for<B, A>();.
+		// Example: 
+		// ComponentMask mask = signature_for<Position, Direction>();
 		template <class ...Components>
 		static ComponentMask signature_for() noexcept;
 		
-		// Accommodates a new component
+		// Accommodates a new component type.
 		// Note:
-		// - Creates a new cache for type C if there does not exist one already
+		// - Creates a new cache for the component type only if one doesn't already exist.
 		template <class C, class ...Args>
 		void accommodate_component(std::uint32_t index, std::size_t family_id, Args&& ...args) noexcept;
-
-		// Remove the index from any search caches
+		
+		// Removes an index from any index caches.
 		void erase_all_index_caches_for(std::uint32_t index);
 
-		// Check if the manager is caching indices for the given signature
+		// Checks if the manager is caching indices for the given signature.
 		bool contains_index_cache_for(const ComponentMask& sig) const;
 
-		// Create a cache of indices for the given signature
+		// Creates a cache of indices for the given signature.
 		void create_index_cache_for(const ComponentMask& sig);
 		
 	private:
 
-		// Collection of indices to invalidate before the next frame
+		// Collection of indices to invalidate before the next frame.
 		rift::impl::SparseSet invalid_indices;
 
-		// Queue of indices to reuse
+		// Queue of indices to reuse.
 		std::queue<std::uint32_t> free_indices;
 
-		// Collection of entity component masks 
+		// Collection of entity component masks.
 		std::vector<ComponentMask> masks;
 
-		// Collection of index versions
+		// Collection of index versions.
 		std::vector<std::uint32_t> index_versions;
 
-		// Collection of component caches
+		// Collection of component caches.
 		std::vector<std::shared_ptr<rift::impl::BaseCache>> component_caches;
 
-		// Collection of cached indices for faster queries
+		// Collection of cached indices for faster queries.
 		std::unordered_map<ComponentMask, rift::impl::SparseSet> index_caches;
 		
 	};
@@ -311,7 +312,6 @@ namespace rift {
 		auto family_id = C::family();
 		auto mask = masks[index].set(family_id);
 
-		// insert the component into the appropriate cache in the appropriate location
 		accommodate_component<C>(index, family_id, std::forward<Args>(args)...);
 
 		for (auto& index_cache : index_caches) {
@@ -356,7 +356,7 @@ namespace rift {
 	inline ComponentMask EntityManager::signature_for() noexcept
 	{
 		static_assert(rift::impl::all_of_v<std::is_base_of_v<BaseComponent, Components>...>,
-			"Not all components inherit from rift::Component!");
+			"All components must inherit from rift::Component!");
 		ComponentMask mask;
 		[](...) {}((mask.set(Components::family()))...);
 		return mask;
