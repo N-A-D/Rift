@@ -12,11 +12,8 @@ namespace UnitTests
 	public:
 		TEST_METHOD(Sort) {
 			rift::impl::SparseSet integers;
-			integers.insert(10);
-			integers.insert(1);
-			integers.insert(5);
-			integers.insert(4);
-			
+			integers.insert({ 10, 1, 5, 4 });
+
 			integers.sort();
 
 			std::size_t i = 1;
@@ -25,13 +22,22 @@ namespace UnitTests
 				Assert::IsTrue(i <= integer);
 				i = integer;
 			}
-
-			Assert::IsTrue(integers.contains(1));
-			Assert::IsTrue(integers.contains(4));
-			Assert::IsTrue(integers.contains(5));
-			Assert::IsTrue(integers.contains(10));
-
+			
+			Assert::IsTrue(integers.contains({ 1, 4, 5, 10 }));
 		}
+		
+		TEST_METHOD(Removal) {
+			rift::impl::SparseSet integers;
+
+			integers.insert({ 1, 2, 3, 4 });
+
+			Assert::IsFalse(integers.contains(5));
+
+			integers.erase({ 3, 4 });
+
+			Assert::IsFalse(integers.contains({ 4, 3 }));
+		}
+
 	};
 
 	TEST_CLASS(Entities) {
