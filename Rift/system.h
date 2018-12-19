@@ -41,7 +41,7 @@ namespace rift {
 	private:
 		friend class SystemManager;
 
-		// Returns a System type id
+		// Returns a System type id.
 		static SystemFamily family() noexcept {
 			static SystemFamily system_family = m_family++;
 			return system_family;
