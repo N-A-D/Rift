@@ -4,7 +4,7 @@ The Entity Component System is a design pattern that separates state and behavio
 Entity Component Systems are broken up into three parts:
 1. Entities:   Objects whose state is defined by its components.
 1. Components: Blocks of data that individually describe some aspect of an entity.
-1. Systems:    Operations that transform an entity's state.
+1. Systems:    Operators that transform entity states en masse.
 
 For more information about entity component systems and component based design in general, check out these links:  
 [Wikipedia](https://en.wikipedia.org/wiki/Entity%E2%80%93component%E2%80%93system)  
@@ -58,4 +58,4 @@ entity_manager.for_entities_with<Position, Direction>([](rift::Entity entity, Po
 With regards to intersystem communication, Rift does not include any form of messaging system. It is up to the user to implement such a system in the case that systems need to communicate with each other. 
 
 # Additional notes:
-The framework is strictly single-threaded as it is. However, there is plan to include multithreading support using a fork-join model. 
+The framework is strictly single-threaded. However, there is plan to include multithreading support using a fork-join model within systems. 
