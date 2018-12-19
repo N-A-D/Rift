@@ -31,8 +31,8 @@ rift::Entity entity = manager.create_entity();
 ## Components 
 In Rift, Components are *Plain Old Data* types.
 ### Implementation notes:
-- Component types are required to subclass `rift::Component` in order for the type to be considered a *Component*. 
-- All components must include a default constructor as well as a constructor that initializes all of its POD member variables. 
+- Every *component* is required to subclass `rift::Component` to ensure its considered a *component* by Rift.
+- Every *component* must include a default constructor as well as a constructor that initializes all of its POD member variables. 
 
 For instance, the following is an example of a *Position* component:
 ```cpp
@@ -51,8 +51,8 @@ entity.add<Position>(100.0f, 25.0f);
 ## Systems
 In Rift, Systems are what define the behaviour of different entities.
 ### Implementation notes
-- Every system must inherit from `rift::System` in order for the type to be considered a *System*. 
-- Every system must implement the `rift::BaseSystem::update(rift::EntityManager&, double)` member. This function is where entity transformations should be carried out. 
+- Every *system* must inherit from `rift::System` in order for the type to be considered a *System*. 
+- Every *system* must implement the `rift::BaseSystem::update(rift::EntityManager&, double)` member. This function is where entity transformations should be carried out. 
 
 Systems submit functions to an entity manager which is then carried out on every entity that matches the system's search criteria. 
 For example, suppose there were two components *Position* and *Direction*, then a system's submitted query could look like the following:
