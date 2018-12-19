@@ -1,19 +1,19 @@
 # What is an Entity Component System?
-The Entity Component System is a design pattern that separates state and behaviour. It is based on the idea that applications are fundamentally transforming structured data. In such a system, an entity is a collection of data against which transformations are applied. 
+The Entity Component System design pattern separates state and behaviour motivated by efficient CPU cache usage. The approach focuses on storing data contiguously and applying transformations on that data.
 
-Entity Component Systems are broken up into three parts:
-1. Entities:   Objects whose state is defined by its components.
+Entity Component Systems are usually split up into three parts:
+1. Entities:   Objects whose state is defined by its set of components.
 1. Components: Blocks of data that individually describe some aspect of an entity.
 1. Systems:    Operators that transform entity states en masse.
 
-For more information about entity component systems and data oriented design, check out these links:  
-[Entity Component Systems](https://en.wikipedia.org/wiki/Entity%E2%80%93component%E2%80%93system)   
-[Data Oriented Design](https://en.wikipedia.org/wiki/Data-oriented_design)   
+For more information on entity component systems:   
+http://www.roguebasin.com/index.php?title=Entity_Component_System  
+http://gameprogrammingpatterns.com/component.html   
+https://medium.com/ingeniouslysimple/entities-components-and-systems-89c31464240d  
+https://github.com/junkdog/artemis-odb/wiki/Introduction-to-Entity-Systems   
 
 # Library overview
-Rift is an Entity Component System library written in C++ 14. It offers fast runtime speed by caching entities based on system search criteria. The framework operates in a similar way to that of a database. Entities are keys (column indices) into a transposed table of components, where each row of the table is different component type. Systems query for entities and submit functions that will operate on each of them and their components, much like in database processing. A form of indexing is used to speed up the search for entities that match a system's search criteria. 
-
-For information about the data structure used for index caching see this [link](https://www.geeksforgeeks.org/sparse-set/)
+Rift is an Entity Component System written in C++ 14. It offers very fast iteration speeds by grouping entities based on system search criterias. Entities are keys (column indices) into a transposed table of components, where each row of the table is a different component type. Systems query for entities using a list of component types and submit functions that transform those entities and their components. The idea to speed up entity search by grouping entities based on their components is similar to the idea indexing in relational databases. The library makes use of sparse integer sets to compactly store indices to speed up search. For more information about sparse integer sets https://programmingpraxis.com/2012/03/09/sparse-sets/
 
 ## Entities
 As mentioned earlier, entities are essentially column indices into a component type table. As such, `rift::Entity` is a convenience class for a `std::uint64_t` index. The index is composed of two parts: a version and the actual index. The version is necessary in order to reuse indices in the table. 
