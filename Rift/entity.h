@@ -61,7 +61,7 @@ namespace rift {
 		// Checks if this entity will be invalid next frame.
 		bool pending_invalidation() const noexcept;
 
-		// Signals the entity's manager to recycle it.
+		// Signals the manager to recycle this entity.
 		void destroy() const noexcept;
 
 		// Fetches the entity's ComponentMask.
@@ -115,7 +115,7 @@ namespace rift {
 	};
 
 	// The EntityManager class
-	// Manages the lifecycle of entities
+	// Manages the lifecycle of entities.
 	class EntityManager final : rift::impl::NonCopyable {
 		friend class Entity;
 	public:
@@ -150,7 +150,7 @@ namespace rift {
 
 		// Recycles destroyed entities.
 		// Note:
-		// - This function must be called at the end of every frame to recycle destroyed entities.
+		// - This function must be called at the end of every frame.
 		void update() noexcept;
 
 		// Clears the manager of all entities.
@@ -158,8 +158,8 @@ namespace rift {
 
 	private:
 
-		// The following are internal functions that every entity interface with.
-		// Every entity ensures that its Entity::ID is valid before invoking any of them.
+		// The following are internal functions every entity interface with.
+		// An entity ensures that its Entity::ID is valid before invoking any of these.
 
 		// Adds a component to an entity.
 		// Note:
@@ -194,10 +194,10 @@ namespace rift {
 		// Checks if an entity is valid.
 		bool valid_id(const Entity::ID& id) const noexcept;
 
-		// Queue the id for recycling.
+		// Queue an entity for recycling.
 		void destroy(std::uint32_t index) noexcept;
 
-		// The following are internal functions that the entity manager only uses.
+		// The following are internal functions an entity manager only uses.
 
 		// Given a template parameter pack of Component types, this function returns the ComponentMask for those types
 		// Note:
