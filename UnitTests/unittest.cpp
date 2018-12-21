@@ -617,8 +617,8 @@ namespace UnitTests
 			// Ensure that there are four entities with toggle components before all systems update
 			Assert::IsTrue(em.number_of_entities_with<Toggle>() == 4);
 
-			// Update all systems
-			sm.typed_update<DestructionSystem, ToggleSystem>(1.0);
+			// Update the two systems
+			sm.update_only<DestructionSystem, ToggleSystem>(1.0);
 
 			// Ensure there are zero entities with toggle components
 			Assert::IsTrue(em.number_of_entities_with<Toggle>() == 0);
@@ -651,7 +651,7 @@ namespace UnitTests
 			c.add<Direction>(1, 0);
 			d.add<Direction>(1, 0);
 
-			systems.typed_update<MovementSystem>(1.0);
+			systems.update_only<MovementSystem>(1.0);
 
 			auto pos = a.get<Position>();
 			Assert::IsTrue(pos.x == 1 && pos.y == 0);
@@ -672,7 +672,7 @@ namespace UnitTests
 			c.add<Toggle>();
 			d.add<Toggle>();
 
-			systems.typed_update<ToggleSystem>(1.0);
+			systems.update_only<ToggleSystem>(1.0);
 
 			auto toggle = a.get<Toggle>();
 			Assert::IsTrue(toggle.on);
