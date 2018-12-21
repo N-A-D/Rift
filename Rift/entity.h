@@ -212,7 +212,7 @@ namespace rift {
 		// Note:
 		// - Creates a new cache for the component type only if one doesn't already exist.
 		template <class C, class ...Args>
-		void accommodate_component(std::uint32_t index, std::size_t family_id, Args&& ...args) noexcept;
+		void accommodate_component(std::uint32_t index, Args&& ...args) noexcept;
 		
 		// Removes an index from all index caches.
 		void erase_all_index_caches_for(std::uint32_t index);
@@ -312,7 +312,7 @@ namespace rift {
 		auto family_id = C::family();
 		auto mask = masks[index].set(family_id);
 
-		accommodate_component<C>(index, family_id, std::forward<Args>(args)...);
+		accommodate_component<C>(index, std::forward<Args>(args)...);
 
 		for (auto& index_cache : index_caches) {
 			if (index_cache.first.test(family_id) && (mask & index_cache.first) == index_cache.first)
@@ -363,7 +363,7 @@ namespace rift {
 	}
 
 	template<class C, class ...Args>
-	inline void EntityManager::accommodate_component(std::uint32_t index, std::size_t family_id, Args&& ...args) noexcept
+	inline void EntityManager::accommodate_component(std::uint32_t index, Args&& ...args) noexcept
 	{
 		if (family_id >= component_caches.size())
 			component_caches.resize(family_id + 1);
