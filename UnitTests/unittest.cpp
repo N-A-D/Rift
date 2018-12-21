@@ -4,6 +4,7 @@
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
 #include "dummies.h"
+#include <algorithm>
 
 namespace UnitTests
 {		
@@ -18,11 +19,8 @@ namespace UnitTests
 
 			std::size_t i = 1;
 
-			for (auto integer : integers) {
-				Assert::IsTrue(i <= integer);
-				i = integer;
-			}
-			
+			Assert::IsTrue(std::is_sorted(integers.begin(), integers.end()));
+
 			Assert::IsTrue(integers.contains({ 1, 4, 5, 10 }));
 		}
 		
