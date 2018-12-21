@@ -365,6 +365,7 @@ namespace rift {
 	template<class C, class ...Args>
 	inline void EntityManager::accommodate_component(std::uint32_t index, Args&& ...args) noexcept
 	{
+		auto family_id = C::family();
 		if (family_id >= component_caches.size())
 			component_caches.resize(family_id + 1);
 		if (!component_caches[family_id])
