@@ -238,7 +238,7 @@ namespace rift {
 		std::vector<std::uint32_t> index_versions;
 
 		// Collection of component caches.
-		std::vector<std::shared_ptr<rift::impl::BaseCache>> component_caches;
+		std::vector<std::unique_ptr<rift::impl::BaseCache>> component_caches;
 
 		// Collection of cached indices for faster queries.
 		std::unordered_map<ComponentMask, rift::impl::SparseSet> index_caches;
@@ -369,7 +369,7 @@ namespace rift {
 		if (family_id >= component_caches.size())
 			component_caches.resize(family_id + 1);
 		if (!component_caches[family_id])
-			component_caches[family_id] = std::make_shared<rift::impl::Cache<C>>();
+			component_caches[family_id] = std::make_unique<rift::impl::Cache<C>>();
 		component_caches[family_id]->insert(index, C(std::forward<Args>(args)...));
 	}
 
