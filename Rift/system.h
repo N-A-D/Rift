@@ -99,15 +99,15 @@ namespace rift {
 		// Updates all systems.
 		void update(double dt) const noexcept;
 		
-		// Updates a list of managed system types.
+		// Updates a list of systems.
 		// Note:
 		// - Asserts that each system type is managed.
 		// Example:
 		// EntityManager em;
 		// SystemManager sm(em);
-		// sm.typed_update<Movement, Collision>(dt);
+		// sm.update_only<Movement, Collision>(dt);
 		template <class First, class... Rest>
-		void typed_update(double dt) const noexcept;
+		void update_only(double dt) const noexcept;
 		
 	private:
 
@@ -153,7 +153,7 @@ namespace rift {
 	}
 
 	template<class First, class ...Rest>
-	inline void SystemManager::typed_update(double dt) const noexcept
+	inline void SystemManager::update_only(double dt) const noexcept
 	{
 		static_assert(rift::impl::all_of_v<std::is_base_of_v<BaseSystem, First>
 			         , std::is_base_of_v<BaseSystem, Rest>...>
