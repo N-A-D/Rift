@@ -2,8 +2,8 @@
 
 #include <queue>
 #include <memory>
-#include <numeric>
 #include <cassert>
+#include <algorithm>
 #include <functional>
 #include <unordered_map>
 #include "internal/cache.h"
@@ -289,9 +289,9 @@ namespace rift {
 			return index_caches.at(sig).size();
 		}
 		else {
-			return std::accumulate(masks.begin(), masks.end(), std::size_t(0), 
-			[&sig](std::size_t n, ComponentMask mask) {
-				return (mask & sig) == sig ? ++n : n;
+			return std::count_if(masks.begin(), masks.end(), 
+			[&sig](ComponentMask mask) {
+				return (mask & sig) == sig;
 			});
 		}
 	}
