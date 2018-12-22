@@ -18,7 +18,7 @@ Rift is an Entity Component System written in C++ 14. It offers very fast iterat
 Rift was designed without multithreading in mind. However, it may be possible to use threads when applying certain system transformations. To be specific, these system transformations cannot add/remove/replace components, nor can they create/destroy entities. 
 
 ## Entities
-As mentioned earlier, entities are column indices into a component type table. As such, `rift::Entity` is a proxy class for a `std::uint64_t` index. The index is composed of two parts: a 32 bit version and a 32 bit index. The 32 bit version distinguishes between stale and valid entities that have the same index. Is necessary because the 32 bit index maps an *entity* to its components, and you wouldn't want a stale entity modifying a valid entity's state.
+As mentioned earlier, entities are column indices into a component type table. As such, `rift::Entity` is a proxy class for a `std::uint64_t` index. The index is composed of two parts: a 32 bit version and a 32 bit index. The 32 bit version distinguishes between stale (deceased) and valid (alive) entities that have the same index. This is necessary because the 32 bit index maps an *entity* to its components, and you wouldn't want a stale entity modifying a valid entity's state.
 
 Entities in Rift cannot be created directly, they must be created using a `rift::EntityManager`. This is to avoid errors related to invalid entities.
 
