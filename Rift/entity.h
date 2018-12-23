@@ -116,7 +116,7 @@ namespace rift {
 	};
 
 	inline std::ostream& operator<<(std::ostream& os, const Entity::ID& id) {
-		os << "(index=" << id.index() << ", version=" << id.version() << ")";
+		os << "Entity::ID(index=" << id.index() << ", version=" << id.version() << ")";
 		return os;
 	}
 
