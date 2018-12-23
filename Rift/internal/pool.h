@@ -9,7 +9,7 @@ namespace rift {
 	namespace impl {
 
 		// The BasePool class
-		// Provides the interface that all component caches must implement
+		// Provides the interface that all component pools must implement
 		struct BasePool {
 			virtual ~BasePool() = default;
 			virtual void insert(std::size_t index, const BaseComponent& cmp) = 0;
@@ -17,10 +17,9 @@ namespace rift {
 		};
 		
 		// The Pool class
-		// Provides a very simple storage medium for a single component type
+		// A very simple storage medium for a single component type
 		// Note:
 		// - Potentially wasteful with memory if many entities do not own a component
-		//   in the cache
 		template <class C>
 		class Pool final : public BasePool {
 			static_assert(std::is_base_of_v<BaseComponent, C>
