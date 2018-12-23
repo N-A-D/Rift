@@ -6,7 +6,7 @@
 #include <algorithm>
 #include <functional>
 #include <unordered_map>
-#include "internal/cache.h"
+#include "internal/pool.h"
 #include "internal/sparse_set.h"
 #include "internal/rift_traits.h"
 #include "internal/noncopyable.h"
@@ -144,9 +144,9 @@ namespace rift {
 		// Applies the function f on every entity whose component mask includes each component type.
 		// Example:
 		// EntityManager em;
-		// em.for_entities_with<Position, Direction>([](rift::Entity entity, Position& p, Direction& d){ *do something with the entity and its components* });
+		// em.for_entities_with<A, B>([](Entity e, A& a, B& b){*Do something with the entity & its components*});
 		template <class First, class... Rest>
-		void for_entities_with(typename rift::impl::identity_t<std::function<void(Entity, First& first, Rest&... rest)>> f);
+		void for_entities_with(rift::impl::identity_t<std::function<void(Entity, First& first, Rest&... rest)>> f);
 
 		// Recycles destroyed entities.
 		// Note:
@@ -163,17 +163,19 @@ namespace rift {
 
 		// Adds a component to an entity.
 		// Note:
-		// - Creates a cache for the component type if it does not exist.
+		// - Builds a new component pool if one does not exist for the component type.
 		template <class C, class... Args>
 		void add_component(std::uint32_t index, Args&& ...args) noexcept;
 
 		// Replaces an entity's already existing component.
+		// Note:
+		// - Assumes there exists a component pool for the component type.
 		template <class C, class ...Args>
 		void replace_component(std::uint32_t index, Args&& ...args) noexcept;
 
 		// Removes a component from an entity.
 		// Note:
-		// - Assumes the existence of cache for the component type.
+		// - Assumes there exists a component pool for the component type.
 		template <class C>
 		void remove_component(std::uint32_t index) noexcept;
 
@@ -202,26 +204,20 @@ namespace rift {
 		// Given a template parameter pack of Component types, this function returns the ComponentMask for those types
 		// Note:
 		// - The order of the types does not matter, the function will still return the same component mask. That is, if
-		//   classes A and B are any two subclasses of rift::Component, signature_for<A, B>() == signature_for<B, A>();.
+		//   classes A and B are any two subclasses of rift::Component, signature_for<A, B>() == signature_for<B, A>()
 		// Example: 
 		// ComponentMask mask = signature_for<Position, Direction>();
 		template <class ...Components>
 		static ComponentMask signature_for() noexcept;
 		
-		// Accommodates a new component type.
-		// Note:
-		// - Creates a new cache for the component type only if one doesn't already exist.
-		template <class C, class ...Args>
-		void accommodate_component(std::uint32_t index, Args&& ...args) noexcept;
-		
-		// Removes an index from all index caches.
-		void erase_all_index_caches_for(std::uint32_t index);
+		// Removes an index from any caches that contain it.
+		void erase_caches_for(std::uint32_t index);
 
 		// Checks if the manager is caching indices for the given signature.
-		bool contains_index_cache_for(const ComponentMask& sig) const;
+		bool contains_cache_for(const ComponentMask& sig) const;
 
 		// Creates a cache of indices for the given signature.
-		void create_index_cache_for(const ComponentMask& sig);
+		void create_cache_for(const ComponentMask& sig);
 		
 	private:
 
@@ -237,10 +233,10 @@ namespace rift {
 		// Collection of index versions.
 		std::vector<std::uint32_t> index_versions;
 
-		// Collection of component caches.
-		std::vector<std::unique_ptr<rift::impl::BaseCache>> component_caches;
+		// Collection of component pools.
+		std::vector<std::unique_ptr<rift::impl::BasePool>> component_pools;
 
-		// Collection of cached indices for faster queries.
+		// Collection of cached indices for faster system queries.
 		std::unordered_map<ComponentMask, rift::impl::SparseSet> index_caches;
 		
 	};
@@ -269,7 +265,8 @@ namespace rift {
 	template<class C>
 	inline bool Entity::has() const noexcept
 	{
-		static_assert(std::is_base_of_v<BaseComponent, C>, "The component type does not inherit from rift::Component!");
+		static_assert(std::is_base_of_v<BaseComponent, C>, 
+			"The component type does not inherit from rift::Component!");
 		assert(valid() && "Cannot check if an invalid entity has a component type!");
 		return manager->has_component<C>(uid.index());
 	}
@@ -285,7 +282,7 @@ namespace rift {
 	inline std::size_t EntityManager::number_of_entities_with() const noexcept
 	{
 		auto sig = signature_for<First, Rest...>();
-		if (contains_index_cache_for(sig)) {
+		if (contains_cache_for(sig)) {
 			return index_caches.at(sig).size();
 		}
 		else {
@@ -297,13 +294,14 @@ namespace rift {
 	}
 
 	template<class First, class ...Rest>
-	inline void EntityManager::for_entities_with(typename rift::impl::identity_t<std::function<void(Entity, First& first, Rest&...rest)>> f)
+	inline void EntityManager::for_entities_with(rift::impl::identity_t<std::function<void(Entity, First& first, Rest&...rest)>> f)
 	{
 		auto sig = signature_for<First, Rest...>();
-		if (!contains_index_cache_for(sig))
-			create_index_cache_for(sig);
+		if (!contains_cache_for(sig))
+			create_cache_for(sig);
 		for (auto index : index_caches.at(sig))
-			f(Entity(this, Entity::ID(index, index_versions[index])), get_component<First>(index), get_component<Rest>(index)...);
+			f(Entity(this, Entity::ID(index, index_versions[index])),      // The entity
+			  get_component<First>(index), get_component<Rest>(index)...); // The entity's components
 	}
 
 	template<class C, class ...Args>
@@ -312,8 +310,17 @@ namespace rift {
 		auto family_id = C::family();
 		auto mask = masks[index].set(family_id);
 
-		accommodate_component<C>(index, std::forward<Args>(args)...);
+		// Build new component pool if necessary
+		if (family_id >= component_pools.size())
+			component_pools.resize(family_id + 1);
+		if (!component_pools[family_id])
+			component_pools[family_id] = std::make_unique<rift::impl::Pool<C>>();
 
+		// Build a new component and insert it into the component pool
+		component_pools[family_id]->insert(index, C(std::forward<Args>(args)...));
+
+		// Add the entity into every existing index cache whose signature 
+		// includes the component type and matches the entity's component mask
 		for (auto& index_cache : index_caches) {
 			if (index_cache.first.test(family_id) && (mask & index_cache.first) == index_cache.first)
 				index_cache.second.insert(index);
@@ -323,7 +330,7 @@ namespace rift {
 	template<class C, class ...Args>
 	inline void EntityManager::replace_component(std::uint32_t index, Args && ...args) noexcept
 	{
-		component_caches[C::family()]->insert(index, C(std::forward<Args>(args)...));
+		component_pools[C::family()]->insert(index, C(std::forward<Args>(args)...));
 	}
 
 	template<class C>
@@ -332,6 +339,8 @@ namespace rift {
 		auto family_id = C::family();
 		auto mask = masks[index];
 
+		// Remove the entity from every existing index cache whose signature 
+		// includes the component type and matches the entity's component mask
 		for (auto& index_cache : index_caches) {
 			if (index_cache.first.test(family_id) && (mask & index_cache.first) == index_cache.first)
 				index_cache.second.erase(index);
@@ -349,7 +358,7 @@ namespace rift {
 	template<class C>
 	inline C & EntityManager::get_component(std::uint32_t index) noexcept
 	{
-		return static_cast<C&>(component_caches[C::family()]->at(index));
+		return static_cast<C&>(component_pools[C::family()]->at(index));
 	}
 
 	template<class ...Components>
@@ -360,17 +369,6 @@ namespace rift {
 		ComponentMask mask;
 		[](...) {}((mask.set(Components::family()))...);
 		return mask;
-	}
-
-	template<class C, class ...Args>
-	inline void EntityManager::accommodate_component(std::uint32_t index, Args&& ...args) noexcept
-	{
-		auto family_id = C::family();
-		if (family_id >= component_caches.size())
-			component_caches.resize(family_id + 1);
-		if (!component_caches[family_id])
-			component_caches[family_id] = std::make_unique<rift::impl::Cache<C>>();
-		component_caches[family_id]->insert(index, C(std::forward<Args>(args)...));
 	}
 
 }

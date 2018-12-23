@@ -82,7 +82,7 @@ std::size_t rift::EntityManager::number_of_entities_to_destroy() const noexcept
 void rift::EntityManager::update() noexcept
 {
 	for (auto index : invalid_indices) {
-		erase_all_index_caches_for(index);
+		erase_caches_for(index);
 		masks[index].reset();
 		index_versions[index]++;
 		free_indices.push(index);
@@ -97,7 +97,7 @@ void rift::EntityManager::clear() noexcept
 		free_indices.pop();
 	masks.clear();
 	index_versions.clear();
-	component_caches.clear();
+	component_pools.clear();
 	index_caches.clear();
 }
 
@@ -122,7 +122,7 @@ void rift::EntityManager::destroy(std::uint32_t index) noexcept
 		invalid_indices.insert(index);
 }
 
-void rift::EntityManager::erase_all_index_caches_for(std::uint32_t index)
+void rift::EntityManager::erase_caches_for(std::uint32_t index)
 {
 	auto mask = component_mask_for(index);
 	for (auto& index_cache : index_caches) {
@@ -131,12 +131,12 @@ void rift::EntityManager::erase_all_index_caches_for(std::uint32_t index)
 	}
 }
 
-bool rift::EntityManager::contains_index_cache_for(const ComponentMask & sig) const
+bool rift::EntityManager::contains_cache_for(const ComponentMask & sig) const
 {
 	return index_caches.find(sig) != index_caches.end();
 }
 
-void rift::EntityManager::create_index_cache_for(const ComponentMask & sig)
+void rift::EntityManager::create_cache_for(const ComponentMask & sig)
 {
 	rift::impl::SparseSet indices;
 	for (std::uint32_t i = 0; i < masks.size(); i++) {
