@@ -3,6 +3,7 @@
 #include <queue>
 #include <memory>
 #include <cassert>
+#include <iostream>
 #include <algorithm>
 #include <functional>
 #include <unordered_map>
@@ -113,6 +114,16 @@ namespace rift {
 		Entity::ID uid = INVALID_ID;
 
 	};
+
+	inline std::ostream& operator<<(std::ostream& os, const Entity::ID& id) {
+		os << "(index=" << id.index() << ", version=" << id.version() << ")";
+		return os;
+	}
+
+	inline std::ostream& operator<<(std::ostream& os, const Entity& entity) {
+		os << "rift::Entity(" << entity.id() << ")";
+		return os;
+	}
 
 	// The EntityManager class
 	// Manages the lifecycle of entities.
@@ -371,4 +382,21 @@ namespace rift {
 		return mask;
 	}
 
+} // namespace rift
+
+namespace std {
+	template <> struct hash<rift::Entity>
+	{
+		std::size_t operator()(const rift::Entity& entity) const noexcept 
+		{
+			return entity.id().index() ^ entity.id().version();
+		}
+	};
+	template <> struct hash<const rift::Entity>
+	{
+		std::size_t operator()(const rift::Entity& entity) const noexcept
+		{
+			return entity.id().index() ^ entity.id().version();
+		}
+	};
 }
