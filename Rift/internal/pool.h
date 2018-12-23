@@ -71,5 +71,5 @@ namespace rift {
 			components.resize(n + 1);
 		}
 
-	}
-}
+	} // namespace impl
+} // namespace rift

@@ -137,7 +137,7 @@
     <ClInclude Include="component.h" />
     <ClInclude Include="config\config.h" />
     <ClInclude Include="entity.h" />
-    <ClInclude Include="internal\cache.h" />
+    <ClInclude Include="internal\pool.h" />
     <ClInclude Include="internal\noncopyable.h" />
     <ClInclude Include="internal\rift_traits.h" />
     <ClInclude Include="internal\sparse_set.h" />

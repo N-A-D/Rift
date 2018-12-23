@@ -45,4 +45,5 @@ namespace rift {
 			return component_family;
 		}
 	};
-}
+
+} // namespace rift

@@ -170,4 +170,5 @@ namespace rift {
 		assert(has<S>() && "Cannot fetch an unmanaged system type!");
 		return systems.at(S::family());
 	}
-}
+
+} // namespace rift

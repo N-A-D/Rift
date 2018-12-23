@@ -112,5 +112,5 @@ namespace rift {
 			std::vector<value_type> sparse;
 		};
 
-	}
-}
+	} // namespace impl
+} // namespace rift

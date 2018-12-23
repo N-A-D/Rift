@@ -11,5 +11,5 @@ namespace rift {
 			NonCopyable& operator=(const NonCopyable&) = delete;
 		};
 
-	}
-}
+	} // namespace impl
+} // namespace rift
