@@ -159,6 +159,14 @@ namespace rift {
 		template <class First, class... Rest>
 		void for_entities_with(rift::impl::identity_t<std::function<void(Entity, First& first, Rest&... rest)>> f);
 
+		// Applies the function f on every entity whose component mask includes each component type.
+		// Note:
+		// - Application of the function is done in parallel
+		// Example:
+		// em.par_for_entities_with<A, B>([](A& a, B& b){*Do something with the components*});
+		template <class First, class... Rest>
+		void par_for_entities_with(rift::impl::identity_t<std::function<void(First& first, Rest&... rest)>> f);
+
 		// Recycles destroyed entities.
 		// Note:
 		// - This function must be called at the end of every frame.
