@@ -13,14 +13,18 @@ https://medium.com/ingeniouslysimple/entities-components-and-systems-89c31464240
 https://github.com/junkdog/artemis-odb/wiki/Introduction-to-Entity-Systems   
 
 # Library overview
-Rift is an Entity Component System written in C++ 14. It offers very fast iteration speeds by grouping entities based on system search criterias. Entities are keys (column indices) into a transposed table of component types, where each row of the table is a different type. Systems query for the entities they need to transform using a list of component types and submit functions to perform those transformations. The idea to group entities based on their components comes from indexing in relational databases. The library makes use of sparse integer sets to compactly store entities for faster queries. For more information about sparse integer sets https://programmingpraxis.com/2012/03/09/sparse-sets/
+Rift is an Entity Component System written in C++ 14. It offers very fast iteration speeds by grouping entities based on system search criterias. 
 
-Rift was designed without multithreading in mind. However, it may be possible to use threads when applying certain system transformations. To be specific, these system transformations cannot add/remove/replace components, nor can they create/destroy entities. 
+Entities are keys (column indices) into a transposed table of component types, where each row of the table is a different type. Systems query for the entities they need using a list of component types and submit a function that performs a transformation on those entities. 
+
+The idea to group entities based on their components is related to indexing in relational databases. The library makes use of sparse integer sets to compactly store entities (indices) to speed up the search for entities with certain components. For more information about sparse integer sets visit https://programmingpraxis.com/2012/03/09/sparse-sets/
+
+As a last note, Rift was designed without multithreading in mind. However, it may be possible to use threads when applying certain system transformations. To be specific, these system transformations cannot add/remove/replace components, nor can they create/destroy entities. Moreover, using threads to apply a system's transform *may* only show real benefit if the transformation itself has a time complexity greater than n, where n is the number of entities. This is speculation however, and it hasn't yet been tried. 
 
 ## Entities
-As mentioned earlier, entities are column indices into a component type table. As such, `rift::Entity` is a proxy class for a `std::uint64_t` index. The index is composed of two parts: a 32 bit version and a 32 bit index. The 32 bit version distinguishes between stale and valid entities that have the same index. Is necessary because the 32 bit index maps an *entity* to its components, and you wouldn't want a stale entity modifying a valid entity's state.
+As mentioned earlier, entities are column indices into a component type table. As such, `rift::Entity` is a proxy class for a `std::uint64_t` index. The index is composed of two parts: a 32 bit **version** and a 32 bit **index**. The **version** distinguishes between **stale** (deceased) and **valid** (alive) entities that have the same **index**. This is necessary as the **index** maps an *entity* to its components, and you wouldn't want a stale entity modifying a valid entity's state.
 
-Entities in Rift cannot be created directly, they must be created using a `rift::EntityManager`. This is to avoid errors related to invalid entities.
+Entities in Rift cannot be created directly, they must be created using a `rift::EntityManager`. This decision was made in order to avoid potential errors related to an invalid entity modifying a valid entity's state.
 
 Entities are created as follows:
 ```cpp
@@ -29,11 +33,10 @@ rift::Entity entity = manager.create_entity();
 ```
 
 ## Components 
-In Rift, Components are *Plain Old Data* types.
+In Rift, Components are meant to have as little logic associated with them as possible. In fact, an ideal component is a *POD* that just stores state information. State is then modified using a system transformation.
 ### Implementation notes:
 - Every *component* must inherit from `rift::Component` in order to be considered a *component*.
-- Every *component* must include a default constructor as well as a constructor that initializes all of its POD member variables. 
-
+- Every *component* must include a default constructor as well as a constructor that initializes all of its POD members. 
 For instance, the following is an example of a *Position* component:
 ```cpp
 struct Position : public rift::Component<Position> {
@@ -42,14 +45,13 @@ struct Position : public rift::Component<Position> {
   float x, y;
 };
 ```
-
 Continuing on with the example above, an entity can add the component as follows:
 ```cpp
 entity.add<Position>(100.0f, 25.0f);
 ```
 
 ## Systems
-In Rift, Systems are what define the behaviour of different entities.
+In Rift, Systems define entity behaviour by transforming an entity's state.
 ### Implementation notes
 - Every *system* must inherit from `rift::System` in order to be considered a *System*. 
 - Every *system* must implement the `rift::BaseSystem::update(rift::EntityManager&, double)` member. This function is where entity transformations should be carried out. 
