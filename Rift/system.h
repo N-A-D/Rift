@@ -102,6 +102,7 @@ namespace rift {
 		// Updates a list of systems.
 		// Note:
 		// - Asserts that each system type is managed.
+		// - The systems are updated in the same order they're specified.
 		// Example:
 		// EntityManager em;
 		// SystemManager sm(em);
