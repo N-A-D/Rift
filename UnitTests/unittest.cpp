@@ -11,20 +11,8 @@ namespace UnitTests
 	
 	TEST_CLASS(SparseSet) {
 	public:
-		TEST_METHOD(Sort) {
-			rift::impl::SparseSet integers;
-			integers.insert({ 10, 1, 5, 4 });
-
-			integers.sort();
-
-			std::size_t i = 1;
-
-			Assert::IsTrue(std::is_sorted(integers.begin(), integers.end()));
-
-			Assert::IsTrue(integers.contains({ 1, 4, 5, 10 }));
-		}
 		
-		TEST_METHOD(Removal) {
+		TEST_METHOD(TypicalUsage) {
 			rift::impl::SparseSet integers;
 
 			integers.insert({ 1, 2, 3, 4 });
