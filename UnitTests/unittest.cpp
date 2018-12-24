@@ -423,11 +423,17 @@ namespace UnitTests
 			{
 				// ITERATIONS number of iterations over entities with a component mask 
 				for (auto i = 0; i < ITERATIONS; i++) {
-					//em.for_entities_with<Position, Direction>([](rift::Entity entity, Position& pos, Direction& dir) {
+#ifdef RIFT_ENABLE_PARALLEL_TRANSFORMATIONS
 					em.par_for_entities_with<Position, Direction>([](Position& pos, Direction& dir) {
 						pos.x += dir.x;
 						pos.y += dir.y;
 					});
+#else
+					em.for_entities_with<Position, Direction>([](rift::Entity entity, Position& pos, Direction& dir) {
+						pos.x += dir.x;
+						pos.y += dir.y;
+					});
+#endif // RIFT_ENABLE_PARALLEL_TRANSFORMATIONS
 				}
 			}
 			{

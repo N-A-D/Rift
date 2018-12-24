@@ -1,5 +1,5 @@
 #pragma once
-
+#define RIFT_ENABLE_PARALLEL_TRANSFORMATIONS
 #include "../rift/rift_ecs.h"
 
 struct Position : public rift::Component<Position> {
