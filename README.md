@@ -28,8 +28,9 @@ For example:
 ```
 
 **Notes:** 
-1. If C++17 is not available, do not define `RIFT_ENABLE_PARALLEL_TRANSFORMATIONS`
-1. Calling the `rift::EntityManager::update()` member within a system transformation results in undefined behaviour.
+1. If C++17 is not available, do not define `RIFT_ENABLE_PARALLEL_TRANSFORMATIONS`.
+1. Creating entities with the `rift::EntityManager::create_entity` member and assigning the same components required by the transformation is not recommended as it would increase execution time. 
+1. Calling the `rift::EntityManager::update()` member within a system transformation can lead to undefined behaviour for the executing transformation and transformations that execute after.
 1. Parallel application of system transformations *may* actually lead to degraded performance versus sequential transformations. In particular, if the number of entities is small, below two thousand in my testing, sequential transformations would be perferable.   
 My system when testing:   
 CPU: i7 8700k (stock)   
