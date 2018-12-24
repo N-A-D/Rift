@@ -330,10 +330,9 @@ namespace rift {
 		auto sig = signature_for<First, Rest...>();
 		if (!contains_cache_for(sig))
 			create_cache_for(sig);
-		
+
 		auto& indices = index_caches.at(sig);
-		// indices.sort(); // Might be needed... Not sure atm.
-		
+
 		// Apply the system transformation in parallel
 		std::for_each(std::execution::par_unseq, indices.begin(), indices.end(), 
 		[this, f](std::uint32_t index) {
