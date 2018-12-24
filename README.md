@@ -27,7 +27,9 @@ For example:
 #include "rift/rift.h"
 ```
 
-**NOTE:** Parallel application of system transformations *may* actually lead to degraded performance versus sequential transformations. In particular, if the number of entities is small, below two thousand in my testing, sequential transformations would be perferable.   
+**Notes:** 
+1. If C++17 is not available, do not define `RIFT_ENABLE_PARALLEL_TRANSFORMATIONS`.
+1. Parallel application of system transformations *may* actually lead to degraded performance versus sequential transformations. In particular, if the number of entities is small, below two thousand in my testing, sequential transformations would be perferable.   
 My system when testing:   
 CPU: i7 8700k (stock)   
 RAM: 16GB DDR4 3000mhz   
@@ -76,7 +78,7 @@ entity_manager.for_entities_with<Position, Direction>([](rift::Entity entity, Po
 });
 ```
 
-Additionally, since this transformation only modifies the entity's components and not the entity itself, we can make use of the `rift::EntityManager::par_for_entities_with` parallelize execution of the transform:
+Additionally, since this transformation only modifies the entity's components and not the entity itself, we can make use of the `rift::EntityManager::par_for_entities_with` to parallelize execution of the transform:
 ```cpp
 entity_manager.par_for_entities_with<Position, Direction>([](Position& pos, Direction& dir) {
     pos.x += dir.x;
