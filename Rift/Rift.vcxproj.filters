@@ -47,11 +47,11 @@
     <ClInclude Include="internal\sparse_set.h">
       <Filter>Header Files\Internal</Filter>
     </ClInclude>
-    <ClInclude Include="rift_ecs.h">
-      <Filter>Header Files\Entity</Filter>
-    </ClInclude>
     <ClInclude Include="internal\pool.h">
       <Filter>Header Files\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="rift.h">
+      <Filter>Header Files\Entity</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

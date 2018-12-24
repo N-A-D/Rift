@@ -145,7 +145,7 @@
     <ClInclude Include="internal\noncopyable.h" />
     <ClInclude Include="internal\rift_traits.h" />
     <ClInclude Include="internal\sparse_set.h" />
-    <ClInclude Include="rift_ecs.h" />
+    <ClInclude Include="rift.h" />
     <ClInclude Include="system.h" />
   </ItemGroup>
   <ItemGroup>
