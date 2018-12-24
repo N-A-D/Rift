@@ -1,4 +1,5 @@
 #include "sparse_set.h"
+#include <execution>
 #include <algorithm>
 #include <cassert>
 
@@ -92,7 +93,7 @@ bool rift::impl::SparseSet::contains(std::initializer_list<value_type> integers)
 
 void rift::impl::SparseSet::sort()
 {
-	std::sort(dense.begin(), dense.begin() + n);
+	std::sort(std::execution::par_unseq, dense.begin(), dense.begin() + n);
 	for (value_type i = 0; i < n; i++)
 		sparse[dense[i]] = i;
 }

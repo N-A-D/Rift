@@ -4,6 +4,7 @@
 #include <memory>
 #include <cassert>
 #include <iostream>
+#include <execution>
 #include <algorithm>
 #include <functional>
 #include <unordered_map>
@@ -155,7 +156,7 @@ namespace rift {
 		// Applies the function f on every entity whose component mask includes each component type.
 		// Example:
 		// EntityManager em;
-		// em.for_entities_with<A, B>([](Entity e, A& a, B& b){*Do something with the entity & its components*});
+		// em.for_entities_with<A, B>([](Entity e, A& a, B& b){ // Do something with the entity & its components });
 		template <class First, class... Rest>
 		void for_entities_with(rift::impl::identity_t<std::function<void(Entity, First& first, Rest&... rest)>> f);
 
@@ -163,7 +164,7 @@ namespace rift {
 		// Note:
 		// - Application of the function is done in parallel
 		// Example:
-		// em.par_for_entities_with<A, B>([](A& a, B& b){*Do something with the components*});
+		// em.par_for_entities_with<A, B>([](A& a, B& b){ // Do something with the entity's components });
 		template <class First, class... Rest>
 		void par_for_entities_with(rift::impl::identity_t<std::function<void(First& first, Rest&... rest)>> f);
 
@@ -305,7 +306,7 @@ namespace rift {
 			return index_caches.at(sig).size();
 		}
 		else {
-			return std::count_if(masks.begin(), masks.end(), 
+			return std::count_if(std::execution::par_unseq, masks.begin(), masks.end(), 
 			[&sig](ComponentMask mask) {
 				return (mask & sig) == sig;
 			});
@@ -321,6 +322,24 @@ namespace rift {
 		for (auto index : index_caches.at(sig))
 			f(Entity(this, Entity::ID(index, index_versions[index])),      // The entity
 			  get_component<First>(index), get_component<Rest>(index)...); // The entity's components
+	}
+
+	template<class First, class ...Rest>
+	inline void EntityManager::par_for_entities_with(rift::impl::identity_t<std::function<void(First&first, Rest&...rest)>> f)
+	{
+		auto sig = signature_for<First, Rest...>();
+		if (!contains_cache_for(sig))
+			create_cache_for(sig);
+		
+		auto& indices = index_caches.at(sig);
+		// indices.sort(); // Might be needed... Not sure atm.
+		
+		// Apply the system transformation in parallel
+		std::for_each(std::execution::par_unseq, indices.begin(), indices.end(), 
+		[this, f](std::uint32_t index) {
+			f(get_component<First>(index), get_component<Rest>(index)...);
+		});
+
 	}
 
 	template<class C, class ...Args>

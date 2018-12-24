@@ -20,7 +20,7 @@ namespace rift {
 				using reference         = value_type & ;
 				using pointer           = value_type * ;
 				using difference_type   = std::ptrdiff_t;
-				using iterator_category = std::input_iterator_tag;
+				using iterator_category = std::forward_iterator_tag;
 
 				Iterator() = default;
 				Iterator(const Iterator&) = default;
