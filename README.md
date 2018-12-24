@@ -26,6 +26,7 @@ For example:
 #define RIFT_ENABLE_PARALLEL_TRANSFORMATIONS
 #include "rift/rift.h"
 ```
+If C++17 is not available to you, don't define `RIFT_ENABLE_PARALLEL_TRANSFORMATIONS`
 
 **NOTE:** Parallel application of system transformations *may* actually lead to degraded performance versus sequential transformations. In particular, if the number of entities is small, below two thousand in my testing, sequential transformations would be perferable.   
 My system when testing:   
