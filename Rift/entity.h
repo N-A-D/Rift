@@ -4,7 +4,9 @@
 #include <memory>
 #include <cassert>
 #include <iostream>
+#ifdef RIFT_ENABLE_PARALLEL_TRANSFORMATIONS
 #include <execution>
+#endif // RIFT_ENABLE_PARALLEL_TRANSFORMATIONS
 #include <algorithm>
 #include <functional>
 #include <unordered_map>
@@ -160,6 +162,8 @@ namespace rift {
 		template <class First, class... Rest>
 		void for_entities_with(rift::impl::identity_t<std::function<void(Entity, First& first, Rest&... rest)>> f);
 
+#ifdef RIFT_ENABLE_PARALLEL_TRANSFORMATIONS
+
 		// Applies the function f on every entity whose component mask includes each component type.
 		// Note:
 		// - Application of the function is done in parallel
@@ -167,6 +171,8 @@ namespace rift {
 		// em.par_for_entities_with<A, B>([](A& a, B& b){ // Do something with the entity's components });
 		template <class First, class... Rest>
 		void par_for_entities_with(rift::impl::identity_t<std::function<void(First& first, Rest&... rest)>> f);
+
+#endif // RIFT_ENABLE_PARALLEL_TRANSFORMATIONS
 
 		// Recycles destroyed entities.
 		// Note:
@@ -306,10 +312,10 @@ namespace rift {
 			return index_caches.at(sig).size();
 		}
 		else {
-			return std::count_if(std::execution::par_unseq, masks.begin(), masks.end(), 
-			[&sig](ComponentMask mask) {
+			return std::count_if(masks.begin(), masks.end(),
+				[&sig](ComponentMask mask) {
 				return (mask & sig) == sig;
-			});
+			});	
 		}
 	}
 
@@ -319,14 +325,14 @@ namespace rift {
 		auto sig = signature_for<First, Rest...>();
 		if (!contains_cache_for(sig))
 			create_cache_for(sig);
-
 		auto& indices = index_caches.at(sig);
-
 		// Apply the system transformation sequentially
 		for (auto index : indices)
 			f(Entity(this, Entity::ID(index, index_versions[index])),      // The entity
 			  get_component<First>(index), get_component<Rest>(index)...); // The entity's components
 	}
+
+#ifdef RIFT_ENABLE_PARALLEL_TRANSFORMATIONS
 
 	template<class First, class ...Rest>
 	inline void EntityManager::par_for_entities_with(rift::impl::identity_t<std::function<void(First&first, Rest&...rest)>> f)
@@ -334,16 +340,16 @@ namespace rift {
 		auto sig = signature_for<First, Rest...>();
 		if (!contains_cache_for(sig))
 			create_cache_for(sig);
-
 		auto& indices = index_caches.at(sig);
-
 		// Apply the system transformation in parallel
-		std::for_each(std::execution::par_unseq, indices.begin(), indices.end(), 
-		[this, f](std::uint32_t index) {
+		std::for_each(std::execution::par_unseq, indices.begin(), indices.end(),
+			[this, f](std::uint32_t index) {
 			f(get_component<First>(index), get_component<Rest>(index)...);
 		});
 
 	}
+
+#endif // RIFT_ENABLE_PARALLEL_TRANSFORMATIONS
 
 	template<class C, class ...Args>
 	inline void EntityManager::add_component(std::uint32_t index, Args && ...args) noexcept
