@@ -1,5 +1,5 @@
 #define RIFT_ENABLE_PARALLEL_TRANSFORMATIONS
-#include "../../Rift/rift_ecs.h"
+#include "../../Rift/rift.h"
 #include <vector>
 #include <tuple>
 #include <chrono>
@@ -142,6 +142,6 @@ int main() {
 	std::cout << "-- Parallel transformations --" << std::endl;
 	for (auto param : run_params)
 		par_run(std::get<0>(param), std::get<1>(param));
-
+	
 	return 0;
 }
