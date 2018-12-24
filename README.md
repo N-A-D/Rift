@@ -13,7 +13,7 @@ https://medium.com/ingeniouslysimple/entities-components-and-systems-89c31464240
 https://github.com/junkdog/artemis-odb/wiki/Introduction-to-Entity-Systems   
 
 # Library overview
-Rift is an Entity Component System written in C++ 14. It offers very fast iteration speeds by grouping entities based on system search criterias. 
+Rift is an Entity Component System written for C++14 but requires C++17 for one feature, see below. It offers very fast iteration speeds by grouping entities based on system search criterias. 
 
 Entities are keys (column indices) into a transposed table of component types, where each row of the table is a different type. Systems query for the entities they need using a list of component types and submit a function that performs a transformation on those entities. 
 
@@ -21,7 +21,7 @@ The idea to group entities based on their components is related to indexing in r
 
 Threading has been added as a feature to the library but it requires C++17 for the standard's parallel algorithm `std::for_each`. Using the `rift::EntityManager::par_for_entities_with` member, systems can have their transformations applied in parallel. This new member differs from `rift::EntityManager::for_entities_with` in that system lose the ability to add/remove/destroy components as well as destroy entities within their transformation. Moreover, updating a `rift::EntityManager` within a system transformation (sequentially via `rift::EntityManager::for_entities_with` or in parallel via `rift::EntityManager::par_for_entities_with`) will lead to undefined behaviour. 
 
-**NOTE:** this addition to the library is experimental and it *may* actually lead to degraded performance versus sequential transformations. In other words, use this new function only if it leads to increased performance.
+**NOTE:** Parallel application of system transformations *may* actually lead to degraded performance versus sequential transformations. In other words, use this new function only if it leads to increased performance.
 
 ## Entities
 As mentioned earlier, entities are column indices into a component type table. As such, `rift::Entity` is a proxy class for a `std::uint64_t` index. The index is composed of two parts: a 32 bit **version** and a 32 bit **index**. The **version** distinguishes between **stale** (deceased) and **valid** (alive) entities that have the same **index**. This is necessary as the **index** maps an *entity* to its components, and you wouldn't want a stale entity modifying a valid entity's state.
