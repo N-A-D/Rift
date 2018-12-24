@@ -80,7 +80,7 @@ entity_manager.for_entities_with<Position, Direction>([](rift::Entity entity, Po
 });
 ```
 
-Additionally, since this transformation only modifies the entity's components and not the entity itself, we can make use of the `rift::EntityManager::par_for_entities_with` parallelize execution of the transform:
+Additionally, since this transformation only modifies the entity's components and not the entity itself, we can make use of the `rift::EntityManager::par_for_entities_with` to parallelize execution of the transform:
 ```cpp
 entity_manager.par_for_entities_with<Position, Direction>([](Position& pos, Direction& dir) {
     pos.x += dir.x;
