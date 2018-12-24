@@ -13,7 +13,7 @@ https://medium.com/ingeniouslysimple/entities-components-and-systems-89c31464240
 https://github.com/junkdog/artemis-odb/wiki/Introduction-to-Entity-Systems   
 
 # Library overview
-Rift is an Entity Component System written for C++14 but requires C++17 for one feature, see below. It offers very fast iteration speeds by grouping entities based on system search criterias. 
+Rift is an Entity Component System written in C++14 but requires C++17 for one feature, see below. It offers very fast iteration speeds by grouping entities based on system search criterias. 
 
 Entities are keys (column indices) into a transposed table of component types, where each row of the table is a different type. Systems query for the entities they need using a list of component types and submit a function that performs a transformation on those entities. 
 
