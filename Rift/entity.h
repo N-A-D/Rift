@@ -377,7 +377,7 @@ namespace rift {
 	template<class C, class ...Args>
 	inline void EntityManager::replace_component(std::uint32_t index, Args && ...args) noexcept
 	{
-		component_pools[C::family()]->insert(index, C(std::forward<Args>(args)...));
+		component_pools[C::family()]->replace(index, C(std::forward<Args>(args)...));
 	}
 
 	template<class C>

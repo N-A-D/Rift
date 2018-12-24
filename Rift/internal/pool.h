@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <cassert>
+#include <cstdint>
 #include <type_traits>
 #include "../component.h"
 
@@ -9,64 +10,80 @@ namespace rift {
 	namespace impl {
 
 		// The BasePool class
-		// Provides the interface that all component pools must implement
+		// Provides the interface for the Pool class below.
 		struct BasePool {
-			virtual ~BasePool() = default;
-			virtual void insert(std::size_t index, const BaseComponent& cmp) = 0;
-			virtual BaseComponent& at(std::size_t index) = 0;
+			// operations:
+			virtual void insert(std::uint32_t index, const BaseComponent& component) = 0;
+			virtual void replace(std::uint32_t index, const BaseComponent& component) = 0;
+			virtual BaseComponent& at(std::uint32_t index) = 0;
 		};
 		
 		// The Pool class
-		// A very simple storage medium for a single component type
+		// A very simple storage medium for a single component type.
 		// Note:
-		// - Potentially wasteful with memory if many entities do not own a component
+		// - Has the potential to waste a significant amount of memory if there are many
+		//   entities that do not own a component in the pool. 
 		template <class C>
 		class Pool final : public BasePool {
-			static_assert(std::is_base_of_v<BaseComponent, C>
-				, "The component type does not inherit from rift::Component");
 		public:
 
-			// Insert a component at the given index
-			inline void insert(std::size_t index, const BaseComponent& cmp) override;
+			// Inserts a new component into the pool.
+			// Note:
+			// - Expands the pool size to accommodate an index greater than the current size.
+			void insert(std::uint32_t index, const BaseComponent& component) override;
 
-			// Fetch the component at the given index
-			inline BaseComponent& at(std::size_t index) override;
+			// Replaces an existing component in the pool.
+			// Note:
+			// - Asserts the index fits within the size of the pool.
+			void replace(std::uint32_t index, const BaseComponent& component) override;
+
+			// Returns the component at index in the pool.
+			// Note:
+			// - Asserts the index fits within the size of the pool.
+			BaseComponent& at(std::uint32_t index) override;
 
 		private:
 
-			// Checks if the index is within the cache size
-			inline bool has_space_for(std::size_t index);
+			// Checks if an index is within the pool size
+			bool contains(std::uint32_t index);
 
-			// Expands the size of the cache to fix n components
-			inline void expand(std::size_t n);
+			// Expands the size of the pool to fit up to n components.
+			void expand(std::uint32_t n);
 
 			// The block of components
 			std::vector<C> components;
 		};
 
 		template<class C>
-		inline void Pool<C>::insert(std::size_t index, const BaseComponent & cmp)
+		inline void Pool<C>::insert(std::uint32_t index, const BaseComponent & component)
 		{
-			if (!has_space_for(index))
+			if (!contains(index))
 				expand(index);
-			components[index] = static_cast<const C&>(cmp);
+			components[index] = static_cast<const C&>(component);
 		}
 
 		template<class C>
-		inline BaseComponent & Pool<C>::at(std::size_t index)
+		inline void Pool<C>::replace(std::uint32_t index, const BaseComponent & component)
 		{
-			assert(index < components.size());
+			assert(contains(index));
+			components[index] = static_cast<const C&>(component);
+		}
+
+		template<class C>
+		inline BaseComponent & Pool<C>::at(std::uint32_t index)
+		{
+			assert(contains(index));
 			return components[index];
 		}
 
 		template<class C>
-		inline bool Pool<C>::has_space_for(std::size_t index)
+		inline bool Pool<C>::contains(std::uint32_t index)
 		{
 			return index < components.size();
 		}
 
 		template<class C>
-		inline void Pool<C>::expand(std::size_t n)
+		inline void Pool<C>::expand(std::uint32_t n)
 		{
 			components.resize(n + 1);
 		}
