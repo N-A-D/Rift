@@ -192,25 +192,49 @@ namespace UnitTests
 	public:
 		TEST_METHOD(Update) {
 			rift::EntityManager em;
-			auto e = em.create_entity();
-			auto f = em.create_entity();
-			auto g = em.create_entity();
+			
+			const int NUM_ENTITIES = 1000;
 
-			e.add<Toggle>();
-			f.add<Toggle>();
-			g.add<Toggle>();
+			for (int i = 0; i < NUM_ENTITIES; i++)
+			{
+				auto e = em.create_entity();
+				e.add<Toggle>();
+			}
+
+			Assert::IsTrue(em.number_of_entities_with<Toggle>() == NUM_ENTITIES);
 
 			ToggleSystem ts;
 			ts.update(em, 1.0);
 
-			auto t = e.get<Toggle>();
-			Assert::IsTrue(t.on);
+			em.for_entities_with<Toggle>([](rift::Entity e, Toggle& t) {
+				Assert::IsTrue(t.on);
+			});
+		
+		}
+		TEST_METHOD(MultithreadedUpdate) {
+			struct MT_ToggleSystem : public rift::System<MT_ToggleSystem> {
+				void update(rift::EntityManager& em, double dt) override {
+					em.par_for_entities_with<Toggle>([](Toggle& t) {
+						t.on = true;
+					});
+				}
+			};
+			
+			const int NUM_ENTITIES = 1000;
+			rift::EntityManager em;
+			for (int i = 0; i < 1000; i++)
+			{
+				auto e = em.create_entity();
+				e.add<Toggle>();
+			}
+			Assert::IsTrue(em.number_of_entities_with<Toggle>() == NUM_ENTITIES);
 
-			t = f.get<Toggle>();
-			Assert::IsTrue(t.on);
+			MT_ToggleSystem mt_ts;
+			mt_ts.update(em, 1.0);
 
-			t = g.get<Toggle>();
-			Assert::IsTrue(t.on);
+			em.for_entities_with<Toggle>([](rift::Entity, Toggle& t) {
+				Assert::IsTrue(t.on);
+			});
 		}
 	};
 
@@ -362,8 +386,12 @@ namespace UnitTests
 			f.add<Toggle>(true);
 			Assert::IsTrue(em.number_of_entities_with<Toggle>() == 1);
 		}
-
+		
 		TEST_METHOD(SimulatedUsage) {
+
+			const int NUM_ENTITIES = 1000;
+			const int ITERATIONS = 100;
+
 			rift::EntityManager em;
 			{
 				// Creating 100 entities
@@ -379,7 +407,7 @@ namespace UnitTests
 
 				// Creating 100 entities and adding components
 				std::vector<rift::Entity> entities;
-				for (int i = 0; i < 100; i++)
+				for (int i = 0; i < NUM_ENTITIES; i++)
 					entities.push_back(em.create_entity());
 				for (std::size_t i = 0; i < entities.size(); i++)
 				{
@@ -389,13 +417,14 @@ namespace UnitTests
 						entities[i].add<Toggle>();
 					}
 				}
-				Assert::IsTrue(em.number_of_entities_with<Position, Direction>() == 100);
-				Assert::IsTrue(em.number_of_entities_with<Toggle>() == 50);
+				Assert::IsTrue(em.number_of_entities_with<Position, Direction>() == NUM_ENTITIES);
+				Assert::IsTrue(em.number_of_entities_with<Toggle>() == NUM_ENTITIES / 2);
 			}
 			{
-				// 100 iterations over entities with a component mask 
-				for (auto i = 0; i < 100; i++) {
-					em.for_entities_with<Position, Direction>([](rift::Entity e, Position& pos, Direction& dir) {
+				// ITERATIONS number of iterations over entities with a component mask 
+				for (auto i = 0; i < ITERATIONS; i++) {
+					//em.for_entities_with<Position, Direction>([](rift::Entity entity, Position& pos, Direction& dir) {
+					em.par_for_entities_with<Position, Direction>([](Position& pos, Direction& dir) {
 						pos.x += dir.x;
 						pos.y += dir.y;
 					});
@@ -414,7 +443,7 @@ namespace UnitTests
 				em.for_entities_with<Direction>([](rift::Entity e, Direction& dir) {
 					e.add<Toggle>();
 				});
-				Assert::IsTrue(em.number_of_entities_with<Toggle>() == 100);
+				Assert::IsTrue(em.number_of_entities_with<Toggle>() == NUM_ENTITIES);
 			}
 			{
 				// Destroying all entities with position, direction, and toggle
@@ -422,14 +451,14 @@ namespace UnitTests
 					e.destroy();
 				});
 
-				Assert::IsTrue(em.number_of_entities_with<Position>() == 100);
-				Assert::IsTrue(em.number_of_entities_with<Direction>() == 100);
-				Assert::IsTrue(em.number_of_entities_with<Toggle>() == 100);
-				Assert::IsTrue(em.number_of_entities_to_destroy() == 100);
+				Assert::IsTrue(em.number_of_entities_with<Position>() == NUM_ENTITIES);
+				Assert::IsTrue(em.number_of_entities_with<Direction>() == NUM_ENTITIES);
+				Assert::IsTrue(em.number_of_entities_with<Toggle>() == NUM_ENTITIES);
+				Assert::IsTrue(em.number_of_entities_to_destroy() == NUM_ENTITIES);
 
 				em.update();
 
-				Assert::IsTrue(em.number_of_reusable_entities() == 100);
+				Assert::IsTrue(em.number_of_reusable_entities() == NUM_ENTITIES);
 				Assert::IsTrue(em.number_of_entities_with<Position>() == 0);
 				Assert::IsTrue(em.number_of_entities_with<Direction>() == 0);
 				Assert::IsTrue(em.number_of_entities_with<Toggle>() == 0);
