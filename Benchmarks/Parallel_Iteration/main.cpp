@@ -1,8 +1,10 @@
+#define RIFT_ENABLE_PARALLEL_TRANSFORMATIONS
 #include "../../Rift/rift_ecs.h"
 #include <vector>
 #include <tuple>
 #include <chrono>
 #include <iostream>
+#include <cassert>
 
 class Timer {
 	std::chrono::high_resolution_clock::time_point start;
@@ -60,6 +62,7 @@ void seq_run(int entity_count, int iteration_count) {
 				entities[i].destroy();
 		}
 		manager.update();
+		assert((manager.number_of_entities_with<Position, Direction>() == entity_count / 2));
 	}
 	{
 		Timer timer("Iteration speed: ");
@@ -103,8 +106,10 @@ void par_run(int entity_count, int iteration_count) {
 				entities[i].destroy();
 		}
 		manager.update();
+		assert((manager.number_of_entities_with<Position, Direction>() == entity_count / 2));
 	}
 	{
+		
 		Timer timer("Iteration speed: ");
 		for (int i = 0; i < iteration_count; i++) {
 			manager.par_for_entities_with<Position, Direction>([](Position& p, Direction& d) {
