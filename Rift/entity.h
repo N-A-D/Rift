@@ -319,7 +319,11 @@ namespace rift {
 		auto sig = signature_for<First, Rest...>();
 		if (!contains_cache_for(sig))
 			create_cache_for(sig);
-		for (auto index : index_caches.at(sig))
+
+		auto& indices = index_caches.at(sig);
+
+		// Apply the system transformation sequentially
+		for (auto index : indices)
 			f(Entity(this, Entity::ID(index, index_versions[index])),      // The entity
 			  get_component<First>(index), get_component<Rest>(index)...); // The entity's components
 	}
