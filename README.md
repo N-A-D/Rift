@@ -21,7 +21,10 @@ The idea to group entities based on their components is related to indexing in r
 
 Threading has been added as a feature to the library but it requires C++17 in order to make use of the standard's parallel algorithm `std::for_each`. Using the `rift::EntityManager::par_for_entities_with` member, systems can now have their transformations applied in parallel. This new member differs from `rift::EntityManager::for_entities_with` in that systems lose the ability to add/remove/destroy components as well as create/destroy entities within their transformation function. Moreover, updating a `rift::EntityManager` within a system transformation (sequentially via `rift::EntityManager::for_entities_with` or in parallel via `rift::EntityManager::par_for_entities_with`) will lead to undefined behaviour. 
 
-**NOTE:** Parallel application of system transformations *may* actually lead to degraded performance versus sequential transformations. In other words, use this new function only if it leads to increased performance.
+**NOTE:** Parallel application of system transformations *may* actually lead to degraded performance versus sequential transformations. In particular, if the number of entities is small, below two thousand in my testing, sequential transformations would be perferable.   
+My system when testing:
+CPU: i7 8700k (stock)
+16GB DDR6 3000mhz
 
 ## Entities
 As mentioned earlier, entities are column indices into a component type table. As such, `rift::Entity` is a proxy class for a `std::uint64_t` index. The index is composed of two parts: a 32 bit **version** and a 32 bit **index**. The **version** distinguishes between **stale** (deceased) and **valid** (alive) entities that have the same **index**. This is necessary as the **index** maps an *entity* to its components, and you wouldn't want a stale entity modifying a valid entity's state.
