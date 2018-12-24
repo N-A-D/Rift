@@ -98,7 +98,6 @@ namespace rift {
 			// operations:
 			bool contains(value_type v) const noexcept;
 			bool contains(std::initializer_list<value_type> integers) const noexcept;
-			void sort();
 
 		private:
 			
