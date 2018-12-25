@@ -29,7 +29,7 @@ For example:
 
 **Notes:** 
 1. If C++17 is not available, do not define `RIFT_ENABLE_PARALLEL_TRANSFORMATIONS`.
-1. Parallel application of system transformations *may* actually lead to degraded performance versus sequential transformations. In particular, if the number of entities is small, below two thousand in my testing, sequential transformations would be perferable.   
+1. Parallel application of system transformations *may* actually lead to degraded performance versus sequential transformations. In particular, if the number of entities is small, below two thousand in my testing, sequential transformations would be preferable.   
 My system when testing:   
 CPU: i7 8700k (stock)   
 RAM: 16GB DDR4 3000mhz   
