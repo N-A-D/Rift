@@ -101,7 +101,7 @@ namespace rift {
 		// Fetches the entity's component.
 		// Note: 
 		// - Asserts the entity owns an instance of the component type.
-		// - Not thread safe is modifying the component.
+		// - Not thread safe if modifying the component.
 		template <class C>
 		C &get() const noexcept;
 
