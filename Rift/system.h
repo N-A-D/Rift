@@ -97,7 +97,7 @@ namespace rift {
 		std::shared_ptr<S> get() const noexcept;
 
 		// Updates all systems.
-		void update(double dt) const noexcept;
+		void update_all(double dt) const noexcept;
 		
 		// Updates a list of systems.
 		// Note:
@@ -106,9 +106,9 @@ namespace rift {
 		// Example:
 		// EntityManager em;
 		// SystemManager sm(em);
-		// sm.update_only<Movement, Collision>(dt);
+		// sm.update<Movement, Collision>(dt);
 		template <class First, class... Rest>
-		void update_only(double dt) const noexcept;
+		void update(double dt) const noexcept;
 		
 	private:
 

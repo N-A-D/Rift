@@ -34,7 +34,7 @@ namespace rift {
 	}
 
 	template<class First, class ...Rest>
-	inline void SystemManager::update_only(double dt) const noexcept
+	inline void SystemManager::update(double dt) const noexcept
 	{
 		static_assert(rift::impl::all_of_v<std::is_base_of_v<BaseSystem, First>
 			, std::is_base_of_v<BaseSystem, Rest>...>
