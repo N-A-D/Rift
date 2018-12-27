@@ -13,26 +13,32 @@ https://medium.com/ingeniouslysimple/entities-components-and-systems-89c31464240
 https://github.com/junkdog/artemis-odb/wiki/Introduction-to-Entity-Systems   
 
 # Library overview
-Rift is an Entity Component System written in C++14 but requires C++17 for one feature, see the last paragraph. It offers very fast iteration speeds by grouping entities based on system search criterias. 
+Rift is an Entity Component System written in C++14 and only requires C++17 if parallel processing is desired. The library offers very fast iteration speeds by grouping entities based on system search criterias, avoiding the need to search for entities every system update. 
 
-Entities are keys (column indices) into a transposed table of component types, where each row of the table is a different type. Systems query for the entities they need using a list of component types and submit a function that performs a transformation on those entities. 
+Entities are primary keys (column indices) into a transposed table of component types, where each row of the table is a different type. Systems query for the entities they need using a list of component types and submit a function that performs a transformation on those entities. 
 
-The idea to group entities based on their components is related to indexing in relational databases. The library makes use of sparse integer sets to compactly store entities (indices) to speed up the search for entities with certain components. For more information about sparse integer sets visit https://programmingpraxis.com/2012/03/09/sparse-sets/
+The idea to group entities based on their components is related to indexing in relational databases. The library makes use of sparse integer sets to speed up the search for entities with certain components. For more information about sparse integer sets visit https://programmingpraxis.com/2012/03/09/sparse-sets/
 
-Threading has been added as a feature to the library but it requires C++17 in order to make use of the standard's parallel algorithm `std::for_each`. Using the `rift::EntityManager::par_for_entities_with` member, systems can now have their transformations applied in parallel. This new member differs from `rift::EntityManager::for_entities_with` in that systems **lose the ability to add/remove/destroy components as well as create/destroy entities** within their transformation function. To access to the new member function, 
-you need to define `RIFT_ENABLE_PARALLEL_TRANSFORMATIONS` before including `rift.h` or `entity.h`.
+Parallelization has been added to the library and requires C++17 in order to make use of the standard's new parallelized implementation of `std::for_each`. Using the new `rift::EntityManager::par_for_entities_with` member, systems can now have their transformations applied in parallel.
+
+**NOTE:**
+The following preconditions must be met in order for a system to make use of the new `rift::EntityManager::par_for_entities_with` member:
+1. Does not make any calls to `rift::EntityManager::create_entity`.
+1. Does not make any calls to `rift::EntityManager::update`.
+1. Does not make any calls to any of `rift::Entity::destroy`, `rift::Entity::add`, `rift::Entity::replace`, `rift::Entity::remove`, and `rift::Entity::get` (Component modification only).   
+
+Failure to comply with the aforementioned conditions will result in data races.
+
+To start using the new member function, ensure that you have access to compiler that supports C++17 and define `RIFT_ENABLE_PARALLEL_TRANSFORMATIONS` before including either `rift.h` or `entity.h`. 
 For example:
 ```cpp
 #define RIFT_ENABLE_PARALLEL_TRANSFORMATIONS
 #include "rift/rift.h"
 ```
 
-**Notes:** 
-1. If C++17 is not available, do not define `RIFT_ENABLE_PARALLEL_TRANSFORMATIONS`.
-1. Parallel application of system transformations *may* actually lead to degraded performance versus sequential transformations. In particular, if the number of entities is small, below two thousand in my testing, sequential transformations would be preferable.   
-My system when testing:   
-CPU: i7 8700k (stock)   
-RAM: 16GB DDR4 3000mhz   
+The library is intended to be compatible with C++14, with its only C++17 dependency being the use of the new standard algorithm. Therefore, if C++17 is not available to you, simply do not define `RIFT_ENABLE_PARALLEL_TRANSFORMATIONS`.
+
+As a final note, parallelization *may* provide tangible benefits only if the number of entities a system is transforming is large enough. If the number of entities a system is transforming is too small, the additional overhead incurred by the new stanard algorithm might outweigh any benefits to parallelization. Therefore, it is imperative to first be sure there *is* a performance problem before trying to optimize.    
 
 ## Entities
 As mentioned earlier, entities are column indices into a component type table. As such, `rift::Entity` is a proxy class for a `std::uint64_t` index. The index is composed of two parts: a 32 bit **version** and a 32 bit **index**. The **version** distinguishes between **stale** (deceased) and **valid** (alive) entities that have the same **index**. This is necessary as the **index** maps an *entity* to its components, and you wouldn't want a stale entity modifying a valid entity's state.
