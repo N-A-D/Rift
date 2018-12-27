@@ -66,6 +66,8 @@ namespace rift {
 		bool pending_invalidation() const noexcept;
 
 		// Signals the manager to recycle this entity.
+		// Note:
+		// - Not thread safe.
 		void destroy() const noexcept;
 
 		// Fetches the entity's ComponentMask.
@@ -74,18 +76,21 @@ namespace rift {
 		// Adds a component to the entity.
 		// Note: 
 		// - Asserts the entity does not own an instance of the component type.
+		// - Not thread safe.
 		template <class C, class ...Args>
 		void add(Args&& ...args) const noexcept;
 
 		// Replaces the entity's existing component.
 		// Note:
 		// - Asserts the entity owns an instance of the component type.
+		// - Not thread safe.
 		template <class C, class ...Args>
 		void replace(Args&& ...args) const noexcept;
 
 		// Removes the entity's component.
 		// Note: 
 		// - Asserts the entity owns an instance of the component type.
+		// - Not thread safe.
 		template <class C>
 		void remove() const noexcept;
 
@@ -96,12 +101,15 @@ namespace rift {
 		// Fetches the entity's component.
 		// Note: 
 		// - Asserts the entity owns an instance of the component type.
+		// - Not thread safe is modifying the component.
 		template <class C>
 		C &get() const noexcept;
 
 		bool operator<(const Entity& other) const noexcept { return uid < other.uid; }
 		bool operator>(const Entity& other) const noexcept { return other < *this; }
-		bool operator==(const Entity& other) const noexcept { return manager == other.manager && !(*this < other) && !(other < *this); }
+		bool operator==(const Entity& other) const noexcept { 
+			return manager == other.manager && !(*this < other) && !(other < *this); 
+		}
 		bool operator!=(const Entity& other) const noexcept { return !(*this == other); }
 
 	private:
@@ -117,9 +125,9 @@ namespace rift {
 		Entity::ID uid = INVALID_ID;
 
 	};
-
+	
 	inline std::ostream& operator<<(std::ostream& os, const Entity::ID& id) {
-		os << "Entity::ID(index=" << id.index() << ", version=" << id.version() << ")";
+		os << "ID(index=" << id.index() << ", version=" << id.version() << ")";
 		return os;
 	}
 
@@ -138,13 +146,13 @@ namespace rift {
 
 		// Creates a new Entity.
 		// Note:
-		// - This function is not thread safe.
+		// - Not thread safe.
 		Entity create_entity() noexcept;
 
 		// Returns the number of managed entities.
 		std::size_t size() const noexcept;
 
-		// Returns the capacity (number of managed entities + those that can reused).
+		// Returns the capacity.
 		std::size_t capacity() const noexcept;
 
 		// Returns the number of entities that can be reused
@@ -160,7 +168,7 @@ namespace rift {
 		// Applies the function f on every entity whose component mask includes each component type.
 		// Example:
 		// EntityManager em;
-		// em.for_entities_with<A, B>([](Entity e, A& a, B& b){ // Do something with the entity & its components });
+		// em.for_entities_with<A, B>([](Entity e, A& a, B& b){ /*Do something with the entity & its components*/ });
 		template <class First, class... Rest>
 		void for_entities_with(rift::impl::identity_t<std::function<void(Entity, First& first, Rest&... rest)>> f);
 
@@ -170,7 +178,7 @@ namespace rift {
 		// Note:
 		// - Application of the function is done in parallel
 		// Example:
-		// em.par_for_entities_with<A, B>([](A& a, B& b){ // Do something with the entity's components });
+		// em.par_for_entities_with<A, B>([](A& a, B& b){ /*Do something with the entity's components*/ });
 		template <class First, class... Rest>
 		void par_for_entities_with(rift::impl::identity_t<std::function<void(First& first, Rest&... rest)>> f);
 
@@ -179,12 +187,12 @@ namespace rift {
 		// Recycles destroyed entities.
 		// Note:
 		// - This function must be called at the end of every frame.
-		// - This function is not thread safe.
+		// - Not thread safe.
 		void update() noexcept;
 
 		// Clears the manager of all entities.
 		// Note:
-		// - This function is not thread safe.
+		// - Not thread safe.
 		void clear() noexcept;
 
 	private:
@@ -234,7 +242,7 @@ namespace rift {
 
 		// Given a template parameter pack of Component types, this function returns the ComponentMask for those types
 		// Note:
-		// - The order of the types does not matter, the function will still return the same component mask. That is, if
+		// - The order of types does not matter, the function will still return the same component mask. That is, if
 		//   classes A and B are any two subclasses of rift::Component, signature_for<A, B>() == signature_for<B, A>()
 		// Example: 
 		// ComponentMask mask = signature_for<Position, Direction>();
