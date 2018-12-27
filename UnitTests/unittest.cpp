@@ -270,7 +270,7 @@ namespace UnitTests
 				Assert::IsTrue(entity);
 				Assert::IsFalse(entity.get<Toggle>().state);
 			}
-			system_manager.update(1.0);
+			system_manager.update_all(1.0);
 			for (auto entity : entities) {
 				Assert::IsTrue(entity);
 				Assert::IsTrue(entity.get<Toggle>().state);
@@ -290,7 +290,7 @@ namespace UnitTests
 				Assert::IsTrue(entity);
 				Assert::IsFalse(entity.get<Toggle>().state);
 			}
-			system_manager.update_only<ToggleSystem>(1.0);
+			system_manager.update<ToggleSystem>(1.0);
 			for (auto entity : entities) {
 				Assert::IsTrue(entity);
 				Assert::IsTrue(entity.get<Toggle>().state);
