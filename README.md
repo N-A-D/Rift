@@ -13,13 +13,13 @@ https://medium.com/ingeniouslysimple/entities-components-and-systems-89c31464240
 https://github.com/junkdog/artemis-odb/wiki/Introduction-to-Entity-Systems   
 
 # Library overview
-Rift is an Entity Component System written in C++14 but requires C++17 for one feature, see below. It offers very fast iteration speeds by grouping entities based on system search criterias. 
+Rift is an Entity Component System written in C++14 but requires C++17 for one feature, see the last paragraph. It offers very fast iteration speeds by grouping entities based on system search criterias. 
 
 Entities are keys (column indices) into a transposed table of component types, where each row of the table is a different type. Systems query for the entities they need using a list of component types and submit a function that performs a transformation on those entities. 
 
 The idea to group entities based on their components is related to indexing in relational databases. The library makes use of sparse integer sets to compactly store entities (indices) to speed up the search for entities with certain components. For more information about sparse integer sets visit https://programmingpraxis.com/2012/03/09/sparse-sets/
 
-Threading has been added as a feature to the library but it requires C++17 in order to make use of the standard's parallel algorithm `std::for_each`. Using the `rift::EntityManager::par_for_entities_with` member, systems can now have their transformations applied in parallel. This new member differs from `rift::EntityManager::for_entities_with` in that systems lose the ability to add/remove/destroy components as well as create/destroy entities within their transformation function. To access to the new member function, 
+Threading has been added as a feature to the library but it requires C++17 in order to make use of the standard's parallel algorithm `std::for_each`. Using the `rift::EntityManager::par_for_entities_with` member, systems can now have their transformations applied in parallel. This new member differs from `rift::EntityManager::for_entities_with` in that systems **lose the ability to add/remove/destroy components as well as create/destroy entities** within their transformation function. To access to the new member function, 
 you need to define `RIFT_ENABLE_PARALLEL_TRANSFORMATIONS` before including `rift.h` or `entity.h`.
 For example:
 ```cpp
