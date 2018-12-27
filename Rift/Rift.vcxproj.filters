@@ -68,4 +68,15 @@
       <Filter>Source Files\Internal</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="entity.inl">
+      <Filter>Header Files\Entity</Filter>
+    </None>
+    <None Include="system.inl">
+      <Filter>Header Files\Entity</Filter>
+    </None>
+    <None Include="internal\pool.inl">
+      <Filter>Header Files\Internal</Filter>
+    </None>
+  </ItemGroup>
 </Project>
