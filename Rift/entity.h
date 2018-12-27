@@ -137,6 +137,8 @@ namespace rift {
 		EntityManager() = default;
 
 		// Creates a new Entity.
+		// Note:
+		// - This function is not thread safe.
 		Entity create_entity() noexcept;
 
 		// Returns the number of managed entities.
@@ -177,9 +179,12 @@ namespace rift {
 		// Recycles destroyed entities.
 		// Note:
 		// - This function must be called at the end of every frame.
+		// - This function is not thread safe.
 		void update() noexcept;
 
 		// Clears the manager of all entities.
+		// Note:
+		// - This function is not thread safe.
 		void clear() noexcept;
 
 	private:
