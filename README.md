@@ -25,7 +25,8 @@ Parallelization has been added to the library and requires C++17 in order to mak
 The following preconditions must be met in order for a system to make use of the new `rift::EntityManager::par_for_entities_with` member:
 1. Does not make any calls to `rift::EntityManager::create_entity`.
 1. Does not make any calls to `rift::EntityManager::update`.
-1. Does not make any calls to any of `rift::Entity::destroy`, `rift::Entity::add`, `rift::Entity::replace`, `rift::Entity::remove`, and `rift::Entity::get` (Component modification only).
+1. Does not make any calls to any of `rift::Entity::destroy`, `rift::Entity::add`, `rift::Entity::replace`, `rift::Entity::remove`, and `rift::Entity::get` (Component modification only).   
+
 Failure to comply with the aforementioned conditions will result in data races.
 
 In order to begin using the new member function, ensure that you have access to C++17 and define `RIFT_ENABLE_PARALLEL_TRANSFORMATIONS` before including either `rift.h` or `entity.h`. 
