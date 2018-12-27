@@ -29,7 +29,7 @@ The following preconditions must be met in order for a system to make use of the
 
 Failure to comply with the aforementioned conditions will result in data races.
 
-In order to begin using the new member function, ensure that you have access to C++17 and define `RIFT_ENABLE_PARALLEL_TRANSFORMATIONS` before including either `rift.h` or `entity.h`. 
+To start using the new member function, ensure that you have access to compiler that supports C++17 and define `RIFT_ENABLE_PARALLEL_TRANSFORMATIONS` before including either `rift.h` or `entity.h`. 
 For example:
 ```cpp
 #define RIFT_ENABLE_PARALLEL_TRANSFORMATIONS
