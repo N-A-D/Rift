@@ -1,6 +1,6 @@
 #pragma once
 
-#include <queue>
+#include <stack>
 #include <memory>
 #include <cassert>
 #include <iostream>
@@ -260,17 +260,17 @@ namespace rift {
 		
 	private:
 
-		// Collection of indices to invalidate before the next frame.
-		rift::impl::SparseSet invalid_indices;
-
-		// Queue of indices to reuse.
-		std::queue<std::uint32_t> free_indices;
-
 		// Collection of entity component masks.
 		std::vector<ComponentMask> masks;
 
+		// Collection of indices to invalidate before the next frame.
+		rift::impl::SparseSet invalid_indices;
+
 		// Collection of index versions.
 		std::vector<std::uint32_t> index_versions;
+
+		// Stack of indices to reuse.
+		std::stack<std::uint32_t, std::vector<std::uint32_t>> free_indices;
 
 		// Collection of component pools.
 		std::vector<std::unique_ptr<rift::impl::BasePool>> component_pools;

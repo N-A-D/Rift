@@ -52,7 +52,7 @@ Entity rift::EntityManager::create_entity() noexcept
 		index_versions.push_back(version);
 	}
 	else {
-		index = free_indices.front();
+		index = free_indices.top();
 		version = index_versions[index];
 		free_indices.pop();
 	}
