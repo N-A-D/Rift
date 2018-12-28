@@ -19,7 +19,7 @@ Entities are primary keys (column indices) into a transposed table of component 
 
 The idea to group entities based on their components is related to indexing in relational databases. The library makes use of sparse integer sets to speed up the search for entities with certain components. For more information about sparse integer sets visit https://programmingpraxis.com/2012/03/09/sparse-sets/
 
-Parallelization has been added to the library and requires C++17 in order to make use of the standard's new parallelized implementation of `std::for_each`. Using the new `rift::EntityManager::par_for_entities_with` member, systems can now have their transformations applied in parallel.
+Parallelization has been added to the library which requires C++17 in order to make use of the standard's new parallelized implementation of `std::for_each`. Using the new `rift::EntityManager::par_for_entities_with` member, systems can now have their transformations applied in parallel.
 
 **NOTE:**
 The following preconditions must be met in order for a system to make use of the new `rift::EntityManager::par_for_entities_with` member:
@@ -38,16 +38,15 @@ For example:
 
 The library is intended to be compatible with C++14, with its only C++17 dependency being the use of the new standard algorithm. Therefore, if C++17 is not available to you, simply do not define `RIFT_ENABLE_PARALLEL_TRANSFORMATIONS`.
 
-As a final note, parallelization *may* provide tangible benefits only if the number of entities a system is transforming is large enough. If the number of entities a system is transforming is too small, the additional overhead incurred by the new stanard algorithm might outweigh any benefits to parallelization. Therefore, it is imperative to first be sure there *is* a performance problem before trying to optimize.    
+As a final note, parallelization *may* provide tangible benefits if the number of entities a system transforms is large enough. If the number of entities is too small, the additional overhead incurred by the new standard algorithm might outweigh any benefits with parallel execution. Therefore, it is imperative to first be sure there *is* a performance problem before trying to optimize.    
 
 ## Entities
 As mentioned earlier, entities are column indices into a component type table. As such, `rift::Entity` is a proxy class for a `std::uint64_t` index. The index is composed of two parts: a 32 bit **version** and a 32 bit **index**. The **version** distinguishes between **stale** (deceased) and **valid** (alive) entities that have the same **index**. This is necessary as the **index** maps an *entity* to its components, and you wouldn't want a stale entity modifying a valid entity's state.
 
-Entities in Rift cannot be created directly, they must be created using a `rift::EntityManager`. This decision was made in order to avoid potential errors related to an invalid entity modifying a valid entity's state.
+Entities are only created using the `rift::EntityManager::create_entity` member function. This decision was made in order to avoid potential errors related to an invalid entities modifying a valid entity's state.
 
 Entities are created as follows:
 ```cpp
-rift::EntityManager manager;
 rift::Entity entity = manager.create_entity();
 ```
 
