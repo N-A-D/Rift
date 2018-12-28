@@ -75,5 +75,8 @@
     <ClCompile Include="internal\sparse_set.cpp">
       <Filter>Source Files\Internal</Filter>
     </ClCompile>
+    <ClCompile Include="component.cpp">
+      <Filter>Source Files\Entity</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

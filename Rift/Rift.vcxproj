@@ -154,6 +154,7 @@
     <None Include="system.inl" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="component.cpp" />
     <ClCompile Include="entity.cpp" />
     <ClCompile Include="internal\sparse_set.cpp" />
     <ClCompile Include="system.cpp" />
