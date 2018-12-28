@@ -149,15 +149,14 @@
     <ClInclude Include="system.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="component.cpp" />
-    <ClCompile Include="entity.cpp" />
-    <ClCompile Include="internal\sparse_set.cpp" />
-    <ClCompile Include="system.cpp" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="entity.inl" />
     <None Include="internal\pool.inl" />
     <None Include="system.inl" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="entity.cpp" />
+    <ClCompile Include="internal\sparse_set.cpp" />
+    <ClCompile Include="system.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -55,20 +55,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="component.cpp">
-      <Filter>Source Files\Entity</Filter>
-    </ClCompile>
-    <ClCompile Include="entity.cpp">
-      <Filter>Source Files\Entity</Filter>
-    </ClCompile>
-    <ClCompile Include="system.cpp">
-      <Filter>Source Files\Entity</Filter>
-    </ClCompile>
-    <ClCompile Include="internal\sparse_set.cpp">
-      <Filter>Source Files\Internal</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="entity.inl">
       <Filter>Header Files\Entity</Filter>
     </None>
@@ -78,5 +64,16 @@
     <None Include="internal\pool.inl">
       <Filter>Header Files\Internal</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="entity.cpp">
+      <Filter>Source Files\Entity</Filter>
+    </ClCompile>
+    <ClCompile Include="system.cpp">
+      <Filter>Source Files\Entity</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\sparse_set.cpp">
+      <Filter>Source Files\Internal</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

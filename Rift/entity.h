@@ -288,14 +288,14 @@ namespace std {
 	{
 		std::size_t operator()(const rift::Entity& entity) const noexcept 
 		{
-			return entity.id().index() ^ entity.id().version();
+			return static_cast<std::size_t>(entity.id().index() ^ entity.id().version());
 		}
 	};
 	template <> struct hash<const rift::Entity>
 	{
 		std::size_t operator()(const rift::Entity& entity) const noexcept
 		{
-			return entity.id().index() ^ entity.id().version();
+			return static_cast<std::size_t>(entity.id().index() ^ entity.id().version());
 		}
 	};
 }
