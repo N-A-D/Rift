@@ -301,7 +301,7 @@ namespace UnitTests
 	TEST_CLASS(SparseSet) {
 
 		TEST_METHOD(Insertions) {
-			impl::SparseSet integers;
+			internal::SparseSet integers;
 			Assert::IsTrue(integers.empty());
 			integers.insert({ 1, 2, 3, 4, 5, 6 });
 			Assert::IsTrue(integers.contains({ 4, 3, 6, 2, 1, 5 }));
@@ -309,7 +309,7 @@ namespace UnitTests
 		}
 
 		TEST_METHOD(Erasure) {
-			impl::SparseSet integers;
+			internal::SparseSet integers;
 			Assert::IsTrue(integers.empty());
 			integers.insert({ 1, 2, 3, 4, 5, 6 });
 			Assert::IsTrue(integers.contains({ 4, 3, 6, 2, 1, 5 }));
@@ -319,7 +319,7 @@ namespace UnitTests
 		}
 
 		TEST_METHOD(ForwardIteratorRequirements) {
-			impl::SparseSet integers;
+			internal::SparseSet integers;
 			integers.insert({ 1, 2, 3, 4, 5, 6 });
 
 			auto a = integers.begin();

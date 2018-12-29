@@ -36,7 +36,7 @@ namespace rift {
 	template<class First, class ...Rest>
 	inline void SystemManager::update(double dt) const noexcept
 	{
-		static_assert(rift::impl::all_of_v<std::is_base_of_v<BaseSystem, First>
+		static_assert(rift::internal::all_of_v<std::is_base_of_v<BaseSystem, First>
 			, std::is_base_of_v<BaseSystem, Rest>...>
 			, "All systems must inherit from rift::System!");
 		for (auto system : { fetch_system<First>(), fetch_system<Rest>()... }) {

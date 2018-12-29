@@ -7,7 +7,7 @@
 #include "../component.h"
 
 namespace rift {
-	namespace impl {
+	namespace internal {
 
 		// The BasePool class
 		// Provides the interface for the Pool class below.
@@ -19,7 +19,7 @@ namespace rift {
 		};
 		
 		// The Pool class
-		// A very simple storage medium for a single component type.
+		// A very sinternale storage medium for a single component type.
 		// Note:
 		// - Has the potential to waste a significant amount of memory if there are many
 		//   entities that do not own a component in the pool. 
@@ -54,6 +54,6 @@ namespace rift {
 			std::vector<C> components;
 		};
 
-	} // namespace impl
+	} // namespace internal
 } // namespace rift
 #include "pool.inl"

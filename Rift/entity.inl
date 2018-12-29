@@ -53,7 +53,7 @@ namespace rift {
 	}
 
 	template<class First, class ...Rest>
-	inline void EntityManager::for_entities_with(rift::impl::identity_t<std::function<void(Entity, First& first, Rest&...rest)>> f)
+	inline void EntityManager::for_entities_with(rift::internal::identity_t<std::function<void(Entity, First& first, Rest&...rest)>> f)
 	{
 		auto sig = signature_for<First, Rest...>();
 		if (!contains_cache_for(sig))
@@ -68,7 +68,7 @@ namespace rift {
 #ifdef RIFT_ENABLE_PARALLEL_TRANSFORMATIONS
 
 	template<class First, class ...Rest>
-	inline void EntityManager::par_for_entities_with(rift::impl::identity_t<std::function<void(First&first, Rest&...rest)>> f)
+	inline void EntityManager::par_for_entities_with(rift::internal::identity_t<std::function<void(First&first, Rest&...rest)>> f)
 	{
 		auto sig = signature_for<First, Rest...>();
 		if (!contains_cache_for(sig))
@@ -94,7 +94,7 @@ namespace rift {
 		if (family_id >= component_pools.size())
 			component_pools.resize(family_id + 1);
 		if (!component_pools[family_id])
-			component_pools[family_id] = std::make_unique<rift::impl::Pool<C>>();
+			component_pools[family_id] = std::make_unique<rift::internal::Pool<C>>();
 
 		// Build a new component and insert it into the component pool
 		component_pools[family_id]->insert(index, C(std::forward<Args>(args)...));
@@ -144,7 +144,7 @@ namespace rift {
 	template<class ...Components>
 	inline ComponentMask EntityManager::signature_for() noexcept
 	{
-		static_assert(rift::impl::all_of_v<std::is_base_of_v<BaseComponent, Components>...>,
+		static_assert(rift::internal::all_of_v<std::is_base_of_v<BaseComponent, Components>...>,
 			"All components must inherit from rift::Component!");
 		ComponentMask mask;
 		[](...) {}((mask.set(Components::family()))...);

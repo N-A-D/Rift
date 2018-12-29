@@ -138,7 +138,7 @@ bool rift::EntityManager::contains_cache_for(const ComponentMask & sig) const
 
 void rift::EntityManager::create_cache_for(const ComponentMask & sig)
 {
-	rift::impl::SparseSet indices;
+	rift::internal::SparseSet indices;
 	for (std::uint32_t i = 0; i < masks.size(); i++) {
 		if ((masks[i] & sig) == sig)
 			indices.insert(i);

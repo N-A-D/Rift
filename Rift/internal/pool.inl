@@ -1,5 +1,5 @@
 namespace rift {
-	namespace impl {
+	namespace internal {
 
 		template<class C>
 		inline void Pool<C>::insert(std::uint32_t index, const BaseComponent & component)

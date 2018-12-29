@@ -1,7 +1,7 @@
 #pragma once
 
 namespace rift {
-	namespace impl {
+	namespace internal {
 
 		class NonCopyable {
 		public:
@@ -11,5 +11,5 @@ namespace rift {
 			NonCopyable& operator=(const NonCopyable&) = delete;
 		};
 
-	} // namespace impl
+	} // namespace internal
 } // namespace rift

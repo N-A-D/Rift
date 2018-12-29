@@ -5,7 +5,7 @@
 #include <stdexcept>
 
 namespace rift {
-	namespace impl {
+	namespace internal {
 
 		// The SparseSet class
 		// Compact set of integers
@@ -111,5 +111,5 @@ namespace rift {
 			std::vector<value_type> sparse;
 		};
 
-	} // namespace impl
+	} // namespace internal
 } // namespace rift

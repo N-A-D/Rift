@@ -13,11 +13,11 @@ namespace rift {
 	class EntityManager;
 
 	// The BaseSystem class
-	// Defines the means for which all systems implement their logic.
+	// Defines the means for which all systems internalement their logic.
 	// Note:
 	// - This class should not be subclassed directly as systems need to be registered. 
 	//   See the System class below. 
-	class BaseSystem : rift::impl::NonCopyable {
+	class BaseSystem : rift::internal::NonCopyable {
 	public:
 		virtual ~BaseSystem() = default;
 
@@ -50,7 +50,7 @@ namespace rift {
 	
 	// The SystemManager class
 	// Manages a single instance of different system types.
-	class SystemManager final : rift::impl::NonCopyable {
+	class SystemManager final : rift::internal::NonCopyable {
 	public:
 
 		// Creates a new System manager.

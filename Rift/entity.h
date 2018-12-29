@@ -138,7 +138,7 @@ namespace rift {
 
 	// The EntityManager class
 	// Manages the lifecycle of entities.
-	class EntityManager final : rift::impl::NonCopyable {
+	class EntityManager final : rift::internal::NonCopyable {
 		friend class Entity;
 	public:
 
@@ -170,7 +170,7 @@ namespace rift {
 		// EntityManager em;
 		// em.for_entities_with<A, B>([](Entity e, A& a, B& b){ /*Do something with the entity & its components*/ });
 		template <class First, class... Rest>
-		void for_entities_with(rift::impl::identity_t<std::function<void(Entity, First& first, Rest&... rest)>> f);
+		void for_entities_with(rift::internal::identity_t<std::function<void(Entity, First& first, Rest&... rest)>> f);
 
 #ifdef RIFT_ENABLE_PARALLEL_TRANSFORMATIONS
 
@@ -180,7 +180,7 @@ namespace rift {
 		// Example:
 		// em.par_for_entities_with<A, B>([](A& a, B& b){ /*Do something with the entity's components*/ });
 		template <class First, class... Rest>
-		void par_for_entities_with(rift::impl::identity_t<std::function<void(First& first, Rest&... rest)>> f);
+		void par_for_entities_with(rift::internal::identity_t<std::function<void(First& first, Rest&... rest)>> f);
 
 #endif // RIFT_ENABLE_PARALLEL_TRANSFORMATIONS
 
@@ -264,7 +264,7 @@ namespace rift {
 		std::vector<ComponentMask> masks;
 
 		// Collection of indices to invalidate before the next frame.
-		rift::impl::SparseSet invalid_indices;
+		rift::internal::SparseSet invalid_indices;
 
 		// Collection of index versions.
 		std::vector<std::uint32_t> index_versions;
@@ -273,10 +273,10 @@ namespace rift {
 		std::stack<std::uint32_t, std::vector<std::uint32_t>> free_indices;
 
 		// Collection of component pools.
-		std::vector<std::unique_ptr<rift::impl::BasePool>> component_pools;
+		std::vector<std::unique_ptr<rift::internal::BasePool>> component_pools;
 
 		// Collection of cached indices for faster system queries.
-		std::unordered_map<ComponentMask, rift::impl::SparseSet> index_caches;
+		std::unordered_map<ComponentMask, rift::internal::SparseSet> index_caches;
 		
 	};
 
