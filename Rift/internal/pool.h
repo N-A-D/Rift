@@ -19,7 +19,7 @@ namespace rift {
 		};
 		
 		// The Pool class
-		// A very sinternale storage medium for a single component type.
+		// A very simple storage medium for a single component type.
 		// Note:
 		// - Has the potential to waste a significant amount of memory if there are many
 		//   entities that do not own a component in the pool. 
