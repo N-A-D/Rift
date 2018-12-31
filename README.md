@@ -19,26 +19,26 @@ Entities are primary keys (column indices) into a transposed table of component 
 
 The idea to group entities based on their components is related to indexing in relational databases. The library makes use of sparse integer sets to speed up the search for entities with certain components. For more information about sparse integer sets visit https://programmingpraxis.com/2012/03/09/sparse-sets/
 
-Parallelization has been added to the library which requires C++17 in order to make use of the standard's new parallelized implementation of `std::for_each`. Using the new `rift::EntityManager::par_for_entities_with` member, systems can now have their transformations applied in parallel.
+Parallelization is available in a limited capacity (see the following note) with the `rift::EntityManager::par_for_entities_with` member. Use of this member function requires C++17 as it makes use of the standard's parallelized implementation of `std::for_each`.    
 
 **NOTE:**
-The following preconditions must be met in order for a system to make use of the new `rift::EntityManager::par_for_entities_with` member:
+The following preconditions must be satisfied by a system's transformation function:
 1. Does not make any calls to `rift::EntityManager::create_entity`.
 1. Does not make any calls to `rift::EntityManager::update`.
-1. Does not make any calls to any of `rift::Entity::destroy`, `rift::Entity::add`, `rift::Entity::replace`, `rift::Entity::remove`, and `rift::Entity::get` (Component modification only).   
+1. Does not make any calls to any of `rift::Entity::destroy`, `rift::Entity::add`, `rift::Entity::replace`, `rift::Entity::remove`, and `rift::Entity::get` (Modifying components other entities depend on).
 
-Failure to comply with the aforementioned conditions will result in data races.
+Failure to comply with the aforementioned conditions **will** result in undefined behaviour.
 
-To start using the new member function, ensure that you have access to compiler that supports C++17 and define `RIFT_ENABLE_PARALLEL_TRANSFORMATIONS` before including either `rift.h` or `entity.h`. 
+To start using the new `rift::EntityManager` member, ensure that you have access to compiler that supports C++17 and define `RIFT_ENABLE_PARALLEL_TRANSFORMATIONS` before including either `rift.h` or `entity.h`. 
 For example:
 ```cpp
 #define RIFT_ENABLE_PARALLEL_TRANSFORMATIONS
 #include "rift/rift.h"
 ```
 
-The library is intended to be compatible with C++14, with its only C++17 dependency being the use of the new standard algorithm. Therefore, if C++17 is not available to you, simply do not define `RIFT_ENABLE_PARALLEL_TRANSFORMATIONS`.
+The library is intended to be compatible with C++14, with its only C++17 dependency being the use of the new standard algorithm. Therefore, if your compiler does not support C++17, do not define `RIFT_ENABLE_PARALLEL_TRANSFORMATIONS`.
 
-As a final note, parallelization *may* provide tangible benefits if the number of entities a system transforms is large enough. If the number of entities is too small, the additional overhead incurred by the new standard algorithm might outweigh any benefits with parallel execution. Therefore, it is imperative to first be sure there *is* a performance problem before trying to optimize.    
+As a final note, parallelization *may* provide tangible benefits if the number of entities a system transforms is large enough. If the number of entities is too small, the additional overhead incurred by the new standard algorithm might outweigh any benefits with parallel execution. Therefore, *optimize only if there is a performance problem*.    
 
 ## Entities
 As mentioned earlier, entities are column indices into a component type table. As such, `rift::Entity` is a proxy class for a `std::uint64_t` index. The index is composed of two parts: a 32 bit **version** and a 32 bit **index**. The **version** distinguishes between **stale** (deceased) and **valid** (alive) entities that have the same **index**. This is necessary as the **index** maps an *entity* to its components, and you wouldn't want a stale entity modifying a valid entity's state.
