@@ -83,7 +83,7 @@ entity_manager.for_entities_with<Position, Direction>([](rift::Entity entity, Po
 });
 ```
 
-Additionally, since this transformation only modifies the entity's components and not the entity itself, we can make use of the `rift::EntityManager::par_for_entities_with` to parallelize execution of the transform:
+Alternatively, since this system only modifies the components and not the entity itself, we can make use of the `rift::EntityManager::par_for_entities_with` to parallelize execution of the transform:
 ```cpp
 entity_manager.par_for_entities_with<Position, Direction>([](Position& pos, Direction& dir) {
     pos.x += dir.x;
@@ -92,3 +92,5 @@ entity_manager.par_for_entities_with<Position, Direction>([](Position& pos, Dire
 ```
 
 **Note:** Rift does not include any form of messaging system to facilitate intersystem communication. It is up to the user to implement such a system if there is a need for it. 
+
+An example project that makes use of the Rift can be found [here](https://github.com/N-A-D/Doodle/tree/master/Particles). 
