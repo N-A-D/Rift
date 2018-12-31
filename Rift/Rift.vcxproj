@@ -71,19 +71,19 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <TargetName>rift32</TargetName>
-    <OutDir>$(SolutionDir)$(Configuration)\Win32\</OutDir>
+    <OutDir>$(SolutionDir)$(Configuration)\Rift\Win32\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <TargetName>rift32</TargetName>
-    <OutDir>$(SolutionDir)$(Configuration)\Win32\</OutDir>
+    <OutDir>$(SolutionDir)$(Configuration)\Rift\Win32\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <TargetName>rift64</TargetName>
-    <OutDir>$(SolutionDir)$(Configuration)\Win64\</OutDir>
+    <OutDir>$(SolutionDir)$(Configuration)\Rift\Win64\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <TargetName>rift64</TargetName>
-    <OutDir>$(SolutionDir)$(Configuration)\Win64\</OutDir>
+    <OutDir>$(SolutionDir)$(Configuration)\Rift\Win64\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
