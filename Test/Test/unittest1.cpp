@@ -1,14 +1,12 @@
 #include "stdafx.h"
 #include "CppUnitTest.h"
-#include <vector>
-#include <algorithm>
-#define RIFT_ENABLE_PARALLEL_TRANSFORMATIONS
-#include "../Rift/rift.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
+#define RIFT_ENABLE_PARALLEL_TRANSFORMATIONS
+#include "../../Rift/rift.h"
 
-namespace UnitTests
-{		
+namespace Test
+{
 	using namespace rift;
 
 	const std::size_t NUM_ENTITIES_WITH = 100;
@@ -90,7 +88,7 @@ namespace UnitTests
 				Assert::IsTrue(entity);
 				Assert::IsTrue(entity.get<Toggle>().state);
 			}
-			
+
 		}
 
 		TEST_METHOD(UpdatingComponents) {
@@ -122,7 +120,7 @@ namespace UnitTests
 				e.add<Toggle>();
 				entities.push_back(e);
 			}
-			
+
 			ToggleSystem ts;
 			ts.update(manager, 1.0);
 
@@ -177,7 +175,7 @@ namespace UnitTests
 			EntityManager manager;
 			std::vector<Entity> entities;
 			for (int i = 0; i < NUM_ENTITIES_WITH; i++) {
-				entities.push_back( manager.create_entity());
+				entities.push_back(manager.create_entity());
 			}
 			Assert::IsTrue(entities.size() == manager.size());
 			for (auto entity : entities) {
