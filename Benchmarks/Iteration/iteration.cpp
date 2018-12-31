@@ -109,7 +109,7 @@ void par_run(int entity_count, int iteration_count) {
 		assert((manager.number_of_entities_with<Position, Direction>() == entity_count / 2));
 	}
 	{
-		
+
 		Timer timer("Iteration speed: ");
 		for (int i = 0; i < iteration_count; i++) {
 			manager.par_for_entities_with<Position, Direction>([](Position& p, Direction& d) {
@@ -142,6 +142,6 @@ int main() {
 	std::cout << "-- Parallel transformations --" << std::endl;
 	for (auto param : run_params)
 		par_run(std::get<0>(param), std::get<1>(param));
-	
+
 	return 0;
 }
