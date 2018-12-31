@@ -25,7 +25,8 @@ Parallelization is available in a limited capacity (see the following note) with
 The following preconditions must be satisfied by a system's transformation function:
 1. Does not make any calls to `rift::EntityManager::create_entity`.
 1. Does not make any calls to `rift::EntityManager::update`.
-1. Does not make any calls to any of `rift::Entity::destroy`, `rift::Entity::add`, `rift::Entity::replace`, `rift::Entity::remove`, and `rift::Entity::get` (Modifying components other entities depend on).
+1. Does not make any calls to any of `rift::Entity::destroy`, `rift::Entity::add`, `rift::Entity::replace`, `rift::Entity::remove`, and `rift::Entity::get` (multiple writes).
+1. Does not modify component(s) other entities depend on.
 
 Failure to comply with the aforementioned conditions **will** result in undefined behaviour.
 
