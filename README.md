@@ -17,7 +17,7 @@ Rift is an Entity Component System written in C++14 and only requires C++17 if p
 
 Entities are primary keys (column indices) into a transposed table of component types, where each row of the table is a different type. Systems query for the entities they need using a list of component types and submit a function that performs a transformation on those entities. 
 
-The idea to group entities based on their components is related to indexing in relational databases. The library makes use of sparse integer sets to speed up the search for entities with certain components. For more information about sparse integer sets visit https://programmingpraxis.com/2012/03/09/sparse-sets/
+The idea to group entities based on their components is related to indexing in relational databases. The library makes use of sparse integer sets to store entities with certain components. For more information about sparse integer sets visit https://programmingpraxis.com/2012/03/09/sparse-sets/
 
 Parallelization is available in a limited capacity (see the following note) with the `rift::EntityManager::par_for_entities_with` member. Use of this member function requires C++17 as it makes use of the standard's parallelized implementation of `std::for_each`.    
 
