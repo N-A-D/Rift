@@ -26,7 +26,7 @@ namespace rift {
 
 		// The Entity::ID class
 		// A versionable index.
-		class ID {
+		class ID final {
 		public:
 			ID() = default;
 			ID(const ID&) = default;
