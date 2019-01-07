@@ -8,7 +8,7 @@ namespace rift {
 	namespace internal {
 
 		// The SparseSet class
-		// Unordered set of positive integers.
+		// Unordered set of nonnegative integers.
 		class SparseSet final {
 		public:
 
