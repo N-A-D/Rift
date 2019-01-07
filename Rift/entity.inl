@@ -62,7 +62,7 @@ namespace rift {
 		// Apply the system transformation sequentially
 		for (auto index : indices)
 			f(Entity(this, Entity::ID(index, index_versions[index])),      // The entity
-				get_component<First>(index), get_component<Rest>(index)...); // The entity's components
+			  get_component<First>(index), get_component<Rest>(index)...); // The entity's components
 	}
 
 #ifdef RIFT_ENABLE_PARALLEL_TRANSFORMATIONS
@@ -75,11 +75,10 @@ namespace rift {
 			create_cache_for(sig);
 		auto& indices = index_caches.at(sig);
 		// Apply the system transformation in parallel
-		std::for_each(std::execution::par_unseq, indices.begin(), indices.end(),
+		std::for_each(std::execution::par, indices.begin(), indices.end(),
 			[this, f](std::uint32_t index) {
 			f(get_component<First>(index), get_component<Rest>(index)...);
 		});
-
 	}
 
 #endif // RIFT_ENABLE_PARALLEL_TRANSFORMATIONS
