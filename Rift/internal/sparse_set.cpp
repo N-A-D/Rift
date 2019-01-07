@@ -44,24 +44,12 @@ void rift::internal::SparseSet::insert(value_type v)
 	++n;
 }
 
-void rift::internal::SparseSet::insert(std::initializer_list<value_type> integers)
-{
-	for (auto integer : integers)
-		insert(integer);
-}
-
 void rift::internal::SparseSet::erase(value_type v)
 {
 	assert(contains(v));
 	dense[sparse[v]] = dense[n - 1];
 	sparse[dense[n - 1]] = sparse[v];
 	--n;
-}
-
-void rift::internal::SparseSet::erase(std::initializer_list<value_type> integers)
-{
-	for (auto integer : integers)
-		erase(integer);
 }
 
 void rift::internal::SparseSet::clear() noexcept
@@ -79,13 +67,4 @@ bool rift::internal::SparseSet::contains(value_type v) const noexcept
 	if (v >= sparse.size()) return false;
 	if (sparse[v] < n && dense[sparse[v]] == v) return true;
 	return false;
-}
-
-bool rift::internal::SparseSet::contains(std::initializer_list<value_type> integers) const noexcept
-{
-	for (auto integer : integers) {
-		if (!contains(integer)) 
-			return false;
-	}
-	return true;
 }

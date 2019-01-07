@@ -8,7 +8,7 @@ namespace rift {
 	namespace internal {
 
 		// The SparseSet class
-		// Compact set of integers
+		// Unordered set of positive integers.
 		class SparseSet final {
 		public:
 
@@ -75,29 +75,65 @@ namespace rift {
 			SparseSet(const SparseSet&) = default;
 			SparseSet& operator=(const SparseSet&) = default;
 
-			// iterators:
+			// Returns a const_iterator to the first integer contained in the container.
 			const_iterator begin() const noexcept;
+
+			// Returns a const_iterator to the end of the container.
 			const_iterator end() const noexcept;
 
-			// capacity:
+			// Returns true if the container contains no integers.
 			bool      empty() const noexcept;
+
+			// Returns the number of integers contained in the container.
 			size_type size() const noexcept;
+
+			// Returns the largest possible size of the container.
 			size_type max_size() const noexcept;
+
+			// Returns the number of integers for which memory has been allocated. capacity() 
+			// is always greater than or equal to size().
 			size_type capacity() const noexcept;
 
-			// modifiers:
+			// Inserts v into the container if and only if it does not already exist in the container.
 			void insert(value_type v);
-			void insert(std::initializer_list<value_type> integers);
+
+			// Inserts each integer from the range [begin, end) if and only if the integer does
+			// not already exist in the container.
+			template <class InIt>
+			void insert(InIt begin, InIt end) {
+				for (InIt i = begin; i != end; i++)
+					insert(*i);
+			}
+
+			// Erases an integer if and only if the integer is contained in the container.
 			void erase(value_type v);
-			void erase(std::initializer_list<value_type> integers);
+
+			// Erases each integer from the range [begin, end) if and only if the integer is in the container.
+			template <class InIt>
+			void erase(InIt begin, InIt end) {
+				for (InIt i = begin; i != end; i++)
+					erase(*i);
+			}
+
+			// Removes every integer in the container.
 			void clear() noexcept;
 
-			// data access:
+			// Returns a const_pointer to the underlying array serving as integer storage.
 			const_pointer data() const noexcept;
 
-			// operations:
+			// Returns true if the container contains the integer.
 			bool contains(value_type v) const noexcept;
-			bool contains(std::initializer_list<value_type> integers) const noexcept;
+
+			// Returns true if every integer in the range from [begin, end) is contained in the container.
+			template <class InIt>
+			bool contains(InIt begin, InIt end) const noexcept {
+				for (InIt i = begin; i != end; i++)
+				{
+					if (!contains(*i))
+						return false;
+				}
+				return true;
+			}
 
 		private:
 			

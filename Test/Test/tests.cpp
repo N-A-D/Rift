@@ -4,6 +4,7 @@
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 #define RIFT_ENABLE_PARALLEL_TRANSFORMATIONS
 #include "../../Rift/rift.h"
+#include <array>
 
 namespace Test
 {
@@ -301,24 +302,33 @@ namespace Test
 		TEST_METHOD(Insertions) {
 			internal::SparseSet integers;
 			Assert::IsTrue(integers.empty());
-			integers.insert({ 1, 2, 3, 4, 5, 6 });
-			Assert::IsTrue(integers.contains({ 4, 3, 6, 2, 1, 5 }));
-			Assert::IsFalse(integers.contains({ 10, 11, 7, 8, 9, 22 }));
+			auto a = { 1, 2, 3, 4, 5, 6 };
+			integers.insert(a.begin(), a.end());
+			auto b = { 4, 3, 6, 2, 1, 5 };
+			Assert::IsTrue(integers.contains(b.begin(), b.end()));
+			auto c = { 10, 11, 7, 8, 9, 22 };
+			Assert::IsFalse(integers.contains(c.begin(), c.end()));
 		}
 
 		TEST_METHOD(Erasure) {
 			internal::SparseSet integers;
 			Assert::IsTrue(integers.empty());
-			integers.insert({ 1, 2, 3, 4, 5, 6 });
-			Assert::IsTrue(integers.contains({ 4, 3, 6, 2, 1, 5 }));
-			Assert::IsFalse(integers.contains({ 10, 11, 7, 8, 9, 22 }));
-			integers.erase({ 4, 3, 1 });
-			Assert::IsFalse(integers.contains({ 3, 1, 4 }));
+			auto a = { 1, 2, 3, 4, 5, 6 };
+			integers.insert(a.begin(), a.end());
+			auto b = { 4, 3, 6, 2, 1, 5 };
+			Assert::IsTrue(integers.contains(b.begin(), b.end()));
+			auto c = { 10, 11, 7, 8, 9, 22 };
+			Assert::IsFalse(integers.contains(c.begin(), c.end()));
+			auto d = { 4, 3, 1 };
+			integers.erase(d.begin(), d.end());
+			auto e = { 3, 1, 4 };
+			Assert::IsFalse(integers.contains(e.begin(), e.end()));
 		}
 
 		TEST_METHOD(ForwardIteratorRequirements) {
 			internal::SparseSet integers;
-			integers.insert({ 1, 2, 3, 4, 5, 6 });
+			auto ints = { 1, 2, 3, 4, 5, 6 };
+			integers.insert(ints.begin(), ints.end());
 
 			auto a = integers.begin();
 			auto b = integers.begin();
