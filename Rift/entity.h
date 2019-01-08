@@ -170,7 +170,7 @@ namespace rift {
 		// EntityManager em;
 		// em.for_entities_with<A, B>([](Entity e, A& a, B& b){ /*Do something with the entity & its components*/ });
 		template <class First, class... Rest>
-		void for_entities_with(rift::internal::identity_t<std::function<void(Entity, First& first, Rest&... rest)>> f);
+		void for_entities_with(rift::internal::identity_t<std::function<void(Entity, First&, Rest&...)>> f);
 
 #ifdef RIFT_ENABLE_PARALLEL_TRANSFORMATIONS
 
@@ -180,7 +180,7 @@ namespace rift {
 		// Example:
 		// em.par_for_entities_with<A, B>([](A& a, B& b){ /*Do something with the entity's components*/ });
 		template <class First, class... Rest>
-		void par_for_entities_with(rift::internal::identity_t<std::function<void(First& first, Rest&... rest)>> f);
+		void par_for_entities_with(rift::internal::identity_t<std::function<void(First&, Rest&...)>> f);
 
 #endif // RIFT_ENABLE_PARALLEL_TRANSFORMATIONS
 
@@ -197,7 +197,7 @@ namespace rift {
 
 	private:
 
-		// The following are internal functions every entity interface with.
+		// The following are internal functions every entity interfaces with.
 		// An entity ensures that its Entity::ID is valid before invoking any of these.
 
 		// Adds a component to an entity.

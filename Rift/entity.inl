@@ -53,7 +53,7 @@ namespace rift {
 	}
 
 	template<class First, class ...Rest>
-	inline void EntityManager::for_entities_with(rift::internal::identity_t<std::function<void(Entity, First& first, Rest&...rest)>> f)
+	inline void EntityManager::for_entities_with(rift::internal::identity_t<std::function<void(Entity, First&, Rest&...)>> f)
 	{
 		auto sig = signature_for<First, Rest...>();
 		if (!contains_cache_for(sig))
@@ -68,7 +68,7 @@ namespace rift {
 #ifdef RIFT_ENABLE_PARALLEL_TRANSFORMATIONS
 
 	template<class First, class ...Rest>
-	inline void EntityManager::par_for_entities_with(rift::internal::identity_t<std::function<void(First&first, Rest&...rest)>> f)
+	inline void EntityManager::par_for_entities_with(rift::internal::identity_t<std::function<void(First&, Rest&...)>> f)
 	{
 		auto sig = signature_for<First, Rest...>();
 		if (!contains_cache_for(sig))
