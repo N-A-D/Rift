@@ -101,7 +101,7 @@ namespace rift {
 			// not already exist in the container.
 			template <class InIt>
 			void insert(InIt begin, InIt end) {
-				for (InIt i = begin; i != end; i++)
+				for (InIt i = begin; i != end; ++i)
 					insert(*i);
 			}
 
@@ -111,7 +111,7 @@ namespace rift {
 			// Erases each integer from the range [begin, end) if and only if the integer is in the container.
 			template <class InIt>
 			void erase(InIt begin, InIt end) {
-				for (InIt i = begin; i != end; i++)
+				for (InIt i = begin; i != end; ++i)
 					erase(*i);
 			}
 
@@ -127,7 +127,7 @@ namespace rift {
 			// Returns true if every integer in the range from [begin, end) is contained in the container.
 			template <class InIt>
 			bool contains(InIt begin, InIt end) const noexcept {
-				for (InIt i = begin; i != end; i++)
+				for (InIt i = begin; i != end; ++i)
 				{
 					if (!contains(*i))
 						return false;
