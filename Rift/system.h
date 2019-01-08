@@ -4,7 +4,6 @@
 #include <memory>
 #include <cassert>
 #include "internal/rift_traits.h"
-#include "internal/noncopyable.h"
 
 namespace rift {
 
@@ -17,7 +16,7 @@ namespace rift {
 	// Note:
 	// - This class should not be subclassed directly as systems need to be registered. 
 	//   See the System class below. 
-	class BaseSystem : rift::internal::NonCopyable {
+	class BaseSystem {
 	public:
 		virtual ~BaseSystem() = default;
 
@@ -50,7 +49,7 @@ namespace rift {
 	
 	// The SystemManager class
 	// Manages a single instance of different system types.
-	class SystemManager final : rift::internal::NonCopyable {
+	class SystemManager final {
 	public:
 
 		// Creates a new System manager.
@@ -116,7 +115,10 @@ namespace rift {
 		template <class S>
 		std::shared_ptr<BaseSystem> fetch_system() const noexcept;
 
+		// The entity manager systems query.
 		rift::EntityManager& entity_manager;
+
+		// Collection of systems managed by the manager.
 		std::vector<std::shared_ptr<BaseSystem>> systems;
 	};
 
