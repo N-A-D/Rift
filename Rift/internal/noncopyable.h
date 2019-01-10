@@ -3,8 +3,7 @@
 namespace rift {
 	namespace internal {
 
-		class NonCopyable {
-		public:
+		struct NonCopyable {
 			NonCopyable() = default;
 			virtual ~NonCopyable() = default;
 			NonCopyable(const NonCopyable&) = delete;
