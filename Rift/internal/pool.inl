@@ -5,7 +5,7 @@ namespace rift {
 		inline void Pool<C>::insert(std::uint32_t index, const BaseComponent & component)
 		{
 			if (!contains(index))
-				expand(index);
+				accommodate(index);
 			components[index] = static_cast<const C&>(component);
 		}
 
@@ -30,9 +30,9 @@ namespace rift {
 		}
 
 		template<class C>
-		inline void Pool<C>::expand(std::uint32_t n)
+		inline void Pool<C>::accommodate(std::uint32_t index)
 		{
-			components.resize(n + 1);
+			components.resize(index + 1);
 		}
 
 	}

@@ -47,8 +47,8 @@ namespace rift {
 			// Checks if an index is within the pool size
 			bool contains(std::uint32_t index);
 
-			// Expands the size of the pool to fit up to n components.
-			void expand(std::uint32_t n);
+			// Expands the size of the pool to include the index.
+			void accommodate(std::uint32_t index);
 
 			// The block of components
 			std::vector<C> components;
