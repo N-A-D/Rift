@@ -57,6 +57,9 @@ namespace rift {
 		// Fetches the entity's id.
 		Entity::ID id() const noexcept;
 
+		// Returns the entity's hash code.
+		std::size_t hash() const noexcept;
+
 		// Checks if the entity is valid.
 		bool valid() const noexcept;
 
@@ -101,7 +104,7 @@ namespace rift {
 		// Fetches the entity's component.
 		// Note: 
 		// - Asserts the entity owns an instance of the component type.
-		// - Not thread safe if modifying the component.
+		// - Ofc not thread safe if modifying the component from different threads.
 		template <class C>
 		C &get() const noexcept;
 
@@ -132,7 +135,7 @@ namespace rift {
 	}
 
 	inline std::ostream& operator<<(std::ostream& os, const Entity& entity) {
-		os << "rift::Entity(" << entity.id() << ")";
+		os << "Entity(" << entity.id() << ")";
 		return os;
 	}
 
@@ -149,13 +152,19 @@ namespace rift {
 		// - Not thread safe.
 		Entity create_entity() noexcept;
 
-		// Returns the number of managed entities.
+		// Returns the number of valid entities.
 		std::size_t size() const noexcept;
 
-		// Returns the capacity.
+		// Checks if the manager has any valid entities.
+		bool empty() const noexcept;
+
+		// Returns the maximum possible number of valid entities.
+		std::size_t max_size() const noexcept;
+
+		// Returns the number of valid entities that can be held by the manager currently.
 		std::size_t capacity() const noexcept;
 
-		// Returns the number of entities that can be reused
+		// Returns the number of entities that can be reused.
 		std::size_t number_of_reusable_entities() const noexcept;
 
 		// Returns the number of entities waiting to be destroyed.
@@ -190,7 +199,7 @@ namespace rift {
 		// - Not thread safe.
 		void update() noexcept;
 
-		// Clears the manager of all entities.
+		// Clears the manager of all entities (valid/reusable).
 		// Note:
 		// - Not thread safe.
 		void clear() noexcept;
@@ -288,14 +297,14 @@ namespace std {
 	{
 		std::size_t operator()(const rift::Entity& entity) const noexcept 
 		{
-			return static_cast<std::size_t>(entity.id().index() ^ entity.id().version());
+			return static_cast<std::size_t>(entity.hash());
 		}
 	};
 	template <> struct hash<const rift::Entity>
 	{
 		std::size_t operator()(const rift::Entity& entity) const noexcept
 		{
-			return static_cast<std::size_t>(entity.id().index() ^ entity.id().version());
+			return static_cast<std::size_t>(entity.hash());
 		}
 	};
 }

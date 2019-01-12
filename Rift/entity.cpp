@@ -9,6 +9,11 @@ Entity::ID rift::Entity::id() const noexcept
 	return uid;
 }
 
+std::size_t rift::Entity::hash() const noexcept
+{
+	return std::size_t(uid.index() ^ uid.version());
+}
+
 bool rift::Entity::valid() const noexcept
 {
 	return manager && manager->valid_id(uid);
@@ -62,6 +67,16 @@ Entity rift::EntityManager::create_entity() noexcept
 std::size_t rift::EntityManager::size() const noexcept
 {
 	return masks.size() - free_indices.size();
+}
+
+bool rift::EntityManager::empty() const noexcept
+{
+	return size() == 0;
+}
+
+std::size_t rift::EntityManager::max_size() const noexcept
+{
+	return masks.max_size();
 }
 
 std::size_t rift::EntityManager::capacity() const noexcept
