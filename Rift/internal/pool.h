@@ -26,6 +26,7 @@ namespace rift {
 		template <class C>
 		class Pool final : public BasePool {
 		public:
+			static_assert(std::is_copy_assignable_v<C>, "The component type is not copy assignable!");
 
 			// Inserts a new component into the pool.
 			// Note:
