@@ -153,7 +153,7 @@ namespace rift {
 		};
 
 		// The ComponentOperator class
-		// Helper class for typed component operations.
+		// Helper class for operations on a single component type.
 		template <class C>
 		struct ComponentOperator final : public BaseComponentOperator 
 		{
