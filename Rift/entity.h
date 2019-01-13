@@ -157,10 +157,10 @@ namespace rift {
 		template <class C>
 		struct ComponentOperator final : public BaseComponentOperator 
 		{
-			// Creates a copy of a component from the source entity and adds it to the target entity.
+			// Copies a component from the source and adds it to the target.
 			void copy_component_from(const Entity& src, const Entity& trgt) override
 			{
-				trgt.add<C>(src.get<C>());
+				trgt.add<C>(static_cast<const C&>(src.get<C>()));
 			}
 		};
 
