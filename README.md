@@ -56,7 +56,7 @@ In Rift, Components are meant to have as little logic associated with them as po
 ### Implementation notes:
 - Every *component* must inherit from `rift::Component` in order to be considered a *component*.
 - Every *component* must include a default constructor as well as a constructor that initializes all of its POD members. 
-- Every *component* must be copy assignable.   
+- Every *component* must be copy constructible/assignable.   
 
 For instance, the following is an example of a *Position* component:
 ```cpp
