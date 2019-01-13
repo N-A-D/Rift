@@ -1,3 +1,4 @@
+#include "entity.h"
 namespace rift {
 
 	template<class C, class ...Args>
@@ -88,18 +89,7 @@ namespace rift {
 	{
 		auto family_id = C::family();
 		auto mask = masks[index].set(family_id);
-
-		// Build new component pool if necessary
-		if (family_id >= component_pools.size()) {
-			component_pools.resize(family_id + 1);
-			component_operators.resize(family_id + 1);
-		}
-		if (!component_pools[family_id]) {
-			component_pools[family_id] = std::make_unique<rift::internal::Pool<C>>();
-			component_operators[family_id] = std::make_unique<ComponentOperator<C>>();
-		}
-
-		// Build a new component and insert it into the component pool
+		accommodate_component<C>();
 		component_pools[family_id]->insert(index, C(std::forward<Args>(args)...));
 
 		// Add the entity into every existing index cache whose signature 
@@ -152,6 +142,20 @@ namespace rift {
 		ComponentMask mask;
 		[](...) {}((mask.set(Components::family()))...);
 		return mask;
+	}
+
+	template<class C>
+	inline void EntityManager::accommodate_component() noexcept
+	{
+		auto family_id = C::family();
+		if (family_id >= component_pools.size()) 
+			component_pools.resize(family_id + 1);
+		if (family_id >= component_operators.size())
+			component_operators.resize(family_id + 1);
+		if (!component_pools[family_id]) 
+			component_pools[family_id] = std::make_unique<rift::internal::Pool<C>>();
+		if (!component_operators[family_id])
+			component_operators[family_id] = std::make_unique<ComponentOperator<C>>();
 	}
 
 }

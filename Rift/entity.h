@@ -284,6 +284,10 @@ namespace rift {
 		template <class ...Components>
 		static ComponentMask signature_for() noexcept;
 		
+		// Creates a new component pool/operator if one does not already exist for the component type.
+		template <class C>
+		void accommodate_component() noexcept;
+
 		// Removes an index from any caches that contain it.
 		void erase_caches_for(std::uint32_t index);
 
