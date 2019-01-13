@@ -6,6 +6,7 @@ namespace rift {
 		assert(!has<S>() && "Cannot manage more than one system of a given type!");
 		if (S::family() >= systems.size())
 			systems.resize(S::family() + 1);
+		assert(!systems[S::family()] && "Already managing a system of the given type!");
 		systems[S::family()] = std::make_shared<S>(std::forward<Args>(args)...);
 	}
 
@@ -13,7 +14,7 @@ namespace rift {
 	inline void SystemManager::remove() noexcept
 	{
 		assert(has<S>() && "Cannot remove an unmanaged system type!");
-		systems[S::family()] = nullptr;
+		systems[S::family()].reset();
 	}
 
 	template<class S>
