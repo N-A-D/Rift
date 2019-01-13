@@ -143,6 +143,27 @@ namespace rift {
 	// Manages the lifecycle of entities.
 	class EntityManager final : rift::internal::NonCopyable {
 		friend class Entity;
+
+		// The BaseComponentOperator class
+		// Provides the interface for typed component operations.
+		struct BaseComponentOperator 
+		{
+			virtual ~BaseComponentOperator() = default;
+			virtual void copy_component_from(const Entity& src, const Entity& trgt) = 0;
+		};
+
+		// The ComponentOperator class
+		// Helper class for typed component operations.
+		template <class C>
+		struct ComponentOperator final : public BaseComponentOperator 
+		{
+			// Creates a copy of a component from the source entity and adds it to the target entity.
+			void copy_component_from(const Entity& src, const Entity& trgt) override
+			{
+				trgt.add<C>(src.get<C>());
+			}
+		};
+
 	public:
 
 		EntityManager() = default;
@@ -151,6 +172,12 @@ namespace rift {
 		// Note:
 		// - Not thread safe.
 		Entity create_entity() noexcept;
+		
+		// Creates a new Entity by copying another entity.
+		// Note:
+		// - The entity's components are copy constructed from the original.
+		// - Not thread safe.
+		Entity create_copy_of(const Entity& original) noexcept;
 
 		// Returns the number of valid entities.
 		std::size_t size() const noexcept;
@@ -176,7 +203,6 @@ namespace rift {
 
 		// Applies the function f on every entity whose component mask includes each component type.
 		// Example:
-		// EntityManager em;
 		// em.for_entities_with<A, B>([](Entity e, A& a, B& b){ /*Do something with the entity & its components*/ });
 		template <class First, class... Rest>
 		void for_entities_with(rift::internal::identity_t<std::function<void(Entity, First&, Rest&...)>> f);
@@ -283,6 +309,9 @@ namespace rift {
 
 		// Collection of component pools.
 		std::vector<std::unique_ptr<rift::internal::BasePool>> component_pools;
+
+		// Collection of component operators.
+		std::vector<std::unique_ptr<BaseComponentOperator>> component_operators;
 
 		// Collection of cached indices for faster system queries.
 		std::unordered_map<ComponentMask, rift::internal::SparseSet> index_caches;

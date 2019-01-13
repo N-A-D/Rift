@@ -64,6 +64,19 @@ Entity rift::EntityManager::create_entity() noexcept
 	return Entity(this, Entity::ID(index, version));
 }
 
+Entity rift::EntityManager::create_copy_of(const Entity& original) noexcept
+{
+	assert(original && "Cannot create a copy of an invalid entity!");
+	auto clone = create_entity();
+	auto mask = component_mask_for(original.id().index());
+	for (std::size_t i = 0; i < mask.size(); ++i) 
+	{
+		if (mask.test(i))
+			component_operators[i]->copy_component_from(original, clone);
+	}
+	return clone;
+}
+
 std::size_t rift::EntityManager::size() const noexcept
 {
 	return masks.size() - free_indices.size();
@@ -113,6 +126,7 @@ void rift::EntityManager::clear() noexcept
 	masks.clear();
 	index_versions.clear();
 	component_pools.clear();
+	component_operators.clear();
 	index_caches.clear();
 }
 

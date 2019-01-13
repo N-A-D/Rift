@@ -149,7 +149,7 @@ namespace Test
 	};
 
 	TEST_CLASS(EntityManagerTests) {
-		TEST_METHOD(MasseEntityCreation) {
+		TEST_METHOD(MassEntityCreation) {
 			std::vector<Entity> entities;
 			EntityManager manager;
 			for (int i = 0; i < NUM_ENTITIES_WITH; i++) {
@@ -227,6 +227,19 @@ namespace Test
 			Assert::IsTrue(manager.number_of_reusable_entities() == NUM_ENTITIES_WITH);
 		}
 
+		TEST_METHOD(MassEntityCreationFromCopy) {
+			std::vector<Entity> entities;
+			EntityManager manager;
+			auto e = manager.create_entity();
+			e.add<Toggle>(true);
+			entities.push_back(e);
+			for (int i = 0; i < NUM_ENTITIES_WITH; ++i) {
+				entities.push_back(manager.create_copy_of(e));
+			}
+			Assert::IsTrue(manager.size() == entities.size());
+			Assert::IsTrue(manager.number_of_entities_with<Toggle>() == entities.size());
+			Assert::IsTrue(std::all_of(entities.begin(), entities.end(), [](const Entity& e) { return e.get<Toggle>().state; }));
+		}
 	};
 
 	TEST_CLASS(SystemManagerTests) {

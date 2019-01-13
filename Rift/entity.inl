@@ -90,10 +90,14 @@ namespace rift {
 		auto mask = masks[index].set(family_id);
 
 		// Build new component pool if necessary
-		if (family_id >= component_pools.size())
+		if (family_id >= component_pools.size()) {
 			component_pools.resize(family_id + 1);
-		if (!component_pools[family_id])
+			component_operators.resize(family_id + 1);
+		}
+		if (!component_pools[family_id]) {
 			component_pools[family_id] = std::make_unique<rift::internal::Pool<C>>();
+			component_operators[family_id] = std::make_unique<ComponentOperator<C>>();
+		}
 
 		// Build a new component and insert it into the component pool
 		component_pools[family_id]->insert(index, C(std::forward<Args>(args)...));
