@@ -31,21 +31,21 @@ namespace rift {
 			ID() = default;
 			ID(const ID&) = default;
 			ID(std::uint32_t index, std::uint32_t version) noexcept
-				: m_number(std::uint64_t(index) | std::uint64_t(version) << 32) {}
+				: num(std::uint64_t(index) << 0x20UL | std::uint64_t(version)) {}
 
 			ID& operator=(const ID&) = default;
 
-			std::uint32_t index() const noexcept { return m_number & 0xFFFFFFFFUL; }
-			std::uint32_t version() const noexcept { return m_number >> 32; }
-			std::uint64_t number() const noexcept { return m_number; }
+			std::uint32_t index() const noexcept { return num >> 0x20UL; }
+			std::uint32_t version() const noexcept { return num & 0xFFFFFFFFUL; }
+			std::uint64_t number() const noexcept { return num; }
 
-			bool operator<(const ID& other) const noexcept { return m_number < other.m_number; }
+			bool operator<(const ID& other) const noexcept { return num < other.num; }
 			bool operator>(const ID& other) const noexcept { return other < *this; }
 			bool operator==(const ID& other) const noexcept { return !(*this < other) && !(other < *this); }
 			bool operator!=(const ID& other) const noexcept { return !(*this == other); }
 
 		private:
-			std::uint64_t m_number = 0;
+			std::uint64_t num = 0;
 		};
 
 		static const ID INVALID_ID;
