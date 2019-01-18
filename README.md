@@ -23,7 +23,7 @@ Parallelization is available in a limited capacity (see the following note) with
 
 **NOTE:**
 The following preconditions must be satisfied by a system's transformation function:
-1. Does not make any calls to `rift::EntityManager::create_entity`.
+1. Does not make any calls to `rift::EntityManager::create_entity` or `rift::EntityManager::create_copy_of`.
 1. Does not make any calls to `rift::EntityManager::update`.
 1. Does not make any calls to any of `rift::Entity::destroy`, `rift::Entity::add`, `rift::Entity::replace`, `rift::Entity::remove`, and `rift::Entity::get` (multiple writes).
 1. Does not modify component(s) other entities depend on.
@@ -44,12 +44,15 @@ As a final note, parallelization *may* provide tangible benefits if the number o
 ## Entities
 As mentioned earlier, entities are column indices into a component type table. As such, `rift::Entity` is a proxy class for a `std::uint64_t` index. The index is composed of two parts: a 32 bit **version** and a 32 bit **index**. The **version** distinguishes between **stale** (deceased) and **valid** (alive) entities that have the same **index**. This is necessary as the **index** maps an *entity* to its components, and you wouldn't want a stale entity modifying a valid entity's state.
 
-Entities are only created using the `rift::EntityManager::create_entity` member function. This decision was made in order to avoid potential errors related to an invalid entities modifying a valid entity's state.
-
-Entities are created as follows:
+New entities are created using the `rift::EntityManager::create_entity` member as follows:
 ```cpp
 rift::Entity entity = manager.create_entity();
 ```
+New entities can also be created by copying *existing* entities using the `rift::EntityManager::create_copy_of` member as follows:
+```cpp
+rift::Entity entity = manager.create_copy_of(original_entity);
+```
+**NOTE:** The entity's components are copy constructed from the original entity's components.  
 
 ## Components 
 In Rift, Components are meant to have as little logic associated with them as possible. In fact, an ideal component is a *POD* that just stores state information. State is then modified using a system transformation.
