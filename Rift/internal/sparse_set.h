@@ -82,7 +82,7 @@ namespace rift {
 			const_iterator end() const noexcept;
 
 			// Returns true if the container contains no integers.
-			bool      empty() const noexcept;
+			bool empty() const noexcept;
 
 			// Returns the number of integers contained in the container.
 			size_type size() const noexcept;
@@ -100,20 +100,14 @@ namespace rift {
 			// Inserts each integer from the range [begin, end) if and only if the integer does
 			// not already exist in the container.
 			template <class InIt>
-			void insert(InIt begin, InIt end) {
-				for (InIt i = begin; i != end; ++i)
-					insert(*i);
-			}
+			void insert(InIt begin, InIt end);
 
 			// Erases an integer if and only if the integer is contained in the container.
 			void erase(value_type v);
 
 			// Erases each integer from the range [begin, end) if and only if the integer is in the container.
 			template <class InIt>
-			void erase(InIt begin, InIt end) {
-				for (InIt i = begin; i != end; ++i)
-					erase(*i);
-			}
+			void erase(InIt begin, InIt end);
 
 			// Removes every integer in the container.
 			void clear() noexcept;
@@ -126,14 +120,7 @@ namespace rift {
 
 			// Returns true if every integer in the range from [begin, end) is contained in the container.
 			template <class InIt>
-			bool contains(InIt begin, InIt end) const noexcept {
-				for (InIt i = begin; i != end; ++i)
-				{
-					if (!contains(*i))
-						return false;
-				}
-				return true;
-			}
+			bool contains(InIt begin, InIt end) const noexcept;
 
 		private:
 			
@@ -149,3 +136,4 @@ namespace rift {
 
 	} // namespace internal
 } // namespace rift
+#include "sparse_set.inl"

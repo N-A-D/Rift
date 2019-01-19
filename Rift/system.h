@@ -24,7 +24,10 @@ namespace rift {
 		virtual void update(EntityManager& em, double dt) = 0;
 
 	protected:
-		static SystemFamily m_family;
+		static SystemFamily generate_family() noexcept {
+			static SystemFamily family_counter = 0;
+			return family_counter++;
+		}
 	};
 
 	class SystemManager;
@@ -39,10 +42,9 @@ namespace rift {
 		virtual ~System() = default;
 	private:
 		friend class SystemManager;
-
 		// Returns a System type id.
 		static SystemFamily family() noexcept {
-			static SystemFamily system_family = m_family++;
+			static SystemFamily system_family = generate_family();
 			return system_family;
 		}
 	};
@@ -53,7 +55,8 @@ namespace rift {
 	public:
 
 		// Creates a new System manager.
-		SystemManager(rift::EntityManager& em) noexcept;
+		SystemManager(rift::EntityManager& em) noexcept
+			: entity_manager(em) {}
 
 		// Adds a new managed system.
 		// Note: 

@@ -15,7 +15,10 @@ namespace rift {
 	public:
 		virtual ~BaseComponent() = default;
 	protected:
-		static ComponentFamily m_family;
+		static ComponentFamily generate_family() noexcept {
+			static ComponentFamily family_counter = 0;
+			return family_counter++;
+		}
 	};
 
 	class EntityManager;
@@ -37,12 +40,11 @@ namespace rift {
 		virtual ~Component() = default;
 	private:
 		friend class EntityManager;
-
-		// Returns a Component type id.
+		// Returns the Component class id.
 		static ComponentFamily family() noexcept {
-			assert(m_family < config::MAX_COMPONENT_TYPES && "The maximum number of components has been reached!");
-			static ComponentFamily component_family = m_family++;
-			return component_family;
+			static ComponentFamily family_id = generate_family();
+			assert(family_id < config::MAX_COMPONENT_TYPES && "The maximum number of components has been reached!");
+			return family_id;
 		}
 	};
 

@@ -48,8 +48,6 @@ namespace rift {
 			std::uint64_t num = 0;
 		};
 
-		static const ID INVALID_ID;
-
 		Entity() = default;
 		Entity(const Entity&) = default;
 		Entity& operator=(const Entity&) = default;
@@ -119,13 +117,14 @@ namespace rift {
 		friend class EntityManager;
 
 		// Only EntityManagers are permitted to create valid entities.
-		Entity(EntityManager *manager, Entity::ID uid) noexcept;
+		Entity(EntityManager *manager, Entity::ID uid) noexcept
+			: manager(manager), uid(uid) {}
 
 		// The manager that created this entity.
 		EntityManager* manager = nullptr;
 
 		// The entity's unique id.
-		Entity::ID uid = INVALID_ID;
+		Entity::ID uid;
 
 	};
 	
@@ -191,6 +190,17 @@ namespace rift {
 		// Returns the number of valid entities that can be held by the manager currently.
 		std::size_t capacity() const noexcept;
 
+		// Recycles destroyed entities.
+		// Note:
+		// - This function must be called at the end of every frame.
+		// - Not thread safe.
+		void update() noexcept;
+
+		// Clears the manager of all entities (valid/reusable).
+		// Note:
+		// - Not thread safe.
+		void clear() noexcept;
+
 		// Returns the number of entities that can be reused.
 		std::size_t number_of_reusable_entities() const noexcept;
 
@@ -218,17 +228,6 @@ namespace rift {
 		void par_for_entities_with(rift::internal::identity_t<std::function<void(First&, Rest&...)>> f);
 
 #endif // RIFT_ENABLE_PARALLEL_TRANSFORMATIONS
-
-		// Recycles destroyed entities.
-		// Note:
-		// - This function must be called at the end of every frame.
-		// - Not thread safe.
-		void update() noexcept;
-
-		// Clears the manager of all entities (valid/reusable).
-		// Note:
-		// - Not thread safe.
-		void clear() noexcept;
 
 	private:
 

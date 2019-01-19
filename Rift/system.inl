@@ -34,6 +34,18 @@ namespace rift {
 		return std::static_pointer_cast<S>(fetch_system<S>());
 	}
 
+	inline void SystemManager::update_all(double dt) const noexcept
+	{
+		// Uppdate all valid systems
+		for (auto system : systems) {
+			if (system) {
+				system->update(entity_manager, dt);
+			}
+		}
+		// Update the entity manager
+		entity_manager.update();
+	}
+
 	template<class First, class ...Rest>
 	inline void SystemManager::update(double dt) const noexcept
 	{
