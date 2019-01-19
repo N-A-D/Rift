@@ -30,8 +30,6 @@ namespace rift {
 			static_assert(std::is_copy_constructible_v<C>, "The component type is not copy constructible!");
 			static_assert(std::is_copy_assignable_v<C>, "The component type is not copy assignable!");
 
-			virtual ~Pool() = default;
-
 			// Inserts a new component into the pool.
 			// Note:
 			// - Expands the pool size to accommodate an index greater than the current size.
