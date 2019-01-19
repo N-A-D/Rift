@@ -12,6 +12,7 @@ namespace rift {
 		// The BasePool class
 		// Provides the interface for the Pool class below.
 		struct BasePool {
+			virtual ~BasePool() = default;
 			// operations:
 			virtual void insert(std::uint32_t index, const BaseComponent& component) = 0;
 			virtual void replace(std::uint32_t index, const BaseComponent& component) = 0;
@@ -28,6 +29,8 @@ namespace rift {
 		public:
 			static_assert(std::is_copy_constructible_v<C>, "The component type is not copy constructible!");
 			static_assert(std::is_copy_assignable_v<C>, "The component type is not copy assignable!");
+
+			virtual ~Pool() = default;
 
 			// Inserts a new component into the pool.
 			// Note:

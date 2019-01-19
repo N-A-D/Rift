@@ -5,57 +5,57 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
-    <Filter Include="Header Files\Entity">
-      <UniqueIdentifier>{3d16a6e1-5d79-44e9-8aa1-43b93f07661e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Config">
+    <Filter Include="Header Files\config">
       <UniqueIdentifier>{aa217697-4904-4bf8-9c01-9ba5d5023a45}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Internal">
+    <Filter Include="Header Files\entity">
+      <UniqueIdentifier>{3d16a6e1-5d79-44e9-8aa1-43b93f07661e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\internal">
       <UniqueIdentifier>{a5547dd3-eb53-4236-adc6-be83ad77ab8e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="component.h">
-      <Filter>Header Files\Entity</Filter>
+      <Filter>Header Files\entity</Filter>
     </ClInclude>
     <ClInclude Include="entity.h">
-      <Filter>Header Files\Entity</Filter>
+      <Filter>Header Files\entity</Filter>
     </ClInclude>
     <ClInclude Include="system.h">
-      <Filter>Header Files\Entity</Filter>
+      <Filter>Header Files\entity</Filter>
     </ClInclude>
     <ClInclude Include="config\config.h">
-      <Filter>Header Files\Config</Filter>
+      <Filter>Header Files\config</Filter>
     </ClInclude>
     <ClInclude Include="internal\noncopyable.h">
-      <Filter>Header Files\Internal</Filter>
+      <Filter>Header Files\internal</Filter>
     </ClInclude>
     <ClInclude Include="internal\rift_traits.h">
-      <Filter>Header Files\Internal</Filter>
+      <Filter>Header Files\internal</Filter>
     </ClInclude>
     <ClInclude Include="internal\sparse_set.h">
-      <Filter>Header Files\Internal</Filter>
+      <Filter>Header Files\internal</Filter>
     </ClInclude>
     <ClInclude Include="internal\pool.h">
-      <Filter>Header Files\Internal</Filter>
+      <Filter>Header Files\internal</Filter>
     </ClInclude>
     <ClInclude Include="rift.h">
-      <Filter>Header Files\Entity</Filter>
+      <Filter>Header Files\entity</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="entity.inl">
-      <Filter>Header Files\Entity</Filter>
+      <Filter>Header Files\entity</Filter>
     </None>
     <None Include="system.inl">
-      <Filter>Header Files\Entity</Filter>
+      <Filter>Header Files\entity</Filter>
     </None>
     <None Include="internal\pool.inl">
-      <Filter>Header Files\Internal</Filter>
+      <Filter>Header Files\internal</Filter>
     </None>
     <None Include="internal\sparse_set.inl">
-      <Filter>Header Files\Internal</Filter>
+      <Filter>Header Files\internal</Filter>
     </None>
   </ItemGroup>
 </Project>
