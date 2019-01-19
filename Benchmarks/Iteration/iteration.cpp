@@ -63,6 +63,7 @@ void seq_run(int entity_count, int iteration_count) {
 		}
 		manager.update();
 		assert((manager.number_of_entities_with<Position, Direction>() == entity_count / 2));
+		assert((manager.number_of_reusable_entities() == entity_count / 2));
 	}
 	{
 		Timer timer("Iteration speed: ");
@@ -107,6 +108,7 @@ void par_run(int entity_count, int iteration_count) {
 		}
 		manager.update();
 		assert((manager.number_of_entities_with<Position, Direction>() == entity_count / 2));
+		assert((manager.number_of_reusable_entities() == entity_count / 2));
 	}
 	{
 

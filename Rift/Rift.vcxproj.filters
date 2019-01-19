@@ -21,9 +21,6 @@
     <Filter Include="Header Files\Internal">
       <UniqueIdentifier>{a5547dd3-eb53-4236-adc6-be83ad77ab8e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Internal">
-      <UniqueIdentifier>{c2ffa0f7-5378-4775-a433-2d53d14abdfa}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="component.h">
@@ -72,11 +69,11 @@
     <ClCompile Include="system.cpp">
       <Filter>Source Files\Entity</Filter>
     </ClCompile>
-    <ClCompile Include="internal\sparse_set.cpp">
-      <Filter>Source Files\Internal</Filter>
-    </ClCompile>
     <ClCompile Include="component.cpp">
       <Filter>Source Files\Entity</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\sparse_set.cpp">
+      <Filter>Header Files\Internal</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
