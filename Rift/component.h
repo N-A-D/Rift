@@ -12,8 +12,6 @@ namespace rift {
 	// - This class should not but subclassed directly as components need to be registered. 
 	//   See the Component class below.
 	class BaseComponent {
-	public:
-		virtual ~BaseComponent() = default;
 	protected:
 		static ComponentFamily generate_family() noexcept {
 			static ComponentFamily family_counter = 0;
@@ -36,9 +34,6 @@ namespace rift {
 	// };
 	template <class Derived>
 	class Component : public BaseComponent {
-	public:
-		virtual ~Component() = default;
-	private:
 		friend class EntityManager;
 		// Returns the Component class id.
 		static ComponentFamily family() noexcept {
