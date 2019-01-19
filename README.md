@@ -98,5 +98,3 @@ entity_manager.par_for_entities_with<Position, Direction>([](Position& pos, Dire
 ```
 
 **Note:** Rift does not include any form of messaging system to facilitate intersystem communication. It is up to the user to implement such a system if there is a need for it. 
-
-An example project that makes use of the Rift can be found [here](https://github.com/N-A-D/Doodle/tree/master/Particles). 
