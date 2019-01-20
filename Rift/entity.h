@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stack>
+#include <vector>
 #include <memory>
 #include <cassert>
 #include <iostream>
@@ -128,16 +129,6 @@ namespace rift {
 
 	};
 	
-	inline std::ostream& operator<<(std::ostream& os, const Entity::ID& id) {
-		os << "ID(index=" << id.index() << ", version=" << id.version() << ")";
-		return os;
-	}
-
-	inline std::ostream& operator<<(std::ostream& os, const Entity& entity) {
-		os << "Entity(" << entity.id() << ")";
-		return os;
-	}
-
 	// The EntityManager class
 	// Manages the lifecycle of entities.
 	class EntityManager final : rift::internal::NonCopyable {
@@ -323,6 +314,16 @@ namespace rift {
 
 } // namespace rift
 #include "entity.inl"
+
+inline std::ostream& operator<<(std::ostream& os, const rift::Entity::ID& id) {
+	os << "ID:[" << id.index() << "," << id.version() << "]";
+	return os;
+}
+
+inline std::ostream& operator<<(std::ostream& os, const rift::Entity& entity) {
+	os << "Entity:{" << entity.id() << "}";
+	return os;
+}
 
 namespace std {
 	template <> struct hash<rift::Entity>
