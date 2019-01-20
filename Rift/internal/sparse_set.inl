@@ -4,8 +4,6 @@
 namespace rift {
 	namespace internal {
 
-
-
 		inline bool SparseSet::empty() const noexcept
 		{
 			return n == 0;
