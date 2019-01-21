@@ -64,10 +64,10 @@ namespace rift {
 
 		operator bool() const noexcept;
 
-		// Checks if this entity will be invalid next frame.
-		bool pending_invalidation() const noexcept;
+		// Checks if the entity will be destroyed on the next manager update.
+		bool marked_for_destruction() const noexcept;
 
-		// Signals the manager to recycle this entity.
+		// Signals the manager to destroy this entity.
 		// Note:
 		// - Not thread safe.
 		void destroy() const noexcept;
@@ -181,7 +181,7 @@ namespace rift {
 		// Returns the number of valid entities that can be held by the manager currently.
 		std::size_t capacity() const noexcept;
 
-		// Recycles destroyed entities.
+		// Finalizes the destruction of any entity destroyed in the current frame.
 		// Note:
 		// - This function must be called at the end of every frame.
 		// - Not thread safe.
@@ -254,13 +254,13 @@ namespace rift {
 		// Fetches the ComponentMask for an entity.
 		ComponentMask component_mask_for(std::uint32_t index) const noexcept;
 
-		// Checks if an entity will be recycled.
-		bool pending_invalidation(std::uint32_t index) const noexcept;
+		// Checks if an entity will be destroyed on the next update.
+		bool marked_for_destruction(std::uint32_t index) const noexcept;
 
 		// Checks if an entity is valid.
 		bool valid_id(const Entity::ID& id) const noexcept;
 
-		// Queue an entity for recycling.
+		// Mark an entity for destruction.
 		void destroy(std::uint32_t index) noexcept;
 
 		// The following are internal functions an entity manager only uses.
@@ -292,8 +292,8 @@ namespace rift {
 		// Collection of entity component masks.
 		std::vector<ComponentMask> masks;
 
-		// Collection of indices to invalidate before the next frame.
-		rift::internal::SparseSet invalid_indices;
+		// Collection of indices to destroy on the next update.
+		rift::internal::SparseSet indices_to_destroy;
 
 		// Collection of index versions.
 		std::vector<std::uint32_t> index_versions;

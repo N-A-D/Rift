@@ -37,6 +37,20 @@ namespace Test
 	};
 
 	TEST_CLASS(EntityTests) {
+
+		TEST_METHOD(MarkingForDestruction) {
+			EntityManager manager;
+			auto a = manager.create_entity();
+			auto b(a);
+			a.destroy();
+			Assert::IsTrue(a && b);
+			Assert::IsTrue(manager.number_of_entities_to_destroy() == 1);
+			Assert::IsTrue(a.marked_for_destruction() && b.marked_for_destruction());
+			manager.update();
+			Assert::IsFalse(a);
+			Assert::IsFalse(b);
+		}
+
 		TEST_METHOD(AddingComponents) {
 			EntityManager manager;
 			std::vector<Entity> entities;

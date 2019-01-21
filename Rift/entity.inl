@@ -20,10 +20,10 @@ namespace rift { // Entity definitions
 		return valid();
 	}
 
-	inline bool Entity::pending_invalidation() const noexcept
+	inline bool Entity::marked_for_destruction() const noexcept
 	{
 		assert(valid() && "Cannot check if an invalid entity is waiting to be invalidated!");
-		return manager->pending_invalidation(uid.index());
+		return manager->marked_for_destruction(uid.index());
 	}
 
 	inline void Entity::destroy() const noexcept
@@ -131,18 +131,18 @@ namespace rift { // EntityManager definitions
 
 	inline void rift::EntityManager::update() noexcept
 	{
-		for (auto index : invalid_indices) {
+		for (auto index : indices_to_destroy) {
 			erase_caches_for(index);
 			masks[index].reset();
 			index_versions[index]++;
 			free_indices.push(index);
 		}
-		invalid_indices.clear();
+		indices_to_destroy.clear();
 	}
 
 	inline void rift::EntityManager::clear() noexcept
 	{
-		invalid_indices.clear();
+		indices_to_destroy.clear();
 		while (!free_indices.empty())
 			free_indices.pop();
 		masks.clear();
@@ -159,7 +159,7 @@ namespace rift { // EntityManager definitions
 
 	inline std::size_t EntityManager::number_of_entities_to_destroy() const noexcept
 	{
-		return invalid_indices.size();
+		return indices_to_destroy.size();
 	}
 
 	template<class First, class ...Rest>
@@ -273,9 +273,9 @@ namespace rift { // EntityManager definitions
 		return masks[index];
 	}
 
-	inline bool EntityManager::pending_invalidation(std::uint32_t index) const noexcept
+	inline bool EntityManager::marked_for_destruction(std::uint32_t index) const noexcept
 	{
-		return invalid_indices.contains(index);
+		return indices_to_destroy.contains(index);
 	}
 
 	inline bool EntityManager::valid_id(const Entity::ID & id) const noexcept
@@ -285,8 +285,8 @@ namespace rift { // EntityManager definitions
 
 	inline void EntityManager::destroy(std::uint32_t index) noexcept
 	{
-		if (!invalid_indices.contains(index))
-			invalid_indices.insert(index);
+		if (!indices_to_destroy.contains(index))
+			indices_to_destroy.insert(index);
 	}
 
 	template<class C>
