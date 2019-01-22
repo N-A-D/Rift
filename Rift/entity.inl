@@ -257,7 +257,7 @@ namespace rift { // EntityManager definitions
 				index_cache.second.erase(index);
 		}
 
-		masks[index].reset(family_id);
+		mask.reset(family_id);
 	}
 
 	template<class C>
@@ -294,7 +294,7 @@ namespace rift { // EntityManager definitions
 
 	inline bool EntityManager::valid_id(const Entity::ID & id) const noexcept
 	{
-		return id.index() < masks.size() && index_versions[id.index()] == id.version();
+		return index_versions[id.index()] == id.version();
 	}
 
 	inline void EntityManager::destroy(std::uint32_t index) noexcept
@@ -315,7 +315,7 @@ namespace rift { // EntityManager definitions
 
 	inline void EntityManager::erase_caches_for(std::uint32_t index)
 	{
-		auto mask = component_mask_for(index);
+		auto& mask = masks[index];
 		for (auto& index_cache : index_caches) {
 			if ((mask & index_cache.first) == index_cache.first)
 				index_cache.second.erase(index);
