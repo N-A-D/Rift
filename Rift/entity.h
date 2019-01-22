@@ -292,12 +292,12 @@ namespace rift {
 #include "entity.inl"
 
 inline std::ostream& operator<<(std::ostream& os, const rift::Entity::ID& id) {
-	os << "ID:[" << id.index() << "," << id.version() << "]";
+	os << "ID(index=" << id.index() << ",version=" << id.version() << ")";
 	return os;
 }
 
 inline std::ostream& operator<<(std::ostream& os, const rift::Entity& entity) {
-	os << "Entity:{" << entity.id() << "}";
+	os << "Entity(" << entity.id() << ")";
 	return os;
 }
 
@@ -306,14 +306,14 @@ namespace std {
 	{
 		std::size_t operator()(const rift::Entity& entity) const noexcept 
 		{
-			return static_cast<std::size_t>(entity.hash());
+			return entity.hash();
 		}
 	};
 	template <> struct hash<const rift::Entity>
 	{
 		std::size_t operator()(const rift::Entity& entity) const noexcept
 		{
-			return static_cast<std::size_t>(entity.hash());
+			return entity.hash();
 		}
 	};
 }
