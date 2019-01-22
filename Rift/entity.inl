@@ -100,11 +100,22 @@ namespace rift { // EntityManager definitions
 	{
 		assert(original && "Cannot create a copy of an invalid entity!");
 		auto clone = create_entity();
-		auto mask = component_mask_for(original.id().index());
-		for (std::size_t i = 0; i < mask.size(); ++i)
-		{
-			if (mask.test(i))
-				component_operators[i]->copy_component_from(original, clone);
+		auto c_idx = clone.id().index();
+		auto o_idx = original.id().index();
+		masks[c_idx] = masks[o_idx];
+
+		// Insert the clone into every search cache the original is in.
+		for (auto& index_cache : index_caches) {
+			if ((index_cache.first & masks[c_idx]) == index_cache.first) {
+				index_cache.second.insert(c_idx);
+			}
+		}
+
+		// Copy every component from the original to the clone.
+		for (std::size_t i = 0; i < masks[c_idx].size(); ++i) {
+			if (masks[c_idx].test(i)) {
+				component_pools[i]->insert(c_idx, component_pools[i]->at(o_idx));
+			}
 		}
 		return clone;
 	}
@@ -148,7 +159,6 @@ namespace rift { // EntityManager definitions
 		masks.clear();
 		index_versions.clear();
 		component_pools.clear();
-		component_operators.clear();
 		index_caches.clear();
 	}
 
@@ -212,7 +222,7 @@ namespace rift { // EntityManager definitions
 	inline void EntityManager::add_component(std::uint32_t index, Args && ...args) noexcept
 	{
 		auto family_id = C::family();
-		auto mask = masks[index].set(family_id);
+		auto& mask = masks[index].set(family_id);
 		accommodate_component<C>();
 		component_pools[family_id]->insert(index, C(std::forward<Args>(args)...));
 
@@ -234,7 +244,7 @@ namespace rift { // EntityManager definitions
 	inline void EntityManager::remove_component(std::uint32_t index) noexcept
 	{
 		auto family_id = C::family();
-		auto mask = masks[index];
+		auto& mask = masks[index];
 
 		// Remove the entity from every existing index cache whose signature 
 		// includes the component type and matches the entity's component mask
@@ -295,12 +305,8 @@ namespace rift { // EntityManager definitions
 		auto family_id = C::family();
 		if (family_id >= component_pools.size()) 
 			component_pools.resize(family_id + 1);
-		if (family_id >= component_operators.size())
-			component_operators.resize(family_id + 1);
 		if (!component_pools[family_id]) 
 			component_pools[family_id] = std::make_unique<rift::internal::Pool<C>>();
-		if (!component_operators[family_id])
-			component_operators[family_id] = std::make_unique<ComponentOperator<C>>();
 	}
 
 	inline void EntityManager::erase_caches_for(std::uint32_t index)

@@ -132,28 +132,6 @@ namespace rift {
 	// The EntityManager class
 	// Manages the lifecycle of entities.
 	class EntityManager final : rift::internal::NonCopyable {
-		friend class Entity;
-
-		// The BaseComponentOperator class
-		// Provides the interface for typed component operations.
-		struct BaseComponentOperator 
-		{
-			virtual ~BaseComponentOperator() = default;
-			virtual void copy_component_from(const Entity& src, const Entity& trgt) = 0;
-		};
-
-		// The ComponentOperator class
-		// Helper class for operations on a single component type.
-		template <class C>
-		struct ComponentOperator final : public BaseComponentOperator 
-		{
-			// Copies a component from the source and adds it to the target.
-			void copy_component_from(const Entity& src, const Entity& trgt) override
-			{
-				trgt.add<C>(static_cast<const C&>(src.get<C>()));
-			}
-		};
-
 	public:
 
 		EntityManager() = default;
@@ -221,6 +199,8 @@ namespace rift {
 #endif // RIFT_ENABLE_PARALLEL_TRANSFORMATIONS
 
 	private:
+
+		friend class Entity;
 
 		// The following are internal functions every entity interfaces with.
 		// An entity ensures that its Entity::ID is valid before invoking any of these.
@@ -303,9 +283,6 @@ namespace rift {
 
 		// Collection of component pools.
 		std::vector<std::unique_ptr<rift::internal::BasePool>> component_pools;
-
-		// Collection of component operators.
-		std::vector<std::unique_ptr<BaseComponentOperator>> component_operators;
 
 		// Collection of cached indices for faster system queries.
 		std::unordered_map<ComponentMask, rift::internal::SparseSet> index_caches;
