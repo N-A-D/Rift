@@ -20,7 +20,7 @@ namespace rift {
 	template<class S>
 	inline bool SystemManager::has() const noexcept
 	{
-		static_assert(std::is_base_of_v<BaseSystem, S>, "The system type does not inherit from rift::System!");
+		static_assert(std::is_base_of_v<BaseSystem, S>, "All systems must inherit from rift::System!");
 		if (S::family() >= systems.size())
 			return false;
 		if (systems[S::family()])

@@ -12,18 +12,16 @@ namespace rift {
 	class EntityManager;
 
 	// The BaseSystem class
-	// Defines the means for which all systems internalement their logic.
+	// Provides the interface in which systems implement their logic.
 	// Note:
 	// - This class should not be subclassed directly as systems need to be registered. 
 	//   See the System class below. 
 	class BaseSystem {
 	public:
 		virtual ~BaseSystem() = default;
-
-		// Where derived systems implement their logic
 		virtual void update(EntityManager& em, double dt) = 0;
-
 	protected:
+		// Used internally to generate system type ids.
 		static SystemFamily generate_family() noexcept {
 			static SystemFamily family_counter = 0;
 			return family_counter++;
@@ -42,7 +40,7 @@ namespace rift {
 		virtual ~System() = default;
 	private:
 		friend class SystemManager;
-		// Returns a System type id.
+		// Used internally for system registration.
 		static SystemFamily family() noexcept {
 			static SystemFamily system_family = generate_family();
 			return system_family;
@@ -55,8 +53,7 @@ namespace rift {
 	public:
 
 		// Creates a new System manager.
-		SystemManager(rift::EntityManager& em) noexcept
-			: entity_manager(em) {}
+		SystemManager(rift::EntityManager& em) noexcept : entity_manager(em) {}
 
 		// Adds a new managed system.
 		// Note: 

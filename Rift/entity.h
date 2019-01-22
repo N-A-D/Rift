@@ -118,8 +118,7 @@ namespace rift {
 		friend class EntityManager;
 
 		// Only EntityManagers are permitted to create valid entities.
-		Entity(EntityManager *manager, Entity::ID uid) noexcept
-			: manager(manager), uid(uid) {}
+		Entity(EntityManager *manager, Entity::ID uid) noexcept : manager(manager), uid(uid) {}
 
 		// The manager that created this entity.
 		EntityManager* manager = nullptr;
@@ -243,6 +242,8 @@ namespace rift {
 		// Mark an entity for destruction.
 		void destroy(std::uint32_t index) noexcept;
 
+	private:
+
 		// The following are internal functions an entity manager only uses.
 
 		// Given a template parameter pack of Component types, this function returns the ComponentMask for those types
@@ -266,8 +267,6 @@ namespace rift {
 
 		// Creates a cache of indices for the given signature.
 		void create_cache_for(const ComponentMask& sig);
-		
-	private:
 
 		// Collection of entity component masks.
 		std::vector<ComponentMask> masks;

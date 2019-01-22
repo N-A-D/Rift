@@ -22,19 +22,19 @@ namespace rift { // Entity definitions
 
 	inline bool Entity::marked_for_destruction() const noexcept
 	{
-		assert(valid() && "Cannot check if an invalid entity is waiting to be invalidated!");
+		assert(valid() && "Invalid entities are not allowed to check if they are marked for destruction!");
 		return manager->marked_for_destruction(uid.index());
 	}
 
 	inline void Entity::destroy() const noexcept
 	{
-		assert(valid() && "Cannot destroy and invalid entity!");
+		assert(valid() && "Invalid entities are not allowed to destroy themselves!");
 		manager->destroy(uid.index());
 	}
 
 	inline ComponentMask Entity::component_mask() const noexcept
 	{
-		assert(valid() && "Cannot get the component mask for an invalid entity!");
+		assert(valid() && "Invalid entities do not have any components!");
 		return manager->component_mask_for(uid.index());
 	}
 
@@ -63,8 +63,8 @@ namespace rift { // Entity definitions
 	inline bool Entity::has() const noexcept
 	{
 		static_assert(std::is_base_of_v<BaseComponent, C>,
-			"The component type does not inherit from rift::Component!");
-		assert(valid() && "Cannot check if an invalid entity has a component type!");
+			"All components must inherit from rift::Component!");
+		assert(valid() && "Invalid entities do not have any components!");
 		return manager->has_component<C>(uid.index());
 	}
 

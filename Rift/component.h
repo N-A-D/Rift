@@ -13,6 +13,7 @@ namespace rift {
 	//   See the Component class below.
 	class BaseComponent {
 	protected:
+		// Used internally to generate component type ids.
 		static ComponentFamily generate_family() noexcept {
 			static ComponentFamily family_counter = 0;
 			return family_counter++;
@@ -26,6 +27,7 @@ namespace rift {
 	// Note: 
 	// - Derived classes must implement a default constructor.
 	// - Derived classes must implement a constructor that initializes all of its member variables.
+	// - Derived classes must be copy constructible/assignable.
 	// Example:
 	// struct Position : public Component<Position> {
 	//     Position() : x(0.0), y(0.0) {} // Default ctor
@@ -35,7 +37,7 @@ namespace rift {
 	template <class Derived>
 	class Component : public BaseComponent {
 		friend class EntityManager;
-		// Returns the Component class id.
+		// Used internally for component registration.
 		static ComponentFamily family() noexcept {
 			static ComponentFamily family_id = generate_family();
 			assert(family_id < config::MAX_COMPONENT_TYPES && "The maximum number of components has been reached!");
