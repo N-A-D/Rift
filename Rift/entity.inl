@@ -100,23 +100,27 @@ namespace rift { // EntityManager definitions
 	{
 		assert(original && "Cannot create a copy of an invalid entity!");
 		auto clone = create_entity();
-		auto c_idx = clone.id().index();
-		auto o_idx = original.id().index();
-		masks[c_idx] = masks[o_idx];
+		auto clone_index = clone.id().index();
+		auto original_index = original.id().index();
+
+		// Clones have the same ComponentMask as the original.
+		masks[clone_index] = masks[original_index];
 
 		// Insert the clone into every search cache the original is in.
+		auto& mask = masks[clone_index];
 		for (auto& index_cache : index_caches) {
-			if ((index_cache.first & masks[c_idx]) == index_cache.first) {
-				index_cache.second.insert(c_idx);
+			if ((index_cache.first & mask) == index_cache.first) {
+				index_cache.second.insert(clone_index);
 			}
 		}
 
 		// Copy every component from the original to the clone.
-		for (std::size_t i = 0; i < masks[c_idx].size(); ++i) {
-			if (masks[c_idx].test(i)) {
-				component_pools[i]->insert(c_idx, component_pools[i]->at(o_idx));
+		for (std::size_t family = 0; family < mask.size(); ++family) {
+			if (mask.test(family)) {
+				component_pools[family]->insert(clone_index, component_pools[family]->at(original_index));
 			}
 		}
+	
 		return clone;
 	}
 
