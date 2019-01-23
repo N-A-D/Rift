@@ -1,7 +1,7 @@
 # What is an Entity Component System?
-The Entity Component System design pattern separates state and behaviour motivated by efficient CPU cache usage. The approach focuses on storing data contiguously and applying transformations on that data.
+An Entity Component System separates state from behaviour. The approach focuses on storing data contiguously and applying transformations on that data to achieve better CPU cache usage.
 
-Entity Component Systems are usually split up into three parts:
+Entity Component Systems are split up into three parts:
 1. Entities:   Objects whose state is defined by its set of components.
 1. Components: Blocks of data that describe some aspect of an entity.
 1. Systems:    Operators that transform entity states en masse.
@@ -15,11 +15,11 @@ https://github.com/junkdog/artemis-odb/wiki/Introduction-to-Entity-Systems
 # Library overview
 Rift is a *header-only* Entity Component System written in C++14 and only requires C++17 if parallel processing is desired. The library offers very fast iteration speeds by grouping entities based on system search criterias, avoiding the need to search for entities every system update. 
 
-Entities are primary keys (column indices) into a transposed table of component types, where each row of the table is a different type. Systems query for the entities they need using a list of component types and submit a function that performs a transformation on those entities. 
+Entities are *essentially* primary keys (column indices) to a transposed table of component types, where each row of the table is a different type. Systems can query for the entities they need using a list of component types, and submit a function to perform a transformation on those entities. 
 
 The idea to group entities based on their components is related to indexing in relational databases. The library makes use of sparse integer sets to store entities with certain components. For more information about sparse integer sets visit https://programmingpraxis.com/2012/03/09/sparse-sets/
 
-Parallelization is available in a limited capacity (see the following note) with the `rift::EntityManager::par_for_entities_with` member. Use of this member function requires C++17 as it makes use of the standard's parallelized implementation of `std::for_each`.    
+Parallelized application of a system's transformation function is possible with the `rift::EntityManager::par_for_entities_with` member. However, the use of this member function is subject to certain preconditions (see the following note). Moreover, using this member function requires a C++17 conformant compiler as it makes use of the standard's parallelized implementation of `std::for_each`.    
 
 **NOTE:**
 The following preconditions must be satisfied by a system's transformation function:
