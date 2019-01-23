@@ -1,5 +1,5 @@
 # What is an Entity Component System?
-An Entity Component System separates state from behaviour. The approach focuses on storing data contiguously and applying transformations on that data to achieve better CPU cache usage.
+An Entity Component System separates state from behaviour. The approach focuses on storing data contiguously and applying transformations on that data to achieve efficient CPU cache usage.
 
 Entity Component Systems are split up into three parts:
 1. Entities:   Objects whose state is defined by its set of components.
