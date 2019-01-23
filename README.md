@@ -30,23 +30,24 @@ A system's transformation function must satisfy the following conditions *before
 
 Failure to comply with the aforementioned conditions **will** result in undefined behaviour.
 
-To start using the new `rift::EntityManager` member, define `RIFT_ENABLE_PARALLEL_TRANSFORMATIONS` before including either `rift.h` or `entity.h` in a source file. 
+In order to use the `rift::EntityManager` member, define `RIFT_ENABLE_PARALLEL_TRANSFORMATIONS` before including either `rift.h` or `entity.h` in some source file. 
 For example:
 ```cpp
+// SomeSourceFile.cpp
 #define RIFT_ENABLE_PARALLEL_TRANSFORMATIONS
 #include "rift/rift.h"
 ```
 
-The library is intended to be compatible with C++14, with its only C++17 dependency being the use of the new standard algorithm. Therefore, if your compiler does not support C++17, do not define `RIFT_ENABLE_PARALLEL_TRANSFORMATIONS`.
+The library is intended to be C++14 compatible. If you do not have access to a C++17 conformant compiler, **DO NOT** define `RIFT_ENABLE_PARALLEL_TRANSFORMATIONS`.   
 
-As a final note, parallelization *may* provide tangible benefits if the number of entities a system transforms is large enough. If the number of entities is too small, the additional overhead incurred by the new standard algorithm might outweigh any benefits with parallel execution. Therefore, *optimize only if there is a performance problem*.    
+Lastly, parallelization *may* provide tangible benefits if the number of entities a system transforms is large enough. If the number of entities is too small, the additional overhead incurred by the new standard algorithm might outweigh any benefits with parallel execution. Therefore, *optimize only if there is a performance problem*.    
 
 ## Entities
 As mentioned earlier, entities are column indices into a component type table. As such, `rift::Entity` is a proxy class for a `std::uint64_t` identification number. The id is composed of two parts: a 32 bit **version** and a 32 bit **index**. The **index** is used to identify components that belong to an entity. The **version** distinguishes between **stale** (deceased) and **valid** (alive) entities that have the same **index**.   
 
 There are only two ways to create *distinct* entities:
 1. Using the `rift::EntityManager::create_entity` member function.
-1. Using the `rift::EntityManager::create_copy_of` member function. (Requires existing entity; copy construct's components from the original).   
+1. Using the `rift::EntityManager::create_copy_of` member function. (Requires an existing entity to copy construct components from).   
 
 ## Components 
 In Rift, Components are meant to have as little logic associated with them as possible. In fact, an ideal component is a *POD* that just stores state information. State is then modified using a system transformation.
@@ -72,23 +73,31 @@ entity.add<Position>(100.0f, 25.0f);
 In Rift, Systems define entity behaviour by transforming an entity's state.
 ### Implementation notes
 - Every *system* must inherit from `rift::System` in order to be considered a *System*. 
-- Every *system* must implement the `rift::BaseSystem::update(rift::EntityManager&, double)` member. This function is where entity transformations should be carried out. 
+- Every *system* must implement the `rift::BaseSystem::update` member.
 
-Systems submit functions to an entity manager which is then carried out on every entity that matches the system's search criteria. 
-For example, suppose there were two components *Position* and *Direction*, then a system's submitted query could look like the following:
+Systems submit their transformation functions to the entity manager given to them in the `rift::BaseSystem::update` function. The entity manager will immediately apply that function on every entity that satisfies the systems search criteria.   
+For example, suppose there were two components *Position* and *Direction*. A system's submitted query could look like the following:
 ```cpp
-entity_manager.for_entities_with<Position, Direction>([](rift::Entity entity, Position& pos, Direction& dir){
-    pos.x += dir.x;
-    pos.y += dir.y;
-});
+struct MovementSystem : public rift::System<MovementSystem> {
+  void update(rift::EntityManager& em, double dt) override {
+    em.for_entities_with<Position, Direction>([](rift::Entity entity, Position& pos, Direction& dir){
+        pos.x += dir.x * dt;
+        pos.y += dir.y * dt;
+    });
+  }
+};
 ```
 
 Alternatively, since this system only modifies the components and not the entity itself, we can make use of the `rift::EntityManager::par_for_entities_with` to parallelize execution of the transform:
 ```cpp
-entity_manager.par_for_entities_with<Position, Direction>([](Position& pos, Direction& dir) {
-    pos.x += dir.x;
-    pos.y += dir.y;
-});
+struct MovementSystem : public rift::System<MovementSystem> {
+  void update(rift::EntityManager& em, double dt) override {
+    em.par_for_entities_with<Position, Direction>([](Position& pos, Direction& dir){
+        pos.x += dir.x * dt;
+        pos.y += dir.y * dt;
+    });
+  }
+};
 ```
 
-**Note:** Rift does not include any form of messaging system to facilitate intersystem communication. It is up to the user to implement such a system if there is a need for it. 
+**NOTE:** Rift does not provide any facilities that enable intersystem communication. It is up to the user to implement such a system if there is a need for it. 
