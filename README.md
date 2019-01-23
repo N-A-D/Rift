@@ -22,7 +22,7 @@ The idea to group entities based on their components is related to indexing in r
 Parallelized application of a system's transformation function is possible with the `rift::EntityManager::par_for_entities_with` member. However, the use of this member function is subject to certain preconditions (see the following note). Moreover, using this member function requires a C++17 conformant compiler as it makes use of the standard's parallelized implementation of `std::for_each`.    
 
 **NOTE:**
-The following preconditions must be satisfied by a system's transformation function:
+A system's transformation function must satisfy the following conditions *before* it is submitted with a call to `rift::EntityManager::par_entities_with`:
 1. Does not make any calls to `rift::EntityManager::create_entity` or `rift::EntityManager::create_copy_of`.
 1. Does not make any calls to `rift::EntityManager::update`.
 1. Does not make any calls to any of `rift::Entity::destroy`, `rift::Entity::add`, `rift::Entity::replace`, `rift::Entity::remove`, and `rift::Entity::get` (multiple writes).
