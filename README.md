@@ -42,7 +42,7 @@ The library is intended to be compatible with C++14, with its only C++17 depende
 As a final note, parallelization *may* provide tangible benefits if the number of entities a system transforms is large enough. If the number of entities is too small, the additional overhead incurred by the new standard algorithm might outweigh any benefits with parallel execution. Therefore, *optimize only if there is a performance problem*.    
 
 ## Entities
-As mentioned earlier, entities are column indices into a component type table. As such, `rift::Entity` is a proxy class for a `std::uint64_t` index. The index is composed of two parts: a 32 bit **version** and a 32 bit **index**. The **version** distinguishes between **stale** (deceased) and **valid** (alive) entities that have the same **index**. This is necessary as the **index** maps an *entity* to its components, and you wouldn't want a stale entity modifying a valid entity's state.
+As mentioned earlier, entities are column indices into a component type table. As such, `rift::Entity` is a proxy class for a `std::uint64_t` identification number. The id is composed of two parts: a 32 bit **version** and a 32 bit **index**. The **index** is used to identify components that belong to an entity. The **version** distinguishes between **stale** (deceased) and **valid** (alive) entities that have the same **index**.   
 
 New entities are created using the `rift::EntityManager::create_entity` member as follows:
 ```cpp
