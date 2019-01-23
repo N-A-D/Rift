@@ -44,15 +44,9 @@ As a final note, parallelization *may* provide tangible benefits if the number o
 ## Entities
 As mentioned earlier, entities are column indices into a component type table. As such, `rift::Entity` is a proxy class for a `std::uint64_t` identification number. The id is composed of two parts: a 32 bit **version** and a 32 bit **index**. The **index** is used to identify components that belong to an entity. The **version** distinguishes between **stale** (deceased) and **valid** (alive) entities that have the same **index**.   
 
-New entities are created using the `rift::EntityManager::create_entity` member as follows:
-```cpp
-rift::Entity entity = manager.create_entity();
-```
-New entities can also be created by copying *existing* entities using the `rift::EntityManager::create_copy_of` member as follows:
-```cpp
-rift::Entity entity = manager.create_copy_of(original_entity);
-```
-**NOTE:** The entity's components are copy constructed from the original entity's components.  
+There are only two ways to create *distinct* entities:
+1. Using the `rift::EntityManager::create_entity` member function.
+1. Using the `rift::EntityManager::create_copy_of` member function. (Requires existing entity; copy construct's entity's components).   
 
 ## Components 
 In Rift, Components are meant to have as little logic associated with them as possible. In fact, an ideal component is a *POD* that just stores state information. State is then modified using a system transformation.
