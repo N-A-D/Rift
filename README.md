@@ -19,7 +19,7 @@ Entities are *essentially* primary keys (column indices) to a transposed table o
 
 The idea to group entities based on their components is related to indexing in relational databases. The library makes use of sparse integer sets to store entities with certain components. For more information about sparse integer sets visit https://programmingpraxis.com/2012/03/09/sparse-sets/
 
-Parallelized application of a system's transformation function is possible with the `rift::EntityManager::par_for_entities_with` member. However, the use of this member function is subject to certain preconditions (see the following note). Moreover, using this member function requires a C++17 conformant compiler as it makes use of the standard's parallelized implementation of `std::for_each`.    
+Parallelized application of a system's transformation function is possible with the `rift::EntityManager::par_for_entities_with` member. However, the use of this member function is subject to certain preconditions (see the following note). Moreover, using this member function requires a C++17 conformant compiler as it makes use of the parallelized implementation of `std::for_each` only available in C++17.    
 
 **NOTE:**
 A system's transformation function must satisfy the following conditions *before* it is submitted with a call to `rift::EntityManager::par_entities_with`:
@@ -30,7 +30,7 @@ A system's transformation function must satisfy the following conditions *before
 
 Failure to comply with the aforementioned conditions **will** result in undefined behaviour.
 
-To start using the new `rift::EntityManager` member, ensure that you have access to compiler that supports C++17 and define `RIFT_ENABLE_PARALLEL_TRANSFORMATIONS` before including either `rift.h` or `entity.h`. 
+To start using the new `rift::EntityManager` member, define `RIFT_ENABLE_PARALLEL_TRANSFORMATIONS` before including either `rift.h` or `entity.h` in a source file. 
 For example:
 ```cpp
 #define RIFT_ENABLE_PARALLEL_TRANSFORMATIONS
@@ -46,7 +46,7 @@ As mentioned earlier, entities are column indices into a component type table. A
 
 There are only two ways to create *distinct* entities:
 1. Using the `rift::EntityManager::create_entity` member function.
-1. Using the `rift::EntityManager::create_copy_of` member function. (Requires existing entity; copy construct's entity's components).   
+1. Using the `rift::EntityManager::create_copy_of` member function. (Requires existing entity; copy construct's components from the original).   
 
 ## Components 
 In Rift, Components are meant to have as little logic associated with them as possible. In fact, an ideal component is a *POD* that just stores state information. State is then modified using a system transformation.
