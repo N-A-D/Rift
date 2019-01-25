@@ -352,19 +352,5 @@ namespace Test
 			Assert::IsFalse(integers.contains(e.begin(), e.end()));
 		}
 
-		TEST_METHOD(ForwardIteratorRequirements) {
-			internal::SparseSet integers;
-			auto ints = { 1, 2, 3, 4, 5, 6 };
-			integers.insert(ints.begin(), ints.end());
-
-			auto a = integers.begin();
-			auto b = integers.begin();
-
-			for (std::size_t i = 0; i < integers.size(); i++) {
-				Assert::IsTrue(*a == *b);
-				Assert::IsTrue(++a == ++b);
-			}
-
-		}
 	};
 }
