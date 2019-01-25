@@ -6,7 +6,7 @@ namespace rift {
 	namespace internal {
 
 		// Compile-time version of std::all_of 
-		// Taken from: https://stackoverflow.com/questions/27221443/internalementing-static-version-of-stdall-of-using-template-metaprogramming
+		// Taken from: https://stackoverflow.com/questions/27221443/implementing-static-version-of-stdall-of-using-template-metaprogramming
 		template <bool... values> struct bool_pack;
 		template <bool... values> constexpr bool all_of_v = std::is_same_v<bool_pack<values..., true>, bool_pack<true, values...>>;
 
