@@ -69,6 +69,7 @@ namespace rift {
 
 		// Signals the manager to destroy this entity.
 		// Note:
+		// - The entity remains valid UNTIL its EntityManager updates.
 		// - Not thread safe.
 		void destroy() const noexcept;
 
@@ -97,13 +98,15 @@ namespace rift {
 		void remove() const noexcept;
 
 		// Checks if the entity has a component.
+		// Note:
+		// - Asserts the entity is valid.
 		template <class C>
 		bool has() const noexcept;
 
 		// Fetches the entity's component.
 		// Note: 
 		// - Asserts the entity owns an instance of the component type.
-		// - Ofc not thread safe if modifying the component from different threads.
+		// - Multiple writers is not thread safe.
 		template <class C>
 		C &get() const noexcept;
 
@@ -129,7 +132,7 @@ namespace rift {
 	};
 	
 	// The EntityManager class
-	// Manages the lifecycle of entities.
+	// Manages entities and their components.
 	class EntityManager final : rift::internal::NonCopyable {
 	public:
 
@@ -255,7 +258,7 @@ namespace rift {
 		template <class ...Components>
 		static ComponentMask signature_for() noexcept;
 		
-		// Creates a new component pool/operator if one does not already exist for the component type.
+		// Ensures there is a component pool for the given type.
 		template <class C>
 		void accommodate_component() noexcept;
 
@@ -267,6 +270,8 @@ namespace rift {
 
 		// Creates a cache of indices for the given signature.
 		void create_cache_for(const ComponentMask& sig);
+
+	private:
 
 		// Collection of entity component masks.
 		std::vector<ComponentMask> masks;
