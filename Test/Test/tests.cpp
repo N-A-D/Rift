@@ -331,10 +331,10 @@ namespace Test
 			Assert::IsTrue(integers.empty());
 			auto a = { 1, 2, 3, 4, 5, 6 };
 			integers.insert(a.begin(), a.end());
-			auto b = { 4, 3, 6, 2, 1, 5 };
-			Assert::IsTrue(integers.contains(b.begin(), b.end()));
-			auto c = { 10, 11, 7, 8, 9, 22 };
-			Assert::IsFalse(integers.contains(c.begin(), c.end()));
+			a = { 4, 3, 6, 2, 1, 5 };
+			Assert::IsTrue(integers.contains(a.begin(), a.end()));
+			a = { 10, 11, 7, 8, 9, 22 };
+			Assert::IsFalse(integers.contains(a.begin(), a.end()));
 		}
 
 		TEST_METHOD(Erasure) {
@@ -342,14 +342,14 @@ namespace Test
 			Assert::IsTrue(integers.empty());
 			auto a = { 1, 2, 3, 4, 5, 6 };
 			integers.insert(a.begin(), a.end());
-			auto b = { 4, 3, 6, 2, 1, 5 };
-			Assert::IsTrue(integers.contains(b.begin(), b.end()));
-			auto c = { 10, 11, 7, 8, 9, 22 };
-			Assert::IsFalse(integers.contains(c.begin(), c.end()));
-			auto d = { 4, 3, 1 };
-			integers.erase(d.begin(), d.end());
-			auto e = { 3, 1, 4 };
-			Assert::IsFalse(integers.contains(e.begin(), e.end()));
+			a = { 4, 3, 6, 2, 1, 5 };
+			Assert::IsTrue(integers.contains(a.begin(), a.end()));
+			a = { 10, 11, 7, 8, 9, 22 };
+			Assert::IsFalse(integers.contains(a.begin(), a.end()));
+			a = { 4, 3, 1 };
+			integers.erase(a.begin(), a.end());
+			a = { 3, 1, 4 };
+			Assert::IsFalse(integers.contains(a.begin(), a.end()));
 		}
 
 	};
