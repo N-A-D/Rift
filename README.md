@@ -19,14 +19,13 @@ Entities are *essentially* primary keys (column indices) to a transposed table o
 
 The library is capable of fast iterations over entities as it caches them based on a system's search criteria (component type lists). The library makes use of sparse integer sets to cache entities with certain components. For more information about sparse integer sets visit https://programmingpraxis.com/2012/03/09/sparse-sets/
 
-Parallelized execution of a system's transformation function is possible with the `rift::EntityManager::par_for_entities_with` member. Use of this member function is subject to certain preconditions (see the conditions below). Moreover, its use requires a C++17 conformant compiler in order to utilize the parallel version of `std::for_each`.
+Parallel transformations are possible with the `rift::EntityManager::par_for_entities_with` member. Use of this function is subject to certain preconditions (see them below). Moreover, its use requires a C++17 conformant compiler in order to utilize the parallel version of `std::for_each`.
 
 **Preconditions:**
-A system's transformation function must satisfy these conditions *before* it is submitted with a call to `rift::EntityManager::par_entities_with`:
+A system transformation must satisfy these conditions *before* it is submitted with a call to `rift::EntityManager::par_entities_with`:
 1. Does not make any calls to `rift::EntityManager::create_entity` or `rift::EntityManager::create_copy_of`.
 1. Does not make any calls to `rift::EntityManager::update`.
-1. Does not make any calls to any of `rift::Entity::destroy`, `rift::Entity::add`, `rift::Entity::replace`, `rift::Entity::remove`, and `rift::Entity::get` (multiple writes).
-1. Does not modify component(s) other entities depend on.
+1. Does not make any calls to any of `rift::Entity::destroy`, `rift::Entity::add`, `rift::Entity::replace`, `rift::Entity::remove`, and `rift::Entity::get` (multiple writes).   
 
 **NOTE:** Failure to comply with the aforementioned conditions **will** result in undefined behaviour.
 
