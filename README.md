@@ -29,7 +29,7 @@ A system transformation must satisfy these conditions *before* it is submitted w
 
 **NOTE:** Failure to comply with the aforementioned conditions **will** result in undefined behaviour.
 
-In order to use the `rift::EntityManager::par_entities_with` member function, define `RIFT_ENABLE_PARALLEL_TRANSFORMATIONS` before including either `rift.h` or `entity.h` in some source file.   
+In order to use the `rift::EntityManager::par_entities_with` member function, **#define** `RIFT_ENABLE_PARALLEL_TRANSFORMATIONS` before you **#include** either `rift.h` or `entity.h` in some source file.   
 For example:
 ```cpp
 // SomeSourceFile.cpp
