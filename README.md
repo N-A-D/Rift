@@ -38,7 +38,7 @@ For example:
 ``` 
 **NOTE:** If C++17 is not available with your compiler **DO NOT** define `RIFT_ENABLE_PARALLEL_TRANSFORMATIONS`.
 
-Lastly, parallelization is an optimization that can increase performance if the number of entities is *large enough*. If there are too few entities to transform, parallel execution may actually perform worse than sequential execution. Therefore, it is imperative that there exists a performance problem concerning large numbers of entities before attempting to use `rift::EntityManager::par_entities_with`.
+Lastly, parallelization is an optimization that can increase performance if the number of entities is *large enough*. If there are too few entities to transform, parallel execution may actually perform worse than sequential execution. Therefore, it is imperative that there exists a performance problem concerning large numbers of entities before considering the use of `rift::EntityManager::par_entities_with`.
 
 ## Entities
 As mentioned earlier, entities are column indices into a component type table. As such, `rift::Entity` is a proxy class for a `std::uint64_t` identification number. The id is composed of two parts: a 32 bit **version** and a 32 bit **index**. The **index** is used to identify components that belong to an entity. The **version** distinguishes between **stale** (deceased) and **valid** (alive) entities that have the same **index**.   
