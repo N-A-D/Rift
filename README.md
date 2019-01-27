@@ -15,9 +15,9 @@ https://github.com/junkdog/artemis-odb/wiki/Introduction-to-Entity-Systems
 # Library overview
 Rift is a *header-only* Entity Component System written in C++14 and only requires C++17 if parallel processing is desired. 
 
-Entities are *essentially* primary keys (column indices) to a transposed table of component types, where each row of the table is a different type. Systems can query for the entities they would like to transform using a list of component types. 
+Entities are indices to a transposed table of component types, where each row of the table is a different type. Systems can query for the entities they would like to transform using a list of component types. 
 
-The library is capable of fast iterations over entities as it caches them based on a system's search criteria (component type lists). The library makes use of sparse integer sets to cache entities with certain components. For more information about sparse integer sets visit https://programmingpraxis.com/2012/03/09/sparse-sets/
+The library is capable of fast iterations over entities as it caches them based on a search requests (lists of component types). The library makes use of sparse integer sets to cache entities with certain components. For more information about sparse integer sets visit https://programmingpraxis.com/2012/03/09/sparse-sets/
 
 Parallel transformations are possible with the `rift::EntityManager::par_for_entities_with` member. Use of this function is subject to certain preconditions (see them below). Moreover, its use requires a C++17 conformant compiler in order to utilize the parallel version of `std::for_each`.
 
@@ -29,29 +29,34 @@ A system transformation must satisfy these conditions *before* it is submitted w
 
 **NOTE:** Failure to comply with the aforementioned conditions **will** result in undefined behaviour.
 
-In order to use the `rift::EntityManager::par_entities_with` member function, **#define** `RIFT_ENABLE_PARALLEL_TRANSFORMATIONS` before you **#include** either `rift.h` or `entity.h` in some source file.   
+In order to use the `rift::EntityManager::par_entities_with` member function, *define* `RIFT_ENABLE_PARALLEL_TRANSFORMATIONS` before you *include* either `rift.h` or `entity.h` in some source file.   
 For example:
 ```cpp
 // SomeSourceFile.cpp
 #define RIFT_ENABLE_PARALLEL_TRANSFORMATIONS
 #include "rift/rift.h"
 ``` 
-**NOTE:** If C++17 is not available with your compiler **DO NOT** define `RIFT_ENABLE_PARALLEL_TRANSFORMATIONS`.
+**NOTE:** If your compiler does not support C++17 **DO NOT** define `RIFT_ENABLE_PARALLEL_TRANSFORMATIONS`.
 
 Lastly, parallelization is an optimization that can increase performance if the number of entities is *large enough*. If there are too few entities to transform, parallel execution may actually perform worse than sequential execution. Therefore, it is imperative that there exists a performance problem concerning large numbers of entities before considering the use of `rift::EntityManager::par_entities_with`.
 
 ## Entities
-As mentioned earlier, entities are column indices into a component type table. As such, `rift::Entity` is a proxy class for a `std::uint64_t` identification number. The id is composed of two parts: a 32 bit **version** and a 32 bit **index**. The **index** is used to identify components that belong to an entity. The **version** distinguishes between **stale** (deceased) and **valid** (alive) entities that have the same **index**.   
-
-There are only two ways to create *distinct* entities:
-1. Using the `rift::EntityManager::create_entity` member function.
-1. Using the `rift::EntityManager::create_copy_of` member function. (Requires an existing entity to copy construct components from).   
+In Rift, an Entity is an index. 
+### Implementation notes:
+- `rift::Entity` is a proxy class for a 64 bit identification number composed of two parts:
+  - A 32 bit *index*. This is used to identify the components that belonging to an entity.
+  - A 32 bit *version*. This is used to distinguish stale and valid entities with the same *index*.
+- There are only **two** ways to create **distinct** entities:
+  - Using the `rift::EntityManager::create_entity` member function.
+  - Using the `rift::EntityManager::create_copy_of` member function. (Requires an existing entity to copy construct components from).   
+- The only way to destroy a `rift::Entity` is by calling its `rift::Entity::destroy` member function. Entities are still valid after calling `rift::Entity::destroy` and are only truly invalid after their manager updates.
+- Entities add components to themselves using the `rift::Entity::add` member function.
 
 ## Components 
-In Rift, Components are meant to have as little logic associated with them as possible. In fact, an ideal component is a *POD* that just stores state information. State is then modified using a system transformation.
+In Rift, a Component is a POD with no accompanying logic. Logic is handled by Systems.
 ### Implementation notes:
 - Every *component* must inherit from `rift::Component` in order to be considered a *component*.
-- Every *component* must include a default constructor as well as a constructor that initializes all of its POD members. 
+- Every *component* *should* include a constructor that properly initializes it. 
 - Every *component* must be copy constructible/assignable.   
 
 For instance, the following is an example of a *Position* component:
@@ -68,7 +73,7 @@ entity.add<Position>(100.0f, 25.0f);
 ```
 
 ## Systems
-In Rift, Systems define entity behaviour by transforming an entity's state.
+In Rift, Systems define behaviour by transforming components.
 ### Implementation notes
 - Every *system* must inherit from `rift::System` in order to be considered a *System*. 
 - Every *system* must implement the `rift::BaseSystem::update` member.
@@ -98,4 +103,7 @@ struct MovementSystem : public rift::System<MovementSystem> {
 };
 ```
 
-**NOTE:** Rift does not provide any facilities that enable intersystem communication. It is up to the user to implement such a system if there is a need for it. 
+**NOTE:** Rift does not provide any facilities that enable intersystem communication. It is up to the user to implement such a system if there is a need for it.
+
+## Benchmarks
+Two benchmarks accompany the main project. Both only compare speeds between some two related features of the library and not with any other ECS. The *Iteration* benchmark compares the speeds between sequential and parallel entity transformations. The *EntityCreationAndDestruction* benchmark compares the speeds between the only two entity creation functions. 
