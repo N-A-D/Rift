@@ -1,7 +1,7 @@
 # What is an Entity Component System?
-An Entity Component System separates state from behaviour. The approach focuses on storing data contiguously and applying transformations on that data to achieve efficient CPU cache usage.
+An Entity Component System is an architectural design motivated by efficient CPU cache usage. The design separates state from behaviour by storing data in contiguous memory blocks and applying transformations on that data to achieve intended behaviour.
 
-Entity Component Systems are split up into three parts:
+There are three parts to an Entity Component System:
 1. Entities:   Objects whose state is defined by its set of components.
 1. Components: Blocks of data that describe some aspect of an entity.
 1. Systems:    Operators that transform entity states en masse.
@@ -13,34 +13,33 @@ https://medium.com/ingeniouslysimple/entities-components-and-systems-89c31464240
 https://github.com/junkdog/artemis-odb/wiki/Introduction-to-Entity-Systems   
 
 # Library overview
-Rift is a *header-only* Entity Component System written in C++14 and only requires C++17 if parallel processing is desired. The library offers very fast iteration speeds by grouping entities based on system search criterias, avoiding the need to search for entities every system update. 
+Rift is a *header-only* Entity Component System written in C++14 and only requires C++17 if parallel processing is desired. 
 
-Entities are *essentially* primary keys (column indices) to a transposed table of component types, where each row of the table is a different type. Systems can query for the entities they need using a list of component types, and submit a function to perform a transformation on those entities. 
+Entities are *essentially* primary keys (column indices) to a transposed table of component types, where each row of the table is a different type. Systems can query for the entities they would like to transform using a list of component types. 
 
-The idea to group entities based on their components is related to indexing in relational databases. The library makes use of sparse integer sets to store entities with certain components. For more information about sparse integer sets visit https://programmingpraxis.com/2012/03/09/sparse-sets/
+The library is capable of fast iterations over entities as it caches them based on a system's search criteria (component type lists). The idea to group entities based on their components is related to indexing in relational databases. The library makes use of sparse integer sets to cache entities with certain components. For more information about sparse integer sets visit https://programmingpraxis.com/2012/03/09/sparse-sets/
 
-Parallelized application of a system's transformation function is possible with the `rift::EntityManager::par_for_entities_with` member. However, the use of this member function is subject to certain preconditions (see the following note). Moreover, using this member function requires a C++17 conformant compiler as it makes use of the parallelized implementation of `std::for_each` only available in C++17.    
+Parallelized execution of a system's transformation function is possible with the `rift::EntityManager::par_for_entities_with` member. Use of this member function is subject to certain preconditions (see the conditions below). Moreover, its use requires a C++17 conformant compiler in order to utilize the parallel version of `std::for_each`.
 
-**NOTE:**
-A system's transformation function must satisfy the following conditions *before* it is submitted with a call to `rift::EntityManager::par_entities_with`:
+**Preconditions:**
+A system's transformation function must satisfy these conditions *before* it is submitted with a call to `rift::EntityManager::par_entities_with`:
 1. Does not make any calls to `rift::EntityManager::create_entity` or `rift::EntityManager::create_copy_of`.
 1. Does not make any calls to `rift::EntityManager::update`.
 1. Does not make any calls to any of `rift::Entity::destroy`, `rift::Entity::add`, `rift::Entity::replace`, `rift::Entity::remove`, and `rift::Entity::get` (multiple writes).
 1. Does not modify component(s) other entities depend on.
 
-Failure to comply with the aforementioned conditions **will** result in undefined behaviour.
+**NOTE:** Failure to comply with the aforementioned conditions **will** result in undefined behaviour.
 
-In order to use the `rift::EntityManager` member, define `RIFT_ENABLE_PARALLEL_TRANSFORMATIONS` before including either `rift.h` or `entity.h` in some source file. 
+In order to use the `rift::EntityManager::par_entities_with` member function, define `RIFT_ENABLE_PARALLEL_TRANSFORMATIONS` before including either `rift.h` or `entity.h` in some source file. 
 For example:
 ```cpp
 // SomeSourceFile.cpp
 #define RIFT_ENABLE_PARALLEL_TRANSFORMATIONS
 #include "rift/rift.h"
-```
+``` 
+**NOTE:** If C++17 is not available with your compiler **DO NOT** define `RIFT_ENABLE_PARALLEL_TRANSFORMATIONS`.
 
-The library is intended to be C++14 compatible. If you do not have access to a C++17 conformant compiler, **DO NOT** define `RIFT_ENABLE_PARALLEL_TRANSFORMATIONS`.   
-
-Lastly, parallelization *may* provide tangible benefits if the number of entities a system transforms is large enough. If the number of entities is too small, the additional overhead incurred by the new standard algorithm might outweigh any benefits with parallel execution. Therefore, *optimize only if there is a performance problem*.    
+Lastly, parallelization is an optimization that can increase performance if the number of entities is a system is transforming is *large enough*. If there are too few entities to transform, parallel execution may actually perform worse than sequential execution. Therefore, it is imperative there be a performance problem before attempting to use `rift::EntityManager::par_entities_with` or any other optimization for that matter.
 
 ## Entities
 As mentioned earlier, entities are column indices into a component type table. As such, `rift::Entity` is a proxy class for a `std::uint64_t` identification number. The id is composed of two parts: a 32 bit **version** and a 32 bit **index**. The **index** is used to identify components that belong to an entity. The **version** distinguishes between **stale** (deceased) and **valid** (alive) entities that have the same **index**.   
@@ -76,7 +75,7 @@ In Rift, Systems define entity behaviour by transforming an entity's state.
 - Every *system* must implement the `rift::BaseSystem::update` member.
 
 Systems submit their transformation functions to the entity manager given to them in the `rift::BaseSystem::update` function. The entity manager will immediately apply that function on every entity that satisfies the systems search criteria.   
-For example, suppose there were two components *Position* and *Direction*. A system's submitted query could look like the following:
+For example, suppose there are two components *Position* and *Direction*. A system's query could look like the following:
 ```cpp
 struct MovementSystem : public rift::System<MovementSystem> {
   void update(rift::EntityManager& em, double dt) override {
