@@ -17,7 +17,7 @@ Rift is a *header-only* Entity Component System written in C++14 and only requir
 
 Entities are *essentially* primary keys (column indices) to a transposed table of component types, where each row of the table is a different type. Systems can query for the entities they would like to transform using a list of component types. 
 
-The library is capable of fast iterations over entities as it caches them based on a system's search criteria (component type lists). The idea to group entities based on their components is related to indexing in relational databases. The library makes use of sparse integer sets to cache entities with certain components. For more information about sparse integer sets visit https://programmingpraxis.com/2012/03/09/sparse-sets/
+The library is capable of fast iterations over entities as it caches them based on a system's search criteria (component type lists). The library makes use of sparse integer sets to cache entities with certain components. For more information about sparse integer sets visit https://programmingpraxis.com/2012/03/09/sparse-sets/
 
 Parallelized execution of a system's transformation function is possible with the `rift::EntityManager::par_for_entities_with` member. Use of this member function is subject to certain preconditions (see the conditions below). Moreover, its use requires a C++17 conformant compiler in order to utilize the parallel version of `std::for_each`.
 
