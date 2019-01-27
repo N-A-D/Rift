@@ -1,5 +1,5 @@
 # What is an Entity Component System?
-An Entity Component System is an architectural design motivated by efficient CPU cache usage. The design separates state from behaviour by storing data in contiguous memory blocks and applying transformations on that data to achieve intended behaviour.
+An Entity Component System is an architectural design motivated by efficient CPU cache usage. The design separates state from behaviour by storing data in contiguous memory and applying transformations on that data to achieve intended behaviour(s).
 
 There are three parts to an Entity Component System:
 1. Entities:   Objects whose state is defined by its set of components.
@@ -30,7 +30,7 @@ A system's transformation function must satisfy these conditions *before* it is 
 
 **NOTE:** Failure to comply with the aforementioned conditions **will** result in undefined behaviour.
 
-In order to use the `rift::EntityManager::par_entities_with` member function, define `RIFT_ENABLE_PARALLEL_TRANSFORMATIONS` before including either `rift.h` or `entity.h` in some source file. 
+In order to use the `rift::EntityManager::par_entities_with` member function, define `RIFT_ENABLE_PARALLEL_TRANSFORMATIONS` before including either `rift.h` or `entity.h` in some source file.   
 For example:
 ```cpp
 // SomeSourceFile.cpp
@@ -39,7 +39,7 @@ For example:
 ``` 
 **NOTE:** If C++17 is not available with your compiler **DO NOT** define `RIFT_ENABLE_PARALLEL_TRANSFORMATIONS`.
 
-Lastly, parallelization is an optimization that can increase performance if the number of entities is a system is transforming is *large enough*. If there are too few entities to transform, parallel execution may actually perform worse than sequential execution. Therefore, it is imperative there be a performance problem before attempting to use `rift::EntityManager::par_entities_with` or any other optimization for that matter.
+Lastly, parallelization is an optimization that can increase performance if the number of entities is a system is transforming is *large enough*. If there are too few entities to transform, parallel execution may actually perform worse than sequential execution. Therefore, it is imperative that there exists a performance problem concerning large numbers of entities before attempting to use `rift::EntityManager::par_entities_with`.
 
 ## Entities
 As mentioned earlier, entities are column indices into a component type table. As such, `rift::Entity` is a proxy class for a `std::uint64_t` identification number. The id is composed of two parts: a 32 bit **version** and a 32 bit **index**. The **index** is used to identify components that belong to an entity. The **version** distinguishes between **stale** (deceased) and **valid** (alive) entities that have the same **index**.   
