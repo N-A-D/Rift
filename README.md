@@ -44,7 +44,7 @@ Lastly, parallelization is an optimization that can increase performance if the 
 In Rift, an Entity is an index. 
 ### Implementation notes:
 - `rift::Entity` is a proxy class for a 64 bit identification number composed of two parts:
-  - A 32 bit *index*. This is used to identify the components that belonging to an entity.
+  - A 32 bit *index*. This is used to identify the components that belong to an entity.
   - A 32 bit *version*. This is used to distinguish stale and valid entities with the same *index*.
 - There are only **two** ways to create **distinct** entities:
   - Using the `rift::EntityManager::create_entity` member function.
