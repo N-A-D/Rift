@@ -1,4 +1,3 @@
-#define RIFT_ENABLE_PARALLEL_TRANSFORMATIONS
 #include "../../Rift/rift.h"
 #include <vector>
 #include <tuple>

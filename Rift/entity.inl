@@ -198,13 +198,11 @@ namespace rift { // EntityManager definitions
 		if (!contains_cache_for(sig))
 			create_cache_for(sig);
 		auto& indices = index_caches.at(sig);
-		// Apply the system transformation sequentially
+		// Apply the system transformation sequentially.
 		for (auto index : indices)
 			f(Entity(this, Entity::ID(index, index_versions[index])),      // The entity
 			  get_component<First>(index), get_component<Rest>(index)...); // The entity's components
 	}
-
-#ifdef RIFT_ENABLE_PARALLEL_TRANSFORMATIONS
 
 	template<class First, class ...Rest>
 	inline void EntityManager::par_for_entities_with(rift::internal::identity_t<std::function<void(First&, Rest&...)>> f)
@@ -213,21 +211,26 @@ namespace rift { // EntityManager definitions
 		if (!contains_cache_for(sig))
 			create_cache_for(sig);
 		auto& indices = index_caches.at(sig);
-		// Apply the system transformation in parallel
+		// Apply the system transformation in parallel.
 		std::for_each(std::execution::par, indices.begin(), indices.end(),
-			[this, f](std::uint32_t index) {
+		[this, f](std::uint32_t index) {
 			f(get_component<First>(index), get_component<Rest>(index)...);
 		});
 	}
-
-#endif // RIFT_ENABLE_PARALLEL_TRANSFORMATIONS
 
 	template<class C, class ...Args>
 	inline void EntityManager::add_component(std::uint32_t index, Args && ...args) noexcept
 	{
 		auto family_id = C::family();
 		auto& mask = masks[index].set(family_id);
-		accommodate_component<C>();
+
+		// Ensure there is a component pool for the component type.
+		if (family_id >= component_pools.size())
+			component_pools.resize(family_id + 1);
+		if (!component_pools[family_id])
+			component_pools[family_id] = std::make_unique<rift::internal::Pool<C>>();
+
+		// Insert the component into the pool for the type.
 		component_pools[family_id]->insert(index, C(std::forward<Args>(args)...));
 
 		// Add the entity into every existing index cache whose signature 
@@ -278,7 +281,7 @@ namespace rift { // EntityManager definitions
 		static_assert(rift::internal::all_of_v<std::is_base_of_v<BaseComponent, Components>...>,
 			"All components must inherit from rift::Component!");
 		ComponentMask mask;
-		[](...) {}((mask.set(Components::family()))...);
+		(mask.set(Components::family()), ...);
 		return mask;
 	}
 
@@ -301,16 +304,6 @@ namespace rift { // EntityManager definitions
 	{
 		if (!indices_to_destroy.contains(index))
 			indices_to_destroy.insert(index);
-	}
-
-	template<class C>
-	inline void EntityManager::accommodate_component() noexcept
-	{
-		auto family_id = C::family();
-		if (family_id >= component_pools.size()) 
-			component_pools.resize(family_id + 1);
-		if (!component_pools[family_id]) 
-			component_pools[family_id] = std::make_unique<rift::internal::Pool<C>>();
 	}
 
 	inline void EntityManager::erase_caches_for(std::uint32_t index)

@@ -5,9 +5,7 @@
 #include <memory>
 #include <cassert>
 #include <iostream>
-#ifdef RIFT_ENABLE_PARALLEL_TRANSFORMATIONS
 #include <execution>
-#endif // RIFT_ENABLE_PARALLEL_TRANSFORMATIONS
 #include <algorithm>
 #include <functional>
 #include <unordered_map>
@@ -48,6 +46,8 @@ namespace rift {
 		private:
 			std::uint64_t num = 0;
 		};
+
+		inline static Entity::ID INVALID_ID;
 
 		Entity() = default;
 		Entity(const Entity&) = default;
@@ -127,7 +127,7 @@ namespace rift {
 		EntityManager* manager = nullptr;
 
 		// The entity's unique id.
-		Entity::ID uid;
+		Entity::ID uid = INVALID_ID;
 
 	};
 	
@@ -161,7 +161,7 @@ namespace rift {
 		// Returns the number of valid entities that can be held by the manager currently.
 		std::size_t capacity() const noexcept;
 
-		// Finalizes the destruction of any entity destroyed in the current frame.
+		// Finalizes the destruction of any entity destroyed since the last update.
 		// Note:
 		// - This function must be called at the end of every frame.
 		// - Not thread safe.
@@ -188,8 +188,6 @@ namespace rift {
 		template <class First, class... Rest>
 		void for_entities_with(rift::internal::identity_t<std::function<void(Entity, First&, Rest&...)>> f);
 
-#ifdef RIFT_ENABLE_PARALLEL_TRANSFORMATIONS
-
 		// Applies the function f on every entity whose component mask includes each component type.
 		// Note:
 		// - Application of the function is done in parallel
@@ -197,8 +195,6 @@ namespace rift {
 		// em.par_for_entities_with<A, B>([](A& a, B& b){ /*Do something with the entity's components*/ });
 		template <class First, class... Rest>
 		void par_for_entities_with(rift::internal::identity_t<std::function<void(First&, Rest&...)>> f);
-
-#endif // RIFT_ENABLE_PARALLEL_TRANSFORMATIONS
 
 	private:
 
@@ -257,10 +253,6 @@ namespace rift {
 		// ComponentMask mask = signature_for<Position, Direction>();
 		template <class ...Components>
 		static ComponentMask signature_for() noexcept;
-		
-		// Ensures there is a component pool for the given type.
-		template <class C>
-		void accommodate_component() noexcept;
 
 		// Removes an index from any caches that contain it.
 		void erase_caches_for(std::uint32_t index);

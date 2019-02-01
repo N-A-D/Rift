@@ -3,13 +3,9 @@
 #include <vector>
 #include <memory>
 #include <cassert>
-#include "internal/rift_traits.h"
+#include "entity.h"
 
 namespace rift {
-
-	using SystemFamily = std::size_t;
-
-	class EntityManager;
 
 	// The BaseSystem class
 	// Provides the interface in which systems implement their logic.
@@ -21,11 +17,9 @@ namespace rift {
 		virtual ~BaseSystem() = default;
 		virtual void update(EntityManager& em, double dt) = 0;
 	protected:
-		// Used internally to generate system type ids.
-		static SystemFamily generate_family() noexcept {
-			static SystemFamily family_counter = 0;
-			return family_counter++;
-		}
+		using Family = std::size_t;
+		// Used internally for generating system type ids.
+		inline static Family family_counter = 0;
 	};
 
 	class SystemManager;
@@ -41,8 +35,8 @@ namespace rift {
 	private:
 		friend class SystemManager;
 		// Used internally for system registration.
-		static SystemFamily family() noexcept {
-			static SystemFamily system_family = generate_family();
+		static Family family() noexcept {
+			static Family system_family = family_counter++;
 			return system_family;
 		}
 	};
