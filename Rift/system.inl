@@ -6,7 +6,6 @@ namespace rift {
 		assert(!has<S>() && "Cannot manage more than one system of a given type!");
 		if (S::family() >= systems.size())
 			systems.resize(S::family() + 1);
-		assert(!systems[S::family()] && "Already managing a system of the given type!");
 		systems[S::family()] = std::make_shared<S>(std::forward<Args>(args)...);
 	}
 
@@ -62,7 +61,7 @@ namespace rift {
 	inline std::shared_ptr<BaseSystem> SystemManager::fetch_system() const noexcept
 	{
 		assert(has<S>() && "Cannot fetch an unmanaged system type!");
-		return systems.at(S::family());
+		return systems[S::family()];
 	}
 
 }
