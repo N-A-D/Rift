@@ -55,13 +55,13 @@ In Rift, an Entity is an index.
 ## Components 
 In Rift, a Component is a POD with no accompanying logic. Logic is handled by Systems.
 ### Implementation notes:
-- Every *component* must inherit from `rift::Component` in order to be considered a *component*.
+- Every *component* must include a default constructor.
 - Every *component* *should* include a constructor that properly initializes it. 
 - Every *component* must be copy constructible/assignable.   
 
 For instance, the following is an example of a *Position* component:
 ```cpp
-struct Position : public rift::Component<Position> {
+struct Position {
   Position() : x(0.0f), y(0.0f) {}
   Position(float x, float y) : x(x), y(y) {}
   float x, y;

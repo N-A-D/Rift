@@ -12,7 +12,7 @@ namespace Test
 
 	const std::size_t NUM_ENTITIES_WITH = 100;
 
-	struct Toggle : public Component<Toggle> {
+	struct Toggle {
 		Toggle() = default;
 		Toggle(bool state) : state(state) {}
 		bool state = false;

@@ -3,18 +3,22 @@
 #include <stack>
 #include <vector>
 #include <memory>
+#include <bitset>
 #include <cassert>
 #include <iostream>
 #include <execution>
 #include <algorithm>
 #include <functional>
 #include <unordered_map>
+#include "config/config.h"
 #include "internal/pool.h"
+#include "internal/component.h"
 #include "internal/sparse_set.h"
-#include "internal/rift_traits.h"
 #include "internal/noncopyable.h"
 
 namespace rift {
+
+	using ComponentMask = std::bitset<MAX_COMPONENTS>;
 
 	class EntityManager;
 
@@ -54,7 +58,7 @@ namespace rift {
 		Entity& operator=(const Entity&) = default;
 
 		// Fetches the entity's id.
-		Entity::ID id() const noexcept;
+		ID id() const noexcept;
 
 		// Returns the entity's hash code.
 		std::size_t hash() const noexcept;
@@ -74,7 +78,7 @@ namespace rift {
 		void destroy() const noexcept;
 
 		// Fetches the entity's ComponentMask.
-		rift::ComponentMask component_mask() const noexcept;
+		ComponentMask component_mask() const noexcept;
 
 		// Adds a component to the entity.
 		// Note: 
@@ -131,9 +135,17 @@ namespace rift {
 
 	};
 	
+	namespace internal {
+
+		// Wrapper type to support lamba to std::function conversion
+		template <class T> struct identity { using type = T; };
+		template <class T> using identity_t = typename identity<T>::type;
+
+	}
+
 	// The EntityManager class
 	// Manages entities and their components.
-	class EntityManager final : rift::internal::NonCopyable {
+	class EntityManager final : internal::NonCopyable {
 	public:
 
 		EntityManager() = default;
@@ -186,7 +198,7 @@ namespace rift {
 		// Example:
 		// em.for_entities_with<A, B>([](Entity e, A& a, B& b){ /*Do something with the entity & its components*/ });
 		template <class First, class... Rest>
-		void for_entities_with(rift::internal::identity_t<std::function<void(Entity, First&, Rest&...)>> f);
+		void for_entities_with(internal::identity_t<std::function<void(Entity, First&, Rest&...)>> f);
 
 		// Applies the function f on every entity whose component mask includes each component type.
 		// Note:
@@ -194,7 +206,7 @@ namespace rift {
 		// Example:
 		// em.par_for_entities_with<A, B>([](A& a, B& b){ /*Do something with the entity's components*/ });
 		template <class First, class... Rest>
-		void par_for_entities_with(rift::internal::identity_t<std::function<void(First&, Rest&...)>> f);
+		void par_for_entities_with(internal::identity_t<std::function<void(First&, Rest&...)>> f);
 
 	private:
 
@@ -253,6 +265,10 @@ namespace rift {
 		// ComponentMask mask = signature_for<Position, Direction>();
 		template <class ...Components>
 		static ComponentMask signature_for() noexcept;
+
+		// Returns the component family for a given type.
+		template <class C>
+		static internal::BaseComponent::Family component_family_for() noexcept;
 
 		// Removes an index from any caches that contain it.
 		void erase_caches_for(std::uint32_t index);

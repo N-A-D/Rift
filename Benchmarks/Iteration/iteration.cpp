@@ -17,13 +17,13 @@ public:
 	}
 };
 
-struct Position : public rift::Component<Position> {
+struct Position {
 	Position() = default;
 	Position(float x, float y) : x(x), y(y) {}
 	float x = 0, y = 0;
 };
 
-struct Direction : public rift::Component<Direction> {
+struct Direction {
 	Direction() = default;
 	Direction(float x, float y) : x(x), y(y) {}
 	float x = 0, y = 0;

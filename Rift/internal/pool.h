@@ -4,7 +4,6 @@
 #include <cassert>
 #include <cstdint>
 #include <type_traits>
-#include "../component.h"
 
 namespace rift {
 	namespace internal {
@@ -14,36 +13,36 @@ namespace rift {
 		struct BasePool {
 			virtual ~BasePool() = default;
 			// operations:
-			virtual void insert(std::uint32_t index, const BaseComponent& component) = 0;
-			virtual void replace(std::uint32_t index, const BaseComponent& component) = 0;
-			virtual BaseComponent& at(std::uint32_t index) = 0;
+			virtual void insert(std::uint32_t index, void* object) = 0;
+			virtual void replace(std::uint32_t index, void* object) = 0;
+			virtual void* at(std::uint32_t index) = 0;
 		};
 		
 		// The Pool class
-		// A very simple storage medium for a single component type.
+		// A very simple storage medium for a single type.
 		// Note:
 		// - Has the potential to waste a significant amount of memory if there are many
 		//   entities that do not own a component in the pool. 
-		template <class C>
+		template <class T>
 		class Pool final : public BasePool {
 		public:
-			static_assert(std::is_copy_constructible_v<C>, "The component type is not copy constructible!");
-			static_assert(std::is_copy_assignable_v<C>, "The component type is not copy assignable!");
+			static_assert(std::is_copy_constructible_v<T>, "The component type is not copy constructible!");
+			static_assert(std::is_copy_assignable_v<T>, "The component type is not copy assignable!");
 
 			// Inserts a new component into the pool.
 			// Note:
 			// - Expands the pool size to accommodate an index greater than the current size.
-			void insert(std::uint32_t index, const BaseComponent& component) override;
+			void insert(std::uint32_t index, void* object) override;
 
 			// Replaces an existing component in the pool.
 			// Note:
 			// - Asserts the index fits within the size of the pool.
-			void replace(std::uint32_t index, const BaseComponent& component) override;
+			void replace(std::uint32_t index, void* object) override;
 
 			// Returns the component at index in the pool.
 			// Note:
 			// - Asserts the index fits within the size of the pool.
-			BaseComponent& at(std::uint32_t index) override;
+			void* at(std::uint32_t index) override;
 
 		private:
 
@@ -53,8 +52,8 @@ namespace rift {
 			// Expands the size of the pool to include the index.
 			void accommodate(std::uint32_t index);
 
-			// The block of components
-			std::vector<C> components;
+			// Collection of objects.
+			std::vector<T> objects;
 		};
 
 	} // namespace internal

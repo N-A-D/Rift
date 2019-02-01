@@ -1,3 +1,4 @@
+#include "entity.h"
 namespace rift { // Entity definitions
 
 	inline Entity::ID Entity::id() const noexcept
@@ -62,14 +63,12 @@ namespace rift { // Entity definitions
 	template<class C>
 	inline bool Entity::has() const noexcept
 	{
-		static_assert(std::is_base_of_v<BaseComponent, C>,
-			"All components must inherit from rift::Component!");
 		assert(valid() && "Invalid entities do not have any components!");
 		return manager->has_component<C>(uid.index());
 	}
 
 	template<class C>
-	inline C & Entity::get() const noexcept
+	inline C& Entity::get() const noexcept
 	{
 		assert(has<C>());
 		return manager->get_component<C>(uid.index());
@@ -192,7 +191,7 @@ namespace rift { // EntityManager definitions
 	}
 
 	template<class First, class ...Rest>
-	inline void EntityManager::for_entities_with(rift::internal::identity_t<std::function<void(Entity, First&, Rest&...)>> f)
+	inline void EntityManager::for_entities_with(internal::identity_t<std::function<void(Entity, First&, Rest&...)>> f)
 	{
 		auto sig = signature_for<First, Rest...>();
 		if (!contains_cache_for(sig))
@@ -205,7 +204,7 @@ namespace rift { // EntityManager definitions
 	}
 
 	template<class First, class ...Rest>
-	inline void EntityManager::par_for_entities_with(rift::internal::identity_t<std::function<void(First&, Rest&...)>> f)
+	inline void EntityManager::par_for_entities_with(internal::identity_t<std::function<void(First&, Rest&...)>> f)
 	{
 		auto sig = signature_for<First, Rest...>();
 		if (!contains_cache_for(sig))
@@ -221,17 +220,18 @@ namespace rift { // EntityManager definitions
 	template<class C, class ...Args>
 	inline void EntityManager::add_component(std::uint32_t index, Args && ...args) noexcept
 	{
-		auto family_id = C::family();
+		auto family_id = component_family_for<C>();
 		auto& mask = masks[index].set(family_id);
 
 		// Ensure there is a component pool for the component type.
 		if (family_id >= component_pools.size())
 			component_pools.resize(family_id + 1);
 		if (!component_pools[family_id])
-			component_pools[family_id] = std::make_unique<rift::internal::Pool<C>>();
+			component_pools[family_id] = std::make_unique<internal::Pool<C>>();
 
 		// Insert the component into the pool for the type.
-		component_pools[family_id]->insert(index, C(std::forward<Args>(args)...));
+		C component(std::forward<Args>(args)...);
+		component_pools[component_family_for<C>()]->insert(index, &component);
 
 		// Add the entity into every existing index cache whose signature 
 		// includes the component type and matches the entity's component mask
@@ -244,13 +244,14 @@ namespace rift { // EntityManager definitions
 	template<class C, class ...Args>
 	inline void EntityManager::replace_component(std::uint32_t index, Args && ...args) noexcept
 	{
-		component_pools[C::family()]->replace(index, C(std::forward<Args>(args)...));
+		C component(std::forward<Args>(args)...);
+		component_pools[component_family_for<C>()]->replace(index, &component);
 	}
 
 	template<class C>
 	inline void EntityManager::remove_component(std::uint32_t index) noexcept
 	{
-		auto family_id = C::family();
+		auto family_id = component_family_for<C>();
 		auto& mask = masks[index];
 
 		// Remove the entity from every existing index cache whose signature 
@@ -266,23 +267,27 @@ namespace rift { // EntityManager definitions
 	template<class C>
 	inline bool EntityManager::has_component(std::uint32_t index) noexcept
 	{
-		return masks[index].test(C::family());
+		return masks[index].test(component_family_for<C>());
 	}
 
 	template<class C>
-	inline C & EntityManager::get_component(std::uint32_t index) noexcept
+	inline C& EntityManager::get_component(std::uint32_t index) noexcept
 	{
-		return static_cast<C&>(component_pools[C::family()]->at(index));
+		return *(static_cast<C*>(component_pools[component_family_for<C>()]->at(index)));
 	}
 
 	template<class ...Components>
 	inline ComponentMask EntityManager::signature_for() noexcept
 	{
-		static_assert(rift::internal::all_of_v<std::is_base_of_v<BaseComponent, Components>...>,
-			"All components must inherit from rift::Component!");
 		ComponentMask mask;
-		(mask.set(Components::family()), ...);
+		(mask.set(component_family_for<Components>()), ...);
 		return mask;
+	}
+
+	template<class C>
+	inline internal::BaseComponent::Family EntityManager::component_family_for() noexcept
+	{
+		return internal::Component<C>::family();
 	}
 
 	inline ComponentMask EntityManager::component_mask_for(std::uint32_t index) const noexcept
@@ -322,7 +327,7 @@ namespace rift { // EntityManager definitions
 
 	inline void EntityManager::create_cache_for(const ComponentMask & sig)
 	{
-		rift::internal::SparseSet indices;
+		internal::SparseSet indices;
 		for (std::uint32_t i = 0; i < masks.size(); i++) {
 			if ((masks[i] & sig) == sig)
 				indices.insert(i);

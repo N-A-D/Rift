@@ -1,38 +1,38 @@
 namespace rift {
 	namespace internal {
 
-		template<class C>
-		inline void Pool<C>::insert(std::uint32_t index, const BaseComponent & component)
+		template<class T>
+		inline void Pool<T>::insert(std::uint32_t index, void* object)
 		{
 			if (!contains(index))
 				accommodate(index);
-			components[index] = static_cast<const C&>(component);
+			objects[index] = *(static_cast<T*>(object));
 		}
 
-		template<class C>
-		inline void Pool<C>::replace(std::uint32_t index, const BaseComponent & component)
+		template<class T>
+		inline void Pool<T>::replace(std::uint32_t index, void* object)
 		{
 			assert(contains(index));
-			components[index] = static_cast<const C&>(component);
+			objects[index] = *(static_cast<T*>(object));
 		}
 
-		template<class C>
-		inline BaseComponent & Pool<C>::at(std::uint32_t index)
+		template<class T>
+		inline void* Pool<T>::at(std::uint32_t index)
 		{
 			assert(contains(index));
-			return components[index];
+			return &objects[index];
 		}
 
-		template<class C>
-		inline bool Pool<C>::contains(std::uint32_t index)
+		template<class T>
+		inline bool Pool<T>::contains(std::uint32_t index)
 		{
-			return index < components.size();
+			return index < objects.size();
 		}
 
-		template<class C>
-		inline void Pool<C>::accommodate(std::uint32_t index)
+		template<class T>
+		inline void Pool<T>::accommodate(std::uint32_t index)
 		{
-			components.resize(index + 1);
+			objects.resize(index + 1);
 		}
 
 	}

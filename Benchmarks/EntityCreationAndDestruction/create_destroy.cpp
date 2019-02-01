@@ -17,10 +17,10 @@ public:
 	}
 };
 
-struct A : public rift::Component<A> {};
-struct B : public rift::Component<B> {};
-struct C : public rift::Component<C> {};
-struct D : public rift::Component<D> {};
+struct A {};
+struct B {};
+struct C {};
+struct D {};
 
 void create_and_destroy(int entity_count) noexcept {
 	rift::EntityManager entities;

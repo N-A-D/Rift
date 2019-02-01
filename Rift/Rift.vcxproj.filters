@@ -16,9 +16,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="component.h">
-      <Filter>Header Files\entity</Filter>
-    </ClInclude>
     <ClInclude Include="entity.h">
       <Filter>Header Files\entity</Filter>
     </ClInclude>
@@ -31,9 +28,6 @@
     <ClInclude Include="internal\noncopyable.h">
       <Filter>Header Files\internal</Filter>
     </ClInclude>
-    <ClInclude Include="internal\rift_traits.h">
-      <Filter>Header Files\internal</Filter>
-    </ClInclude>
     <ClInclude Include="internal\sparse_set.h">
       <Filter>Header Files\internal</Filter>
     </ClInclude>
@@ -42,6 +36,9 @@
     </ClInclude>
     <ClInclude Include="rift.h">
       <Filter>Header Files\entity</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\component.h">
+      <Filter>Header Files\internal</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

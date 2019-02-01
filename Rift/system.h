@@ -7,6 +7,21 @@
 
 namespace rift {
 
+#ifdef RIFT_USE_SINGLE_PRECISION_DELTA_TIME
+	using DELTA_TIME_TYPE = float;
+#else
+	using DELTA_TIME_TYPE = double;
+#endif // RIFT_USE_SINGLE_PRECISION_DELTA_TIME
+
+	class SystemManager;
+
+	namespace internal {
+
+		// Compile-time version of std::all_of. 
+		template <bool... values> constexpr bool all_of_v = (values && ...);
+
+	}
+
 	// The BaseSystem class
 	// Provides the interface in which systems implement their logic.
 	// Note:
@@ -15,14 +30,12 @@ namespace rift {
 	class BaseSystem {
 	public:
 		virtual ~BaseSystem() = default;
-		virtual void update(EntityManager& em, double dt) = 0;
+		virtual void update(EntityManager& em, DELTA_TIME_TYPE dt) = 0;
 	protected:
 		using Family = std::size_t;
 		// Used internally for generating system type ids.
 		inline static Family family_counter = 0;
 	};
-
-	class SystemManager;
 
 	// The System class
 	// Classes that are meant to be systems must inherit from this class for registration as a system.
@@ -90,7 +103,7 @@ namespace rift {
 		std::shared_ptr<S> get() const noexcept;
 
 		// Updates all systems.
-		void update_all(double dt) const noexcept;
+		void update_all(DELTA_TIME_TYPE dt) const noexcept;
 		
 		// Updates a list of systems.
 		// Note:
@@ -101,13 +114,17 @@ namespace rift {
 		// SystemManager sm(em);
 		// sm.update<Movement, Collision>(dt);
 		template <class First, class... Rest>
-		void update(double dt) const noexcept;
+		void update(DELTA_TIME_TYPE dt) const noexcept;
 		
 	private:
 
 		// Fetches a generic pointer to a specific system.
 		template <class S>
 		std::shared_ptr<BaseSystem> fetch_system() const noexcept;
+
+		// Returns the system family for a given type.
+		template <class S>
+		static BaseSystem::Family system_family_for() noexcept;
 
 		// The entity manager systems query.
 		rift::EntityManager& entity_manager;
