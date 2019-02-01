@@ -1,5 +1,5 @@
 # What is an Entity Component System?
-An Entity Component System is an architectural design motivated by efficient CPU cache usage. The design separates state from behaviour by storing data in contiguous memory and applying transformations on that data to achieve intended behaviour(s).
+An Entity Component System is an architectural design primarily used in game development. The aim is to improve CPU cache usage by storing data contiguously and transforming it in batches.
 
 There are three parts to an Entity Component System:
 1. Entities:   Objects whose state is defined by its set of components.
@@ -13,32 +13,18 @@ https://medium.com/ingeniouslysimple/entities-components-and-systems-89c31464240
 https://github.com/junkdog/artemis-odb/wiki/Introduction-to-Entity-Systems   
 
 # Library overview
-Rift is a *header-only* Entity Component System written in C++14 and only requires C++17 if parallel processing is desired. 
+Rift is a *header-only* Entity Component System written in C++17. 
 
 Entities are indices to a transposed table of component types, where each row of the table is a different type. Systems can query for the entities they would like to transform using a list of component types. 
 
 The library is capable of fast iterations over entities as it caches them based on a search requests (lists of component types). The library makes use of sparse integer sets to cache entities with certain components. For more information about sparse integer sets visit https://programmingpraxis.com/2012/03/09/sparse-sets/
 
-Parallel transformations are possible with the `rift::EntityManager::par_for_entities_with` member. Use of this function is subject to certain preconditions (see them below). Moreover, its use requires a C++17 conformant compiler in order to utilize the parallel version of `std::for_each`.
+Parallel transformations are possible with the `rift::EntityManager::par_for_entities_with` member. Use of this function is subject to certain conditions below. **NOTE: Failure to comply with the following conditions will lead to undefined behaviour**   
 
-**Preconditions:**
-A system transformation must satisfy these conditions *before* it is submitted with a call to `rift::EntityManager::par_entities_with`:
-1. Does not make any calls to `rift::EntityManager::create_entity` or `rift::EntityManager::create_copy_of`.
-1. Does not make any calls to `rift::EntityManager::update`.
-1. Does not make any calls to any of `rift::Entity::destroy`, `rift::Entity::add`, `rift::Entity::replace`, `rift::Entity::remove`, and `rift::Entity::get` (multiple writes).   
-
-**NOTE:** Failure to comply with the aforementioned conditions **will** result in undefined behaviour.
-
-In order to use the `rift::EntityManager::par_entities_with` member function, *define* `RIFT_ENABLE_PARALLEL_TRANSFORMATIONS` before you *include* either `rift.h` or `entity.h` in some source file.   
-For example:
-```cpp
-// SomeSourceFile.cpp
-#define RIFT_ENABLE_PARALLEL_TRANSFORMATIONS
-#include "rift/rift.h"
-``` 
-**NOTE:** If your compiler does not support C++17 **DO NOT** define `RIFT_ENABLE_PARALLEL_TRANSFORMATIONS`.
-
-Lastly, parallelization is an optimization that can increase performance if the number of entities is *large enough*. If there are too few entities to transform, parallel execution may actually perform worse than sequential execution. Therefore, it is imperative that there exists a performance problem concerning large numbers of entities before considering the use of `rift::EntityManager::par_entities_with`.
+A system's transformation function may not:
+1. Make any calls to `rift::EntityManager::create_entity` or `rift::EntityManager::create_copy_of`.
+1. Make any calls to `rift::EntityManager::update`.
+1. Make any calls to any of `rift::Entity::destroy`, `rift::Entity::add`, `rift::Entity::replace`, `rift::Entity::remove`, and, in the special case of `rift::Entity::get`, have multiple writers to the same component.   
 
 ## Entities
 In Rift, an Entity is an index. 
@@ -53,7 +39,7 @@ In Rift, an Entity is an index.
 - Entities add components to themselves using the `rift::Entity::add` member function.
 
 ## Components 
-In Rift, a Component is a POD with no accompanying logic. Logic is handled by Systems.
+In Rift, a Component is a *POD* with no accompanying logic. Logic is handled by Systems.
 ### Implementation notes:
 - Every *component* must include a default constructor.
 - Every *component* *should* include a constructor that properly initializes it. 
