@@ -93,3 +93,50 @@ struct MovementSystem : public rift::System<MovementSystem> {
 
 ## Benchmarks
 Two benchmarks accompany the main project. Both only compare speeds between some two related features of the library and not with any other ECS. The *Iteration* benchmark compares the speeds between sequential and parallel entity transformations. The *EntityCreationAndDestruction* benchmark compares the speeds between the only two entity creation functions. 
+
+## Example   
+The following example demonstrates essentially how to use the library. It simulates moving entities using *Position* and *Direction*.   
+```cpp
+#include <rift/rift.h>
+
+struct Position {
+  Position() = default;
+  Position(float x, float y) : x(x), y(y) {}
+  float x = 0.f, y = 0.f;
+};
+struct Direction {
+  Direction() = default;
+  Direction(float x, float y) : x(x), y(y) {}
+  float x = 0.f, y = 0.f;
+};
+
+struct MovementSystem : public rift::System<MovementSystem> {
+  MovementSystem() = default;
+  void update(rift::EntityManager& entities, double dt) override {
+    entities.for_entities_with<Position, Direction>([](auto entity, auto& p, auto& d) {
+      p.x += d.x * dt;
+      p.y += d.y * dt;
+    });
+  }
+};
+
+int main(int, char**) {
+  rift::EntityManager entities;
+  rift::SystemManager systems(entities);
+  
+  systems.add<MovementSystem>();
+  
+  // ... Creating entities with Position and Direction
+  /*
+    ....
+  */
+  // ... Updating the entities
+  /*
+    ...
+  */
+  systems.update<MovementSystem>(1.0);
+  
+  return 0;
+}
+
+```
