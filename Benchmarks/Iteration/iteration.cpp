@@ -4,6 +4,7 @@
 #include <chrono>
 #include <iostream>
 #include <cassert>
+#include <random>
 
 class Timer {
 	std::chrono::high_resolution_clock::time_point start;
@@ -28,7 +29,6 @@ struct Direction {
 	Direction(float x, float y) : x(x), y(y) {}
 	float x = 0, y = 0;
 };
-
 
 void seq_run(int entity_count, int iteration_count) {
 	using namespace rift;
@@ -55,14 +55,17 @@ void seq_run(int entity_count, int iteration_count) {
 		manager.for_entities_with<Position, Direction>([](Entity, Position& p, Direction& d) {});
 	}
 	{
-		// Destroy every other entity
-		for (int i = 0; i < entity_count; i++) {
-			if (i % 2 == 0)
-				entities[i].destroy();
+		std::random_device rd;
+		std::mt19937 gen(rd());
+		std::uniform_int_distribution<> dis(0, entity_count - 1);
+
+		int destroyed_count = 0;
+		while (destroyed_count < entity_count / 2) {
+			entities[dis(gen)].destroy();
+			++destroyed_count;
 		}
+
 		manager.update();
-		assert((manager.number_of_entities_with<Position, Direction>() == entity_count / 2));
-		assert((manager.number_of_reusable_entities() == entity_count / 2));
 	}
 	{
 		Timer timer("Iteration speed: ");
@@ -100,17 +103,19 @@ void par_run(int entity_count, int iteration_count) {
 		manager.for_entities_with<Position, Direction>([](Entity, Position& p, Direction& d) {});
 	}
 	{
-		// Destroy every other entity
-		for (int i = 0; i < entity_count; i++) {
-			if (i % 2 == 0)
-				entities[i].destroy();
+		std::random_device rd;
+		std::mt19937 gen(rd());
+		std::uniform_int_distribution<> dis(0, entity_count - 1);
+
+		int destroyed_count = 0;
+		while (destroyed_count < entity_count / 2) {
+			entities[dis(gen)].destroy();
+			++destroyed_count;
 		}
+
 		manager.update();
-		assert((manager.number_of_entities_with<Position, Direction>() == entity_count / 2));
-		assert((manager.number_of_reusable_entities() == entity_count / 2));
 	}
 	{
-
 		Timer timer("Iteration speed: ");
 		for (int i = 0; i < iteration_count; i++) {
 			manager.par_for_entities_with<Position, Direction>([](Position& p, Direction& d) {
