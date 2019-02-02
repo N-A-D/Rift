@@ -1,4 +1,3 @@
-#include "entity.h"
 namespace rift { // Entity definitions
 
 	inline Entity::ID Entity::id() const noexcept
