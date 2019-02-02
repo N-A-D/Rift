@@ -97,6 +97,7 @@ Two benchmarks accompany the main project. Both only compare speeds between some
 ## Example   
 The following example demonstrates essentially how to use the library. It simulates moving entities using *Position* and *Direction*.   
 ```cpp
+#define RIFT_USE_SINGLE_PRECISION_DELTA_TIME // float is the data type for delta time 
 #include <rift/rift.h>
 
 struct Position {
@@ -112,7 +113,7 @@ struct Direction {
 
 struct MovementSystem : public rift::System<MovementSystem> {
   MovementSystem() = default;
-  void update(rift::EntityManager& entities, double dt) override {
+  void update(rift::EntityManager& entities, float dt) override {
     entities.for_entities_with<Position, Direction>([](auto entity, auto& p, auto& d) {
       p.x += d.x * dt;
       p.y += d.y * dt;
@@ -134,7 +135,7 @@ int main(int, char**) {
   /*
     ...
   */
-  systems.update<MovementSystem>(1.0);
+  systems.update<MovementSystem>(1.0 / 60.0);
   
   return 0;
 }
